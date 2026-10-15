@@ -9,6 +9,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
         :root {
             --primary: #4f46e5;
@@ -30,6 +33,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 20px 0;
         }
 
         .container {
@@ -109,6 +113,34 @@
             color: #818cf8;
             margin-bottom: 15px;
         }
+
+        .qr-box {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 15px 0;
+        }
+
+        .participant-list {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 180px;
+            overflow-y: auto;
+            text-align: left;
+            margin-top: 15px;
+        }
+
+        .participant-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+        }
+        .participant-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -126,13 +158,7 @@
         <div id="participantLogin" class="card hidden">
             <h1>Join Class</h1>
             <input type="text" id="partName" placeholder="Enter your full name">
-            <select id="partTeam">
-                <option value="">Select Your Team</option>
-                <option value="Team Alpha">Team Alpha</option>
-                <option value="Team Bravo">Team Bravo</option>
-                <option value="Team Charlie">Team Charlie</option>
-                <option value="Team Delta">Team Delta</option>
-            </select>
+            <input type="text" id="partTeam" placeholder="Enter or modify your Team Name (e.g. Team Alpha)">
             <button onclick="registerParticipant()">Enter Classroom</button>
         </div>
 
@@ -150,6 +176,13 @@
         <!-- PRESENTER DASHBOARD -->
         <div id="presenterDashboard" class="card hidden" style="text-align: left;">
             <h1 style="text-align: center;">Presenter Dashboard</h1>
+
+            <!-- QR CODE & LINK SECTION -->
+            <div style="background: #334155; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                <h3 style="margin: 0 0 10px 0;">Participant Join QR Code & Link</h3>
+                <div class="qr-box" id="qrcode"></div>
+                <p style="margin: 5px 0 0 0; word-break: break-all; font-size: 0.85rem; color: #cbd5e1;" id="joinLinkText"></p>
+            </div>
             
             <div style="background: #334155; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
                 <h3 id="currentQHeader" style="margin: 0 0 10px 0;">Question 1 / 40</h3>
@@ -169,19 +202,29 @@
                 <div id="selectedStudentCard" style="font-size: 1.1rem; color: #38bdf8;"></div>
             </div>
 
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 25px;">
                 <button onclick="gradeAnswer('correct')" style="background-color: var(--success);">Right Answer ✓</button>
                 <button onclick="gradeAnswer('wrong')" style="background-color: var(--danger);">Wrong Answer ✗</button>
+            </div>
+
+            <!-- LIVE PARTICIPANTS LIST SECTION -->
+            <div style="background: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 12px;">
+                <h3 style="margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                    Logged In Participants 
+                    <span id="participantCountBadge" style="background: var(--primary); font-size: 0.85rem; padding: 4px 10px; border-radius: 12px;">0 Online</span>
+                </h3>
+                <div class="participant-list" id="participantContainer">
+                    <p style="color: var(--text-muted); text-align: center; margin: 10px 0;">No participants logged in yet.</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // PASTE YOUR FIREBASE CONFIG HERE:
         const firebaseConfig = {
             apiKey: "AIzaSyBnXmTdVTbI0y8RhwkMOoPn3dCnzxEwyMw",
             authDomain: "class-quiz-a8d09.firebaseapp.com",
-            databaseURL: "https://class-quiz-a8d09-default-rtdb.firebaseio.com", // Add this line if missing
+            databaseURL: "https://class-quiz-a8d09-default-rtdb.firebaseio.com",
             projectId: "class-quiz-a8d09",
             storageBucket: "class-quiz-a8d09.firebasestorage.app",
             messagingSenderId: "472766447288",
@@ -200,26 +243,78 @@
             document.getElementById('roleSelection').classList.add('hidden');
             if (role === 'presenter') {
                 document.getElementById('presenterDashboard').classList.remove('hidden');
+                generateJoinQRCode();
                 initPresenterSync();
+                listenForParticipants();
             } else {
                 document.getElementById('participantLogin').classList.remove('hidden');
             }
         }
 
+        function generateJoinQRCode() {
+            let baseUrl = window.location.href.split('?')[0];
+            let joinUrl = baseUrl + "?role=participant";
+            
+            document.getElementById('qrcode').innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), {
+                text: joinUrl,
+                width: 160,
+                height: 160
+            });
+            document.getElementById('joinLinkText').innerText = joinUrl;
+        }
+
         function registerParticipant() {
             myName = document.getElementById('partName').value.trim();
-            myTeam = document.getElementById('partTeam').value;
+            myTeam = document.getElementById('partTeam').value.trim();
 
             if (!myName || !myTeam) {
-                alert('Please enter your name and select a team.');
+                alert('Please enter your name and team name.');
                 return;
             }
+
+            // Register active student in Realtime Database
+            let newRef = db.ref('activeParticipants').push();
+            newRef.set({
+                name: myName,
+                team: myTeam,
+                joinedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            // Remove participant on disconnect
+            newRef.onDisconnect().remove();
 
             document.getElementById('participantLogin').classList.add('hidden');
             document.getElementById('participantScreen').classList.remove('hidden');
             document.getElementById('displayTeamName').innerText = myTeam;
 
             initParticipantSync();
+        }
+
+        function listenForParticipants() {
+            db.ref('activeParticipants').on('value', snapshot => {
+                let container = document.getElementById('participantContainer');
+                let badge = document.getElementById('participantCountBadge');
+                let data = snapshot.val();
+
+                if (!data) {
+                    badge.innerText = "0 Online";
+                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 10px 0;">No participants logged in yet.</p>`;
+                    return;
+                }
+
+                let keys = Object.keys(data);
+                badge.innerText = `${keys.length} Online`;
+                container.innerHTML = "";
+
+                keys.forEach(key => {
+                    let p = data[key];
+                    let item = document.createElement('div');
+                    item.className = 'participant-item';
+                    item.innerHTML = `<span><strong>${p.name}</strong></span><span style="color: #818cf8;">${p.team}</span>`;
+                    container.appendChild(item);
+                });
+            });
         }
 
         function changeQuestion(dir) {
