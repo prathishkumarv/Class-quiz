@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Quiz & Buzzer System</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h1, h2, h3 { color: var(--text); margin-top: 0; }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        button:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+
+        input, select {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--bg);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus { border-color: var(--primary); outline: none; }
+
+        .hidden { display: none !important; }
+
+        .buzzer-btn {
+            background-color: var(--danger);
+            font-size: 2rem;
+            padding: 40px;
+            border-radius: 50%;
+            width: 220px;
+            height: 220px;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+            border: 6px solid #f87171;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .buzzer-btn:active { transform: scale(0.95); background-color: #dc2626; }
+
+        .team-badge {
+            background: #334155;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            color: #818cf8;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- ROLE SELECTION -->
+        <div id="roleSelection" class="card">
+            <h1>Class Quiz Setup</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Choose your role to enter the session.</p>
+            <button onclick="selectRole('presenter')">I am the Presenter</button>
+            <button onclick="selectRole('participant')" style="background-color: #334155; margin-top: 15px;">I am a Participant</button>
+        </div>
+
+        <!-- PARTICIPANT LOGIN -->
+        <div id="participantLogin" class="card hidden">
+            <h1>Join Class</h1>
+            <input type="text" id="partName" placeholder="Enter your full name">
+            <select id="partTeam">
+                <option value="">Select Your Team</option>
+                <option value="Team Alpha">Team Alpha</option>
+                <option value="Team Bravo">Team Bravo</option>
+                <option value="Team Charlie">Team Charlie</option>
+                <option value="Team Delta">Team Delta</option>
+            </select>
+            <button onclick="registerParticipant()">Enter Classroom</button>
+        </div>
+
+        <!-- PARTICIPANT BUZZER SCREEN -->
+        <div id="participantScreen" class="card hidden">
+            <div class="team-badge" id="displayTeamName">Team Name</div>
+            <h2 id="participantStatusTitle">Waiting for Presenter...</h2>
+            <p id="participantStatusDesc" style="color: var(--text-muted);">Stay alert! The buzzer will light up when questions open.</p>
+            
+            <div id="buzzerContainer" style="display:none;">
+                <div id="bigBuzzer" class="buzzer-btn" onclick="hitBuzzer()">BUZZ!</div>
+            </div>
+        </div>
+
+        <!-- PRESENTER DASHBOARD -->
+        <div id="presenterDashboard" class="card hidden" style="text-align: left;">
+            <h1 style="text-align: center;">Presenter Dashboard</h1>
+            
+            <div style="background: #334155; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                <h3 id="currentQHeader" style="margin: 0 0 10px 0;">Question 1 / 40</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="changeQuestion(-1)" style="margin:0;">Prev Q</button>
+                    <button onclick="changeQuestion(1)" style="margin:0;">Next Q</button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background-color: var(--success); font-size: 1.3rem;">Open Buzzer for Question</button>
+            </div>
+
+            <div id="liveAlertBox" style="background: #1e293b; border: 2px solid var(--primary); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                <h3 style="margin-top:0; color: var(--text-muted);">Buzzer Status</h3>
+                <h2 id="buzzerWinnerDisplay" style="color: #facc15; margin: 10px 0;">Waiting for buzz...</h2>
+                <div id="selectedStudentCard" style="font-size: 1.1rem; color: #38bdf8;"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="gradeAnswer('correct')" style="background-color: var(--success);">Right Answer ✓</button>
+                <button onclick="gradeAnswer('wrong')" style="background-color: var(--danger);">Wrong Answer ✗</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PASTE YOUR FIREBASE CONFIG HERE:
+        const firebaseConfig = {
+            apiKey: "AIzaSyBnXmTdVTbI0y8RhwkMOoPn3dCnzxEwyMw",
+            authDomain: "class-quiz-a8d09.firebaseapp.com",
+            databaseURL: "https://class-quiz-a8d09-default-rtdb.firebaseio.com", // Add this line if missing
+            projectId: "class-quiz-a8d09",
+            storageBucket: "class-quiz-a8d09.firebasestorage.app",
+            messagingSenderId: "472766447288",
+            appId: "1:472766447288:web:3c5ce34cef41d7c67bbe4d"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let myName = '';
+        let myTeam = '';
+        let currentRole = '';
+
+        function selectRole(role) {
+            currentRole = role;
+            document.getElementById('roleSelection').classList.add('hidden');
+            if (role === 'presenter') {
+                document.getElementById('presenterDashboard').classList.remove('hidden');
+                initPresenterSync();
+            } else {
+                document.getElementById('participantLogin').classList.remove('hidden');
+            }
+        }
+
+        function registerParticipant() {
+            myName = document.getElementById('partName').value.trim();
+            myTeam = document.getElementById('partTeam').value;
+
+            if (!myName || !myTeam) {
+                alert('Please enter your name and select a team.');
+                return;
+            }
+
+            document.getElementById('participantLogin').classList.add('hidden');
+            document.getElementById('participantScreen').classList.remove('hidden');
+            document.getElementById('displayTeamName').innerText = myTeam;
+
+            initParticipantSync();
+        }
+
+        function changeQuestion(dir) {
+            db.ref('quizState/questionNum').transaction(curr => {
+                let next = (curr || 1) + dir;
+                if (next < 1) next = 1;
+                if (next > 40) next = 40;
+                return next;
+            });
+            db.ref('quizState').update({ buzzerOpen: false, winnerTeam: null, selectedStudent: null });
+        }
+
+        function toggleBuzzerState() {
+            db.ref('quizState/buzzerOpen').once('value', snapshot => {
+                let isOpen = snapshot.val();
+                db.ref('quizState').update({
+                    buzzerOpen: !isOpen,
+                    winnerTeam: null,
+                    selectedStudent: null
+                });
+            });
+        }
+
+        function initPresenterSync() {
+            db.ref('quizState').on('value', snapshot => {
+                let state = snapshot.val() || { questionNum: 1, buzzerOpen: false, winnerTeam: null, selectedStudent: null };
+                document.getElementById('currentQHeader').innerText = `Question ${state.questionNum} / 40`;
+                
+                let btn = document.getElementById('toggleBuzzerBtn');
+                if (state.buzzerOpen) {
+                    btn.innerText = "Close Buzzer";
+                    btn.style.backgroundColor = "var(--danger)";
+                } else {
+                    btn.innerText = "Open Buzzer for Question";
+                    btn.style.backgroundColor = "var(--success)";
+                }
+
+                if (state.winnerTeam) {
+                    document.getElementById('buzzerWinnerDisplay').innerText = `First Buzzer: ${state.winnerTeam}`;
+                    document.getElementById('selectedStudentCard').innerText = `Selected Representative: ${state.selectedStudent}`;
+                } else {
+                    document.getElementById('buzzerWinnerDisplay').innerText = state.buzzerOpen ? "Buzzer is OPEN! Waiting..." : "Buzzer is Closed";
+                    document.getElementById('selectedStudentCard').innerText = "";
+                }
+            });
+        }
+
+        function gradeAnswer(result) {
+            if (result === 'correct') {
+                alert('Marked Correct! Move to the next question.');
+                db.ref('quizState').update({ buzzerOpen: false, winnerTeam: null, selectedStudent: null });
+            } else {
+                alert('Marked Wrong. Re-opening buzzer for other teams.');
+                db.ref('quizState').update({ winnerTeam: null, selectedStudent: null, buzzerOpen: true });
+            }
+        }
+
+        function hitBuzzer() {
+            db.ref('quizState').transaction(state => {
+                if (state && state.buzzerOpen && !state.winnerTeam) {
+                    state.winnerTeam = myTeam;
+                    state.buzzerOpen = false; 
+                    state.selectedStudent = myName + " (" + myTeam + ")";
+                }
+                return state;
+            });
+        }
+
+        function initParticipantSync() {
+            db.ref('quizState').on('value', snapshot => {
+                let state = snapshot.val();
+                if (!state) return;
+
+                let buzzerContainer = document.getElementById('buzzerContainer');
+                let statusTitle = document.getElementById('participantStatusTitle');
+                let statusDesc = document.getElementById('participantStatusDesc');
+
+                if (state.buzzerOpen) {
+                    buzzerContainer.style.display = 'block';
+                    statusTitle.innerText = `Question ${state.questionNum} is LIVE!`;
+                    statusDesc.innerText = "Tap the buzzer fast!";
+                } else {
+                    buzzerContainer.style.display = 'none';
+                    if (state.winnerTeam === myTeam) {
+                        statusTitle.innerText = `Your Team Buzzed First! 🎉`;
+                        statusDesc.innerText = `Selected: ${state.selectedStudent}`;
+                    } else if (state.winnerTeam) {
+                        statusTitle.innerText = `${state.winnerTeam} buzzed first!`;
+                        statusDesc.innerText = "Stand by for potential steal.";
+                    } else {
+                        statusTitle.innerText = `Question ${state.questionNum}`;
+                        statusDesc.innerText = "Waiting for presenter to open buzzer...";
+                    }
+                }
+            });
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('role') === 'participant') {
+                selectRole('participant');
+            }
+        };
+    </script>
+</body>
+</html>
