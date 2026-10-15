@@ -14,19 +14,22 @@
     
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #090d16;
+            --card-bg: #111827;
+            --card-border: #1f2937;
+            --text: #f3f4f6;
+            --text-muted: #9ca3af;
             --danger: #ef4444;
-            --success: #22c55e;
+            --danger-glow: rgba(239, 68, 68, 0.4);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.4);
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at top, #1e1b4b, var(--bg));
             color: var(--text);
             margin: 0;
             display: flex;
@@ -39,113 +42,138 @@
 
         .container {
             width: 100%;
-            max-width: 650px;
+            max-width: 600px;
             box-sizing: border-box;
+            transition: max-width 0.3s ease;
         }
 
         .container.dashboard-mode {
-            max-width: 1100px;
+            max-width: 1150px;
         }
 
         .card {
             background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             text-align: center;
+            backdrop-filter: blur(10px);
         }
 
-        h1, h2, h3 { color: var(--text); margin-top: 0; }
+        h1, h2, h3 { color: var(--text); margin-top: 0; font-weight: 700; }
 
         button {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), #4338ca);
             color: white;
             border: none;
-            padding: 14px 20px;
-            font-size: 1rem;
+            padding: 14px 24px;
+            font-size: 1.05rem;
             border-radius: 12px;
             cursor: pointer;
             width: 100%;
-            transition: all 0.2s;
+            transition: all 0.25s ease;
             font-weight: 600;
-            margin-top: 5px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
-        button:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); }
         button:active { transform: translateY(0); }
 
         input {
             width: 100%;
-            padding: 14px;
-            background-color: var(--bg);
-            border: 2px solid var(--text-muted);
+            padding: 15px;
+            background-color: #030712;
+            border: 2px solid #374151;
             border-radius: 12px;
             color: white;
             font-size: 1rem;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             box-sizing: border-box;
             text-align: center;
+            transition: border-color 0.2s;
         }
 
-        input:focus { border-color: var(--primary); outline: none; }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 10px rgba(99, 102, 241, 0.3); }
 
         .hidden { display: none !important; }
 
+        /* Stunning Pulsing Buzzer */
         .buzzer-btn {
-            background-color: var(--danger);
-            font-size: 2rem;
-            padding: 40px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            font-size: 2.2rem;
+            color: white;
+            font-weight: 800;
             border-radius: 50%;
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
+            width: 230px;
+            height: 230px;
+            margin: 30px auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 30px var(--danger-glow);
             border: 6px solid #f87171;
             cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s;
+            animation: pulseBuzzer 1.5s infinite;
+            transition: transform 0.1s;
         }
-        .buzzer-btn:active { transform: scale(0.95); background-color: #dc2626; }
+
+        .buzzer-btn:active { transform: scale(0.93); }
+
+        @keyframes pulseBuzzer {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.04); box-shadow: 0 0 0 25px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
 
         .team-badge {
-            background: #334155;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
             display: inline-block;
-            font-weight: bold;
+            font-weight: 700;
             color: #818cf8;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
         }
 
         .qr-box {
             background: white;
             padding: 15px;
-            border-radius: 12px;
+            border-radius: 16px;
             display: inline-block;
             margin: 15px 0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
         .participant-list {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 10px;
+            background: #030712;
+            border: 1px solid #1f2937;
+            border-radius: 14px;
             padding: 15px;
-            max-height: 200px;
+            max-height: 220px;
             overflow-y: auto;
             text-align: left;
             margin-top: 10px;
         }
 
         .participant-item {
-            padding: 8px 12px;
-            border-bottom: 1px solid #1e293b;
+            padding: 10px 14px;
+            border-bottom: 1px solid #1f2937;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 0.95rem;
+            animation: fadeIn 0.3s ease;
         }
         .participant-item:last-child { border-bottom: none; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         .dashboard-grid {
             display: grid;
@@ -154,10 +182,19 @@
             text-align: left;
         }
 
-        @media (max-width: 900px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 950px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -166,25 +203,29 @@
     <div class="container" id="mainContainer">
         <!-- ROLE SELECTION -->
         <div id="roleSelection" class="card">
-            <h1>Class Quiz Setup</h1>
-            <p style="color: var(--text-muted); margin-bottom: 30px;">Choose your role to enter the session.</p>
-            <button onclick="selectRole('presenter')">I am the Presenter</button>
-            <button onclick="selectRole('participant')" style="background-color: #334155; margin-top: 15px;">I am a Participant</button>
+            <h1>🚀 Class Quiz & Buzzer</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Select your portal to begin the session.</p>
+            <button onclick="selectRole('presenter')">Presenter Dashboard</button>
+            <button onclick="selectRole('participant')" style="background: linear-gradient(135deg, #374151, #1f2937); margin-top: 15px;">Participant Entry</button>
         </div>
 
         <!-- PARTICIPANT LOGIN -->
         <div id="participantLogin" class="card hidden">
-            <h1>Join Class</h1>
-            <input type="text" id="partName" placeholder="Enter your full name">
-            <input type="text" id="partTeam" placeholder="Enter Team Name (e.g. Team Alpha)">
-            <button onclick="registerParticipant()">Enter Classroom</button>
+            <h1>Join the Quiz</h1>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">Enter your credentials to connect live.</p>
+            <input type="text" id="partName" placeholder="Your Full Name">
+            <input type="text" id="partTeam" placeholder="Team Name (e.g. Titans)">
+            <button onclick="registerParticipant()">Connect to Classroom</button>
         </div>
 
         <!-- PARTICIPANT BUZZER SCREEN -->
         <div id="participantScreen" class="card hidden">
             <div class="team-badge" id="displayTeamName">Team Name</div>
-            <h2 id="participantStatusTitle">Waiting for Presenter...</h2>
-            <p id="participantStatusDesc" style="color: var(--text-muted);">Stay alert! The buzzer will light up when questions open.</p>
+            <div id="statusPillContainer">
+                <span class="status-pill" id="statusPill" style="background: rgba(156,163,175,0.2); color: var(--text-muted);">Stand By</span>
+            </div>
+            <h2 id="participantStatusTitle" style="margin-top: 15px;">Waiting for Presenter...</h2>
+            <p id="participantStatusDesc" style="color: var(--text-muted); font-size: 0.95rem;">The buzzer will activate automatically when a question opens.</p>
             
             <div id="buzzerContainer" style="display:none;">
                 <div id="bigBuzzer" class="buzzer-btn" onclick="hitBuzzer()">BUZZ!</div>
@@ -192,67 +233,67 @@
         </div>
 
         <!-- PRESENTER DASHBOARD -->
-        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 25px;">
+        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 30px;">
             <h1 style="text-align: center; margin-bottom: 25px;">Presenter Dashboard</h1>
             
             <div class="dashboard-grid">
-                <!-- LEFT COLUMN: Quiz Controls & Participants -->
+                <!-- LEFT COLUMN: Controls & Participants -->
                 <div>
                     <!-- QUESTION CONTROL BOX -->
-                    <div style="background: #334155; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
-                        <h3 id="currentQHeader" style="margin: 0 0 10px 0;">Question 1 / 40</h3>
+                    <div style="background: #030712; border: 1px solid #1f2937; padding: 20px; border-radius: 16px; margin-bottom: 20px; text-align: center;">
+                        <h3 id="currentQHeader" style="margin: 0 0 15px 0; color: #818cf8;">Question 1 / 40</h3>
                         
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                            <button onclick="changeQuestion(-1)" style="margin:0;">Prev Q</button>
-                            <button onclick="changeQuestion(1)" style="margin:0;">Next Q</button>
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <button onclick="changeQuestion(-1)" style="margin:0; background: #1f2937;">◀ Prev Q</button>
+                            <button onclick="changeQuestion(1)" style="margin:0; background: #1f2937;">Next Q ▶</button>
                         </div>
 
-                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #1e293b; padding: 10px; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #111827; padding: 10px; border-radius: 10px;">
                             <label style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">Jump to Q:</label>
                             <input type="number" id="jumpQInput" min="1" value="1" style="margin:0; padding: 8px; font-size: 0.9rem;">
                             <button onclick="jumpToQuestion()" style="margin:0; padding: 8px 15px; width: auto;">Go</button>
                         </div>
 
-                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #1e293b; padding: 10px; border-radius: 8px;">
-                            <label style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">Total Questions Limit:</label>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #111827; padding: 10px; border-radius: 10px;">
+                            <label style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">Total Limit:</label>
                             <input type="number" id="totalQInput" min="1" value="40" onchange="updateTotalQuestions(this.value)" style="margin:0; padding: 8px; font-size: 0.9rem;">
                         </div>
                     </div>
 
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background-color: var(--success); font-size: 1.2rem;">Open Buzzer for Question</button>
+                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background: linear-gradient(135deg, var(--success), #059669); font-size: 1.25rem; padding: 16px;">Open Buzzer for Question</button>
                     </div>
 
-                    <div id="liveAlertBox" style="background: #0f172a; border: 2px solid var(--primary); padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
-                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.9rem;">Buzzer Status</h3>
-                        <h2 id="buzzerWinnerDisplay" style="color: #facc15; margin: 5px 0; font-size: 1.1rem;">Waiting for buzz...</h2>
-                        <div id="selectedStudentCard" style="font-size: 0.95rem; color: #38bdf8;"></div>
+                    <div id="liveAlertBox" style="background: #030712; border: 2px solid var(--primary); padding: 18px; border-radius: 14px; text-align: center; margin-bottom: 20px; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);">
+                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Live Buzzer Feed</h3>
+                        <h2 id="buzzerWinnerDisplay" style="color: #fbbf24; margin: 8px 0; font-size: 1.3rem;">Buzzer is Closed</h2>
+                        <div id="selectedStudentCard" style="font-size: 1.05rem; color: #38bdf8; font-weight: 600;"></div>
                     </div>
 
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                        <button onclick="gradeAnswer('correct')" style="background-color: var(--success); margin:0;">Right Answer ✓</button>
-                        <button onclick="gradeAnswer('wrong')" style="background-color: var(--danger); margin:0;">Wrong Answer ✗</button>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                        <button onclick="gradeAnswer('correct')" style="background: linear-gradient(135deg, var(--success), #059669); margin:0;">Right Answer ✓</button>
+                        <button onclick="gradeAnswer('wrong')" style="background: linear-gradient(135deg, var(--danger), #b91c1c); margin:0;">Wrong Answer ✗</button>
                     </div>
 
                     <!-- LIVE PARTICIPANTS LIST -->
-                    <div style="background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 12px;">
+                    <div style="background: #030712; border: 1px solid #1f2937; padding: 15px; border-radius: 14px;">
                         <h3 style="margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; font-size: 1rem;">
-                            Logged In Participants 
-                            <span id="participantCountBadge" style="background: var(--primary); font-size: 0.8rem; padding: 3px 8px; border-radius: 10px;">0 Online</span>
+                            Live Participants 
+                            <span id="participantCountBadge" style="background: var(--primary); font-size: 0.8rem; padding: 4px 10px; border-radius: 12px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);">0 Online</span>
                         </h3>
                         <div class="participant-list" id="participantContainer">
-                            <p style="color: var(--text-muted); text-align: center; margin: 10px 0;">No participants logged in yet.</p>
+                            <p style="color: var(--text-muted); text-align: center; margin: 15px 0; font-style: italic;">Waiting for participants to join...</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- RIGHT COLUMN: QR Code & Join Link -->
                 <div>
-                    <div style="background: #334155; padding: 20px; border-radius: 12px; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <h3 style="margin: 0 0 15px 0;">Scan to Join Class</h3>
+                    <div style="background: #030712; border: 1px solid #1f2937; padding: 25px; border-radius: 16px; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <h3 style="margin: 0 0 15px 0;">Scan to Join Live</h3>
                         <div class="qr-box" id="qrcode"></div>
-                        <p style="margin: 15px 0 5px 0; font-size: 0.9rem; font-weight: bold; color: #cbd5e1;">Or open link:</p>
-                        <p style="margin: 0; word-break: break-all; font-size: 0.8rem; color: #818cf8;" id="joinLinkText"></p>
+                        <p style="margin: 20px 0 5px 0; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Direct Link:</p>
+                        <p style="margin: 0; word-break: break-all; font-size: 0.85rem; color: #818cf8; background: #111827; padding: 10px; border-radius: 8px; border: 1px solid #1f2937;" id="joinLinkText"></p>
                     </div>
                 </div>
             </div>
@@ -296,8 +337,8 @@
             document.getElementById('qrcode').innerHTML = "";
             new QRCode(document.getElementById("qrcode"), {
                 text: joinUrl,
-                width: 150,
-                height: 150
+                width: 160,
+                height: 160
             });
             document.getElementById('joinLinkText').innerText = joinUrl;
         }
@@ -307,7 +348,7 @@
             myTeam = document.getElementById('partTeam').value.trim();
 
             if (!myName || !myTeam) {
-                alert('Please enter your name and team name.');
+                alert('Please enter both your name and team name.');
                 return;
             }
 
@@ -322,7 +363,7 @@
 
             document.getElementById('participantLogin').classList.add('hidden');
             document.getElementById('participantScreen').classList.remove('hidden');
-            document.getElementById('displayTeamName').innerText = myTeam;
+            document.getElementById('displayTeamName').innerText = `Team: ${myTeam}`;
 
             initParticipantSync();
         }
@@ -335,7 +376,7 @@
 
                 if (!data) {
                     badge.innerText = "0 Online";
-                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 10px 0;">No participants logged in yet.</p>`;
+                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 15px 0; font-style: italic;">Waiting for participants to join...</p>`;
                     return;
                 }
 
@@ -347,7 +388,7 @@
                     let p = data[key];
                     let item = document.createElement('div');
                     item.className = 'participant-item';
-                    item.innerHTML = `<span><strong>${p.name}</strong></span><span style="color: #818cf8;">${p.team}</span>`;
+                    item.innerHTML = `<span><strong>${p.name}</strong></span><span style="color: #818cf8; background: rgba(99,102,241,0.1); padding: 4px 10px; border-radius: 8px;">${p.team}</span>`;
                     container.appendChild(item);
                 });
             });
@@ -421,17 +462,17 @@
                 let btn = document.getElementById('toggleBuzzerBtn');
                 if (state.buzzerOpen) {
                     btn.innerText = "Close Buzzer";
-                    btn.style.backgroundColor = "var(--danger)";
+                    btn.style.background = "linear-gradient(135deg, var(--danger), #b91c1c)";
                 } else {
                     btn.innerText = "Open Buzzer for Question";
-                    btn.style.backgroundColor = "var(--success)";
+                    btn.style.background = "linear-gradient(135deg, var(--success), #059669)";
                 }
 
                 if (state.winnerTeam) {
-                    document.getElementById('buzzerWinnerDisplay').innerText = `First Buzzer: ${state.winnerTeam}`;
-                    document.getElementById('selectedStudentCard').innerText = `Selected Representative: ${state.selectedStudent}`;
+                    document.getElementById('buzzerWinnerDisplay').innerText = `⚡ First Buzzer: ${state.winnerTeam}`;
+                    document.getElementById('selectedStudentCard').innerText = `Rep: ${state.selectedStudent}`;
                 } else {
-                    document.getElementById('buzzerWinnerDisplay').innerText = state.buzzerOpen ? "Buzzer is OPEN! Waiting..." : "Buzzer is Closed";
+                    document.getElementById('buzzerWinnerDisplay').innerText = state.buzzerOpen ? "🔔 Buzzer is OPEN! Waiting..." : "🔒 Buzzer is Closed";
                     document.getElementById('selectedStudentCard').innerText = "";
                 }
             });
@@ -466,18 +507,26 @@
                 let buzzerContainer = document.getElementById('buzzerContainer');
                 let statusTitle = document.getElementById('participantStatusTitle');
                 let statusDesc = document.getElementById('participantStatusDesc');
+                let statusPill = document.getElementById('statusPill');
 
                 if (state.buzzerOpen) {
                     buzzerContainer.style.display = 'block';
-                    statusTitle.innerText = `Question ${state.questionNum} / ${state.totalQuestions || 40} is LIVE!`;
-                    statusDesc.innerText = "Tap the buzzer fast!";
+                    statusPill.innerText = "LIVE";
+                    statusPill.style.background = "rgba(16, 185, 129, 0.2)";
+                    statusPill.style.color = "var(--success)";
+                    statusTitle.innerText = `Question ${state.questionNum} / ${state.totalQuestions || 40}`;
+                    statusDesc.innerText = "🚨 BUZZER IS OPEN! TAP FAST! 🚨";
                 } else {
                     buzzerContainer.style.display = 'none';
+                    statusPill.innerText = "Stand By";
+                    statusPill.style.background = "rgba(156,163,175,0.2)";
+                    statusPill.style.color = "var(--text-muted)";
+
                     if (state.winnerTeam === myTeam) {
-                        statusTitle.innerText = `Your Team Buzzed First! 🎉`;
-                        statusDesc.innerText = `Selected: ${state.selectedStudent}`;
+                        statusTitle.innerText = `🎉 Your Team Buzzed First!`;
+                        statusDesc.innerText = `Selected Representative: ${state.selectedStudent}`;
                     } else if (state.winnerTeam) {
-                        statusTitle.innerText = `${state.winnerTeam} buzzed first!`;
+                        statusTitle.innerText = `🔔 ${state.winnerTeam} buzzed first!`;
                         statusDesc.innerText = "Stand by for potential steal.";
                     } else {
                         statusTitle.innerText = `Question ${state.questionNum} / ${state.totalQuestions || 40}`;
