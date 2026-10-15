@@ -33,14 +33,18 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .container {
             width: 100%;
             max-width: 650px;
-            padding: 20px;
             box-sizing: border-box;
+        }
+
+        .container.dashboard-mode {
+            max-width: 1100px;
         }
 
         .card {
@@ -57,32 +61,33 @@
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 16px 24px;
-            font-size: 1.1rem;
+            padding: 14px 20px;
+            font-size: 1rem;
             border-radius: 12px;
             cursor: pointer;
             width: 100%;
             transition: all 0.2s;
             font-weight: 600;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         button:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
         button:active { transform: translateY(0); }
 
-        input, select {
+        input {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             background-color: var(--bg);
             border: 2px solid var(--text-muted);
             border-radius: 12px;
             color: white;
             font-size: 1rem;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             box-sizing: border-box;
+            text-align: center;
         }
 
-        input:focus, select:focus { border-color: var(--primary); outline: none; }
+        input:focus { border-color: var(--primary); outline: none; }
 
         .hidden { display: none !important; }
 
@@ -91,9 +96,9 @@
             font-size: 2rem;
             padding: 40px;
             border-radius: 50%;
-            width: 220px;
-            height: 220px;
-            margin: 30px auto;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -127,10 +132,10 @@
             border: 1px solid #334155;
             border-radius: 10px;
             padding: 15px;
-            max-height: 180px;
+            max-height: 200px;
             overflow-y: auto;
             text-align: left;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .participant-item {
@@ -141,11 +146,24 @@
             font-size: 0.95rem;
         }
         .participant-item:last-child { border-bottom: none; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 25px;
+            text-align: left;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" id="mainContainer">
         <!-- ROLE SELECTION -->
         <div id="roleSelection" class="card">
             <h1>Class Quiz Setup</h1>
@@ -158,7 +176,7 @@
         <div id="participantLogin" class="card hidden">
             <h1>Join Class</h1>
             <input type="text" id="partName" placeholder="Enter your full name">
-            <input type="text" id="partTeam" placeholder="Enter or modify your Team Name (e.g. Team Alpha)">
+            <input type="text" id="partTeam" placeholder="Enter Team Name (e.g. Team Alpha)">
             <button onclick="registerParticipant()">Enter Classroom</button>
         </div>
 
@@ -174,47 +192,68 @@
         </div>
 
         <!-- PRESENTER DASHBOARD -->
-        <div id="presenterDashboard" class="card hidden" style="text-align: left;">
-            <h1 style="text-align: center;">Presenter Dashboard</h1>
-
-            <!-- QR CODE & LINK SECTION -->
-            <div style="background: #334155; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
-                <h3 style="margin: 0 0 10px 0;">Participant Join QR Code & Link</h3>
-                <div class="qr-box" id="qrcode"></div>
-                <p style="margin: 5px 0 0 0; word-break: break-all; font-size: 0.85rem; color: #cbd5e1;" id="joinLinkText"></p>
-            </div>
+        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 25px;">
+            <h1 style="text-align: center; margin-bottom: 25px;">Presenter Dashboard</h1>
             
-            <div style="background: #334155; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
-                <h3 id="currentQHeader" style="margin: 0 0 10px 0;">Question 1 / 40</h3>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="changeQuestion(-1)" style="margin:0;">Prev Q</button>
-                    <button onclick="changeQuestion(1)" style="margin:0;">Next Q</button>
+            <div class="dashboard-grid">
+                <!-- LEFT COLUMN: Quiz Controls & Participants -->
+                <div>
+                    <!-- QUESTION CONTROL BOX -->
+                    <div style="background: #334155; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+                        <h3 id="currentQHeader" style="margin: 0 0 10px 0;">Question 1 / 40</h3>
+                        
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <button onclick="changeQuestion(-1)" style="margin:0;">Prev Q</button>
+                            <button onclick="changeQuestion(1)" style="margin:0;">Next Q</button>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #1e293b; padding: 10px; border-radius: 8px;">
+                            <label style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">Jump to Q:</label>
+                            <input type="number" id="jumpQInput" min="1" value="1" style="margin:0; padding: 8px; font-size: 0.9rem;">
+                            <button onclick="jumpToQuestion()" style="margin:0; padding: 8px 15px; width: auto;">Go</button>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #1e293b; padding: 10px; border-radius: 8px;">
+                            <label style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">Total Questions Limit:</label>
+                            <input type="number" id="totalQInput" min="1" value="40" onchange="updateTotalQuestions(this.value)" style="margin:0; padding: 8px; font-size: 0.9rem;">
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background-color: var(--success); font-size: 1.2rem;">Open Buzzer for Question</button>
+                    </div>
+
+                    <div id="liveAlertBox" style="background: #0f172a; border: 2px solid var(--primary); padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.9rem;">Buzzer Status</h3>
+                        <h2 id="buzzerWinnerDisplay" style="color: #facc15; margin: 5px 0; font-size: 1.1rem;">Waiting for buzz...</h2>
+                        <div id="selectedStudentCard" style="font-size: 0.95rem; color: #38bdf8;"></div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button onclick="gradeAnswer('correct')" style="background-color: var(--success); margin:0;">Right Answer ✓</button>
+                        <button onclick="gradeAnswer('wrong')" style="background-color: var(--danger); margin:0;">Wrong Answer ✗</button>
+                    </div>
+
+                    <!-- LIVE PARTICIPANTS LIST -->
+                    <div style="background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 12px;">
+                        <h3 style="margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; font-size: 1rem;">
+                            Logged In Participants 
+                            <span id="participantCountBadge" style="background: var(--primary); font-size: 0.8rem; padding: 3px 8px; border-radius: 10px;">0 Online</span>
+                        </h3>
+                        <div class="participant-list" id="participantContainer">
+                            <p style="color: var(--text-muted); text-align: center; margin: 10px 0;">No participants logged in yet.</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div style="text-align: center; margin-bottom: 20px;">
-                <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background-color: var(--success); font-size: 1.3rem;">Open Buzzer for Question</button>
-            </div>
-
-            <div id="liveAlertBox" style="background: #1e293b; border: 2px solid var(--primary); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
-                <h3 style="margin-top:0; color: var(--text-muted);">Buzzer Status</h3>
-                <h2 id="buzzerWinnerDisplay" style="color: #facc15; margin: 10px 0;">Waiting for buzz...</h2>
-                <div id="selectedStudentCard" style="font-size: 1.1rem; color: #38bdf8;"></div>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 25px;">
-                <button onclick="gradeAnswer('correct')" style="background-color: var(--success);">Right Answer ✓</button>
-                <button onclick="gradeAnswer('wrong')" style="background-color: var(--danger);">Wrong Answer ✗</button>
-            </div>
-
-            <!-- LIVE PARTICIPANTS LIST SECTION -->
-            <div style="background: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 12px;">
-                <h3 style="margin: 0; display: flex; justify-content: space-between; align-items: center;">
-                    Logged In Participants 
-                    <span id="participantCountBadge" style="background: var(--primary); font-size: 0.85rem; padding: 4px 10px; border-radius: 12px;">0 Online</span>
-                </h3>
-                <div class="participant-list" id="participantContainer">
-                    <p style="color: var(--text-muted); text-align: center; margin: 10px 0;">No participants logged in yet.</p>
+                <!-- RIGHT COLUMN: QR Code & Join Link -->
+                <div>
+                    <div style="background: #334155; padding: 20px; border-radius: 12px; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <h3 style="margin: 0 0 15px 0;">Scan to Join Class</h3>
+                        <div class="qr-box" id="qrcode"></div>
+                        <p style="margin: 15px 0 5px 0; font-size: 0.9rem; font-weight: bold; color: #cbd5e1;">Or open link:</p>
+                        <p style="margin: 0; word-break: break-all; font-size: 0.8rem; color: #818cf8;" id="joinLinkText"></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -236,12 +275,11 @@
 
         let myName = '';
         let myTeam = '';
-        let currentRole = '';
 
         function selectRole(role) {
-            currentRole = role;
             document.getElementById('roleSelection').classList.add('hidden');
             if (role === 'presenter') {
+                document.getElementById('mainContainer').classList.add('dashboard-mode');
                 document.getElementById('presenterDashboard').classList.remove('hidden');
                 generateJoinQRCode();
                 initPresenterSync();
@@ -258,8 +296,8 @@
             document.getElementById('qrcode').innerHTML = "";
             new QRCode(document.getElementById("qrcode"), {
                 text: joinUrl,
-                width: 160,
-                height: 160
+                width: 150,
+                height: 150
             });
             document.getElementById('joinLinkText').innerText = joinUrl;
         }
@@ -273,7 +311,6 @@
                 return;
             }
 
-            // Register active student in Realtime Database
             let newRef = db.ref('activeParticipants').push();
             newRef.set({
                 name: myName,
@@ -281,7 +318,6 @@
                 joinedAt: firebase.database.ServerValue.TIMESTAMP
             });
 
-            // Remove participant on disconnect
             newRef.onDisconnect().remove();
 
             document.getElementById('participantLogin').classList.add('hidden');
@@ -318,13 +354,46 @@
         }
 
         function changeQuestion(dir) {
-            db.ref('quizState/questionNum').transaction(curr => {
-                let next = (curr || 1) + dir;
+            db.ref('quizState').once('value', snapshot => {
+                let state = snapshot.val() || { questionNum: 1, totalQuestions: 40 };
+                let curr = state.questionNum || 1;
+                let maxQ = state.totalQuestions || 40;
+                let next = curr + dir;
+                
                 if (next < 1) next = 1;
-                if (next > 40) next = 40;
-                return next;
+                if (next > maxQ) next = maxQ;
+
+                db.ref('quizState').update({
+                    questionNum: next,
+                    buzzerOpen: false,
+                    winnerTeam: null,
+                    selectedStudent: null
+                });
             });
-            db.ref('quizState').update({ buzzerOpen: false, winnerTeam: null, selectedStudent: null });
+        }
+
+        function jumpToQuestion() {
+            let targetQ = parseInt(document.getElementById('jumpQInput').value);
+            db.ref('quizState').once('value', snapshot => {
+                let state = snapshot.val() || { totalQuestions: 40 };
+                let maxQ = state.totalQuestions || 40;
+
+                if (!targetQ || targetQ < 1) targetQ = 1;
+                if (targetQ > maxQ) targetQ = maxQ;
+
+                db.ref('quizState').update({
+                    questionNum: targetQ,
+                    buzzerOpen: false,
+                    winnerTeam: null,
+                    selectedStudent: null
+                });
+            });
+        }
+
+        function updateTotalQuestions(newTotal) {
+            let total = parseInt(newTotal);
+            if (!total || total < 1) total = 1;
+            db.ref('quizState').update({ totalQuestions: total });
         }
 
         function toggleBuzzerState() {
@@ -340,8 +409,14 @@
 
         function initPresenterSync() {
             db.ref('quizState').on('value', snapshot => {
-                let state = snapshot.val() || { questionNum: 1, buzzerOpen: false, winnerTeam: null, selectedStudent: null };
-                document.getElementById('currentQHeader').innerText = `Question ${state.questionNum} / 40`;
+                let state = snapshot.val() || { questionNum: 1, totalQuestions: 40, buzzerOpen: false };
+                let qNum = state.questionNum || 1;
+                let totalQ = state.totalQuestions || 40;
+
+                document.getElementById('currentQHeader').innerText = `Question ${qNum} / ${totalQ}`;
+                document.getElementById('totalQInput').value = totalQ;
+                document.getElementById('jumpQInput').value = qNum;
+                document.getElementById('jumpQInput').max = totalQ;
                 
                 let btn = document.getElementById('toggleBuzzerBtn');
                 if (state.buzzerOpen) {
@@ -394,7 +469,7 @@
 
                 if (state.buzzerOpen) {
                     buzzerContainer.style.display = 'block';
-                    statusTitle.innerText = `Question ${state.questionNum} is LIVE!`;
+                    statusTitle.innerText = `Question ${state.questionNum} / ${state.totalQuestions || 40} is LIVE!`;
                     statusDesc.innerText = "Tap the buzzer fast!";
                 } else {
                     buzzerContainer.style.display = 'none';
@@ -405,7 +480,7 @@
                         statusTitle.innerText = `${state.winnerTeam} buzzed first!`;
                         statusDesc.innerText = "Stand by for potential steal.";
                     } else {
-                        statusTitle.innerText = `Question ${state.questionNum}`;
+                        statusTitle.innerText = `Question ${state.questionNum} / ${state.totalQuestions || 40}`;
                         statusDesc.innerText = "Waiting for presenter to open buzzer...";
                     }
                 }
