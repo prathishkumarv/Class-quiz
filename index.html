@@ -21,10 +21,9 @@
             --card-border: #1f2937;
             --text: #f3f4f6;
             --text-muted: #9ca3af;
+            --accent: #818cf8;
             --danger: #ef4444;
-            --danger-glow: rgba(239, 68, 68, 0.4);
             --success: #10b981;
-            --success-glow: rgba(16, 185, 129, 0.4);
         }
 
         body {
@@ -38,81 +37,83 @@
             min-height: 100vh;
             padding: 20px;
             box-sizing: border-box;
+            transition: background 0.5s ease;
         }
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 550px;
             box-sizing: border-box;
             transition: max-width 0.3s ease;
         }
 
         .container.dashboard-mode {
-            max-width: 1150px;
+            max-width: 1350px;
         }
 
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 20px;
-            padding: 35px;
+            padding: 30px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             text-align: center;
             backdrop-filter: blur(10px);
+            transition: background-color 0.5s ease, border-color 0.5s ease;
         }
 
         h1, h2, h3 { color: var(--text); margin-top: 0; font-weight: 700; }
 
         button {
-            background: linear-gradient(135deg, var(--primary), #4338ca);
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 14px 24px;
-            font-size: 1.05rem;
+            padding: 14px 20px;
+            font-size: 1rem;
             border-radius: 12px;
             cursor: pointer;
             width: 100%;
             transition: all 0.25s ease;
             font-weight: 600;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            margin-top: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); }
+        button:hover { filter: brightness(1.15); transform: translateY(-2px); }
         button:active { transform: translateY(0); }
 
         input {
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             background-color: #030712;
             border: 2px solid #374151;
             border-radius: 12px;
             color: white;
             font-size: 1rem;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             box-sizing: border-box;
             text-align: center;
             transition: border-color 0.2s;
         }
 
-        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 10px rgba(99, 102, 241, 0.3); }
+        input:focus { border-color: var(--primary); outline: none; }
 
         .hidden { display: none !important; }
 
-        /* Stunning Pulsing Buzzer */
+        /* Pulsing Buzzer */
         .buzzer-btn {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             font-size: 2.2rem;
             color: white;
             font-weight: 800;
             border-radius: 50%;
-            width: 230px;
-            height: 230px;
-            margin: 30px auto;
+            width: 220px;
+            height: 220px;
+            margin: 25px auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 30px var(--danger-glow);
+            box-shadow: 0 0 35px rgba(239, 68, 68, 0.4);
             border: 6px solid #f87171;
             cursor: pointer;
             animation: pulseBuzzer 1.5s infinite;
@@ -128,15 +129,14 @@
         }
 
         .team-badge {
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--primary);
             padding: 8px 20px;
             border-radius: 30px;
             display: inline-block;
             font-weight: 700;
-            color: #818cf8;
+            color: var(--accent);
             margin-bottom: 20px;
-            letter-spacing: 0.5px;
         }
 
         .qr-box {
@@ -148,19 +148,32 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
+        /* 3-Column Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 20px;
+            text-align: left;
+            align-items: start;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
         .participant-list {
             background: #030712;
-            border: 1px solid #1f2937;
+            border: 1px solid var(--card-border);
             border-radius: 14px;
-            padding: 15px;
-            max-height: 220px;
+            padding: 12px;
+            max-height: 480px;
             overflow-y: auto;
             text-align: left;
             margin-top: 10px;
         }
 
         .participant-item {
-            padding: 10px 14px;
+            padding: 12px 14px;
             border-bottom: 1px solid #1f2937;
             display: flex;
             justify-content: space-between;
@@ -173,17 +186,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 25px;
-            text-align: left;
-        }
-
-        @media (max-width: 950px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
         }
 
         .status-pill {
@@ -206,7 +208,7 @@
             <h1>🚀 Class Quiz & Buzzer</h1>
             <p style="color: var(--text-muted); margin-bottom: 30px;">Select your portal to begin the session.</p>
             <button onclick="selectRole('presenter')">Presenter Dashboard</button>
-            <button onclick="selectRole('participant')" style="background: linear-gradient(135deg, #374151, #1f2937); margin-top: 15px;">Participant Entry</button>
+            <button onclick="selectRole('participant')" style="background: #374151; margin-top: 15px;">Participant Entry</button>
         </div>
 
         <!-- PARTICIPANT LOGIN -->
@@ -233,69 +235,75 @@
         </div>
 
         <!-- PRESENTER DASHBOARD -->
-        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 30px;">
+        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 25px;">
             <h1 style="text-align: center; margin-bottom: 25px;">Presenter Dashboard</h1>
             
             <div class="dashboard-grid">
-                <!-- LEFT COLUMN: Controls & Participants -->
+                
+                <!-- COLUMN 1: Dedicated Live Participants Full Section -->
+                <div style="background: #030712; border: 1px solid var(--card-border); padding: 20px; border-radius: 16px; height: 100%; box-sizing: border-box; display: flex; flex-direction: column;">
+                    <h3 style="margin: 0 0 15px 0; display: flex; justify-content: space-between; align-items: center; font-size: 1.05rem;">
+                        <span>👥 Live Participants</span> 
+                        <span id="participantCountBadge" style="background: var(--primary); font-size: 0.8rem; padding: 4px 10px; border-radius: 12px;">0 Online</span>
+                    </h3>
+                    <div class="participant-list" id="participantContainer" style="flex-grow: 1;">
+                        <p style="color: var(--text-muted); text-align: center; margin: 30px 0; font-style: italic;">Waiting for participants to join...</p>
+                    </div>
+                </div>
+
+                <!-- COLUMN 2: Central Controls, Question Options & Massive Buzzer Feed -->
                 <div>
-                    <!-- QUESTION CONTROL BOX -->
-                    <div style="background: #030712; border: 1px solid #1f2937; padding: 20px; border-radius: 16px; margin-bottom: 20px; text-align: center;">
-                        <h3 id="currentQHeader" style="margin: 0 0 15px 0; color: #818cf8;">Question 1 / 40</h3>
+                    <!-- QUESTION CONTROL & SETTINGS -->
+                    <div style="background: #030712; border: 1px solid var(--card-border); padding: 20px; border-radius: 16px; margin-bottom: 20px; text-align: center;">
+                        <h3 id="currentQHeader" style="margin: 0 0 15px 0; color: var(--accent); font-size: 1.3rem;">Question 1 / 40</h3>
                         
-                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                             <button onclick="changeQuestion(-1)" style="margin:0; background: #1f2937;">◀ Prev Q</button>
                             <button onclick="changeQuestion(1)" style="margin:0; background: #1f2937;">Next Q ▶</button>
                         </div>
 
-                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #111827; padding: 10px; border-radius: 10px;">
-                            <label style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">Jump to Q:</label>
-                            <input type="number" id="jumpQInput" min="1" value="1" style="margin:0; padding: 8px; font-size: 0.9rem;">
-                            <button onclick="jumpToQuestion()" style="margin:0; padding: 8px 15px; width: auto;">Go</button>
-                        </div>
-
-                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #111827; padding: 10px; border-radius: 10px;">
-                            <label style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">Total Limit:</label>
-                            <input type="number" id="totalQInput" min="1" value="40" onchange="updateTotalQuestions(this.value)" style="margin:0; padding: 8px; font-size: 0.9rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;">
+                            <div style="background: #111827; padding: 10px; border-radius: 10px; border: 1px solid var(--card-border);">
+                                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">JUMP TO QUESTION</label>
+                                <div style="display: flex; gap: 6px;">
+                                    <input type="number" id="jumpQInput" min="1" value="1" style="margin:0; padding: 6px; font-size: 0.9rem;">
+                                    <button onclick="jumpToQuestion()" style="margin:0; padding: 6px 12px; width: auto;">Go</button>
+                                </div>
+                            </div>
+                            <div style="background: #111827; padding: 10px; border-radius: 10px; border: 1px solid var(--card-border);">
+                                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">TOTAL QUESTIONS</label>
+                                <input type="number" id="totalQInput" min="1" value="40" onchange="updateTotalQuestions(this.value)" style="margin:0; padding: 6px; font-size: 0.9rem;">
+                            </div>
                         </div>
                     </div>
 
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background: linear-gradient(135deg, var(--success), #059669); font-size: 1.25rem; padding: 16px;">Open Buzzer for Question</button>
+                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background: var(--success); font-size: 1.25rem; padding: 16px; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);">Open Buzzer for Question</button>
                     </div>
 
-                    <div id="liveAlertBox" style="background: #030712; border: 2px solid var(--primary); padding: 18px; border-radius: 14px; text-align: center; margin-bottom: 20px; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);">
-                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Live Buzzer Feed</h3>
-                        <h2 id="buzzerWinnerDisplay" style="color: #fbbf24; margin: 8px 0; font-size: 1.3rem;">Buzzer is Closed</h2>
-                        <div id="selectedStudentCard" style="font-size: 1.05rem; color: #38bdf8; font-weight: 600;"></div>
+                    <!-- MASSIVE LIVE BUZZER FEED -->
+                    <div id="liveAlertBox" style="background: #030712; border: 3px solid var(--primary); padding: 25px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);">
+                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px;">⚡ Massive Live Buzzer Feed ⚡</h3>
+                        <h2 id="buzzerWinnerDisplay" style="color: #fbbf24; margin: 12px 0; font-size: 1.7rem; font-weight: 800;">Buzzer is Closed</h2>
+                        <div id="selectedStudentCard" style="font-size: 1.2rem; color: #38bdf8; font-weight: 700;"></div>
                     </div>
 
-                    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-                        <button onclick="gradeAnswer('correct')" style="background: linear-gradient(135deg, var(--success), #059669); margin:0;">Right Answer ✓</button>
-                        <button onclick="gradeAnswer('wrong')" style="background: linear-gradient(135deg, var(--danger), #b91c1c); margin:0;">Wrong Answer ✗</button>
-                    </div>
-
-                    <!-- LIVE PARTICIPANTS LIST -->
-                    <div style="background: #030712; border: 1px solid #1f2937; padding: 15px; border-radius: 14px;">
-                        <h3 style="margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; font-size: 1rem;">
-                            Live Participants 
-                            <span id="participantCountBadge" style="background: var(--primary); font-size: 0.8rem; padding: 4px 10px; border-radius: 12px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);">0 Online</span>
-                        </h3>
-                        <div class="participant-list" id="participantContainer">
-                            <p style="color: var(--text-muted); text-align: center; margin: 15px 0; font-style: italic;">Waiting for participants to join...</p>
-                        </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="gradeAnswer('correct')" style="background: var(--success); margin:0; font-size: 1.1rem;">Right Answer ✓</button>
+                        <button onclick="gradeAnswer('wrong')" style="background: var(--danger); margin:0; font-size: 1.1rem;">Wrong Answer ✗</button>
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN: QR Code & Join Link -->
+                <!-- COLUMN 3: QR Code & Join Link -->
                 <div>
-                    <div style="background: #030712; border: 1px solid #1f2937; padding: 25px; border-radius: 16px; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <h3 style="margin: 0 0 15px 0;">Scan to Join Live</h3>
+                    <div style="background: #030712; border: 1px solid var(--card-border); padding: 25px; border-radius: 16px; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <h3 style="margin: 0 0 15px 0;">📱 Scan to Join Live</h3>
                         <div class="qr-box" id="qrcode"></div>
-                        <p style="margin: 20px 0 5px 0; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Direct Link:</p>
-                        <p style="margin: 0; word-break: break-all; font-size: 0.85rem; color: #818cf8; background: #111827; padding: 10px; border-radius: 8px; border: 1px solid #1f2937;" id="joinLinkText"></p>
+                        <p style="margin: 20px 0 5px 0; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Direct Link:</p>
+                        <p style="margin: 0; word-break: break-all; font-size: 0.8rem; color: var(--accent); background: #111827; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border);" id="joinLinkText"></p>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -317,6 +325,25 @@
         let myName = '';
         let myTeam = '';
 
+        // Dynamic Theme Palettes per Question
+        const colorThemes = [
+            { primary: '#6366f1', bg: '#090d16', card: '#111827', border: '#1f2937', accent: '#818cf8' }, // Indigo
+            { primary: '#10b981', bg: '#061a14', card: '#0f2922', border: '#134e39', accent: '#34d399' }, // Emerald
+            { primary: '#f59e0b', bg: '#1a1406', card: '#29210f', border: '#45350c', accent: '#fbbf24' }, // Amber
+            { primary: '#ec4899', bg: '#1a0612', card: '#290f21', border: '#52103f', accent: '#f472b6' }, // Rose
+            { primary: '#06b6d4', bg: '#06171a', card: '#0f2529', border: '#0e454f', accent: '#22d3ee' }  // Cyan
+        ];
+
+        function applyTheme(qNum) {
+            let theme = colorThemes[(qNum - 1) % colorThemes.length];
+            document.documentElement.style.setProperty('--primary', theme.primary);
+            document.documentElement.style.setProperty('--bg', theme.bg);
+            document.documentElement.style.setProperty('--card-bg', theme.card);
+            document.documentElement.style.setProperty('--card-border', theme.border);
+            document.documentElement.style.setProperty('--accent', theme.accent);
+            document.body.style.background = `radial-gradient(circle at top, ${theme.card}, ${theme.bg})`;
+        }
+
         function selectRole(role) {
             document.getElementById('roleSelection').classList.add('hidden');
             if (role === 'presenter') {
@@ -337,8 +364,8 @@
             document.getElementById('qrcode').innerHTML = "";
             new QRCode(document.getElementById("qrcode"), {
                 text: joinUrl,
-                width: 160,
-                height: 160
+                width: 150,
+                height: 150
             });
             document.getElementById('joinLinkText').innerText = joinUrl;
         }
@@ -376,7 +403,7 @@
 
                 if (!data) {
                     badge.innerText = "0 Online";
-                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 15px 0; font-style: italic;">Waiting for participants to join...</p>`;
+                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 30px 0; font-style: italic;">Waiting for participants to join...</p>`;
                     return;
                 }
 
@@ -388,7 +415,7 @@
                     let p = data[key];
                     let item = document.createElement('div');
                     item.className = 'participant-item';
-                    item.innerHTML = `<span><strong>${p.name}</strong></span><span style="color: #818cf8; background: rgba(99,102,241,0.1); padding: 4px 10px; border-radius: 8px;">${p.team}</span>`;
+                    item.innerHTML = `<span><strong>${p.name}</strong></span><span style="color: var(--accent); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px;">${p.team}</span>`;
                     container.appendChild(item);
                 });
             });
@@ -454,6 +481,8 @@
                 let qNum = state.questionNum || 1;
                 let totalQ = state.totalQuestions || 40;
 
+                applyTheme(qNum);
+
                 document.getElementById('currentQHeader').innerText = `Question ${qNum} / ${totalQ}`;
                 document.getElementById('totalQInput').value = totalQ;
                 document.getElementById('jumpQInput').value = qNum;
@@ -462,15 +491,15 @@
                 let btn = document.getElementById('toggleBuzzerBtn');
                 if (state.buzzerOpen) {
                     btn.innerText = "Close Buzzer";
-                    btn.style.background = "linear-gradient(135deg, var(--danger), #b91c1c)";
+                    btn.style.background = "var(--danger)";
                 } else {
                     btn.innerText = "Open Buzzer for Question";
-                    btn.style.background = "linear-gradient(135deg, var(--success), #059669)";
+                    btn.style.background = "var(--success)";
                 }
 
                 if (state.winnerTeam) {
-                    document.getElementById('buzzerWinnerDisplay').innerText = `⚡ First Buzzer: ${state.winnerTeam}`;
-                    document.getElementById('selectedStudentCard').innerText = `Rep: ${state.selectedStudent}`;
+                    document.getElementById('buzzerWinnerDisplay').innerText = `⚡ ${state.winnerTeam} BUZZED FIRST!`;
+                    document.getElementById('selectedStudentCard').innerText = `Representative: ${state.selectedStudent}`;
                 } else {
                     document.getElementById('buzzerWinnerDisplay').innerText = state.buzzerOpen ? "🔔 Buzzer is OPEN! Waiting..." : "🔒 Buzzer is Closed";
                     document.getElementById('selectedStudentCard').innerText = "";
@@ -503,6 +532,8 @@
             db.ref('quizState').on('value', snapshot => {
                 let state = snapshot.val();
                 if (!state) return;
+
+                applyTheme(state.questionNum || 1);
 
                 let buzzerContainer = document.getElementById('buzzerContainer');
                 let statusTitle = document.getElementById('participantStatusTitle');
