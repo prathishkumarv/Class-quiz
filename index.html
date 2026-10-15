@@ -49,7 +49,6 @@
             transition: all 0.4s ease;
         }
 
-        /* Expands to 85% of screen width and height for Presenter Dashboard */
         .container.dashboard-mode {
             width: 85vw;
             height: 85vh;
@@ -62,7 +61,7 @@
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 20px;
-            padding: 30px;
+            padding: 25px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.6);
             text-align: center;
             backdrop-filter: blur(12px);
@@ -84,35 +83,35 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 14px 20px;
+            padding: 12px 18px;
             font-size: 1rem;
             border-radius: 12px;
             cursor: pointer;
             width: 100%;
             transition: all 0.25s ease;
             font-weight: 600;
-            margin-top: 8px;
+            margin-top: 6px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         button:hover { filter: brightness(1.15); transform: translateY(-2px); }
         button:active { transform: translateY(0); }
 
-        input {
+        input, select {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background-color: rgba(3, 7, 18, 0.9);
             border: 2px solid #374151;
             border-radius: 12px;
             color: white;
             font-size: 1rem;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             box-sizing: border-box;
             text-align: center;
             transition: border-color 0.2s;
         }
 
-        input:focus { border-color: var(--primary); outline: none; }
+        input:focus, select:focus { border-color: var(--primary); outline: none; }
 
         .hidden { display: none !important; }
 
@@ -123,9 +122,9 @@
             color: white;
             font-weight: 800;
             border-radius: 50%;
-            width: 220px;
-            height: 220px;
-            margin: 25px auto;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -152,15 +151,15 @@
             display: inline-block;
             font-weight: 700;
             color: var(--accent);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .qr-box {
             background: white;
-            padding: 12px;
-            border-radius: 14px;
+            padding: 10px;
+            border-radius: 12px;
             display: inline-block;
-            margin: 10px 0;
+            margin: 8px 0;
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
@@ -172,7 +171,7 @@
             text-align: left;
             align-items: stretch;
             flex-grow: 1;
-            margin-top: 15px;
+            margin-top: 10px;
             overflow: hidden;
         }
 
@@ -193,7 +192,7 @@
         }
 
         .participant-item {
-            padding: 12px 14px;
+            padding: 10px 12px;
             border-bottom: 1px solid #1f2937;
             display: flex;
             justify-content: space-between;
@@ -218,9 +217,68 @@
             letter-spacing: 1px;
             margin-bottom: 10px;
         }
+
+        /* Leaderboard Modal Overlay */
+        #leaderboardModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+        .leaderboard-card {
+            background: #111827;
+            border: 2px solid var(--primary);
+            border-radius: 24px;
+            padding: 35px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(99, 102, 241, 0.4);
+            animation: zoomIn 0.3s ease;
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .leaderboard-rank-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(3, 7, 18, 0.7);
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #1f2937;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* Timer Badge */
+        #timerDisplay {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fbbf24;
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
+
+    <!-- LEADERBOARD POPUP MODAL -->
+    <div id="leaderboardModal" class="hidden">
+        <div class="leaderboard-card">
+            <h1 style="color: #fbbf24; margin-bottom: 5px;">🏆 Live Leaderboard & Reaction Times 🏆</h1>
+            <p id="leaderboardSubtitle" style="color: var(--text-muted); margin-bottom: 20px;">Standings & Speed Records</p>
+            <div id="leaderboardList" style="max-height: 280px; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Dynamically populated scores & timing -->
+            </div>
+            <button onclick="closeLeaderboard()" style="background: var(--success); font-size: 1.1rem; padding: 14px;">Continue to Next Question ➔</button>
+        </div>
+    </div>
 
     <div class="container" id="mainContainer">
         <!-- ROLE SELECTION -->
@@ -246,7 +304,8 @@
             <div id="statusPillContainer">
                 <span class="status-pill" id="statusPill" style="background: rgba(156,163,175,0.2); color: var(--text-muted);">Stand By</span>
             </div>
-            <h2 id="participantStatusTitle" style="margin-top: 15px;">Waiting for Presenter...</h2>
+            <div id="timerDisplay">--:--</div>
+            <h2 id="participantStatusTitle" style="margin-top: 10px;">Waiting for Presenter...</h2>
             <p id="participantStatusDesc" style="color: var(--text-muted); font-size: 0.95rem;">The buzzer will activate automatically when a question opens.</p>
             
             <div id="buzzerContainer" style="display:none;">
@@ -255,16 +314,16 @@
         </div>
 
         <!-- PRESENTER DASHBOARD -->
-        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 25px;">
+        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 20px;">
             <h1 style="text-align: center; margin-bottom: 10px;">Presenter Dashboard</h1>
             
             <div class="dashboard-grid">
                 
                 <!-- COLUMN 1: Dedicated Live Participants Full Section -->
-                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 20px; border-radius: 16px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
-                    <h3 style="margin: 0 0 15px 0; display: flex; justify-content: space-between; align-items: center; font-size: 1.05rem;">
+                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 15px; border-radius: 16px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
+                    <h3 style="margin: 0 0 12px 0; display: flex; justify-content: space-between; align-items: center; font-size: 1rem;">
                         <span>👥 Live Participants</span> 
-                        <span id="participantCountBadge" style="background: var(--primary); font-size: 0.8rem; padding: 4px 10px; border-radius: 12px;">0 Online</span>
+                        <span id="participantCountBadge" style="background: var(--primary); font-size: 0.75rem; padding: 3px 8px; border-radius: 10px;">0 Online</span>
                     </h3>
                     <div class="participant-list" id="participantContainer">
                         <p style="color: var(--text-muted); text-align: center; margin: 30px 0; font-style: italic;">Waiting for participants to join...</p>
@@ -273,53 +332,63 @@
 
                 <!-- COLUMN 2: Central Controls & Massive Buzzer Feed -->
                 <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-                    <!-- QUESTION CONTROL & SETTINGS -->
-                    <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 18px; border-radius: 16px; text-align: center;">
-                        <h3 id="currentQHeader" style="margin: 0 0 12px 0; color: var(--accent); font-size: 1.2rem;">Question 1 / 40</h3>
+                    <!-- QUESTION CONTROL & TIMER SETTINGS -->
+                    <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 15px; border-radius: 16px; text-align: center;">
+                        <h3 id="currentQHeader" style="margin: 0 0 10px 0; color: var(--accent); font-size: 1.1rem;">Question 1 / 40</h3>
                         
-                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                            <button onclick="changeQuestion(-1)" style="margin:0; background: #1f2937;">◀ Prev Q</button>
-                            <button onclick="changeQuestion(1)" style="margin:0; background: #1f2937;">Next Q ▶</button>
+                        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                            <button onclick="changeQuestion(-1)" style="margin:0; background: #1f2937; padding: 8px;">◀ Prev Q</button>
+                            <button onclick="changeQuestion(1)" style="margin:0; background: #1f2937; padding: 8px;">Next Q ▶</button>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;">
-                            <div style="background: rgba(17, 24, 39, 0.9); padding: 8px 10px; border-radius: 10px; border: 1px solid var(--card-border);">
-                                <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 4px;">JUMP TO QUESTION</label>
-                                <div style="display: flex; gap: 6px;">
-                                    <input type="number" id="jumpQInput" min="1" value="1" style="margin:0; padding: 6px; font-size: 0.9rem;">
-                                    <button onclick="jumpToQuestion()" style="margin:0; padding: 6px 12px; width: auto;">Go</button>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: left;">
+                            <div style="background: rgba(17, 24, 39, 0.9); padding: 6px 8px; border-radius: 8px; border: 1px solid var(--card-border);">
+                                <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">JUMP Q</label>
+                                <div style="display: flex; gap: 4px;">
+                                    <input type="number" id="jumpQInput" min="1" value="1" style="margin:0; padding: 4px; font-size: 0.85rem;">
+                                    <button onclick="jumpToQuestion()" style="margin:0; padding: 4px 8px; width: auto; font-size: 0.8rem;">Go</button>
                                 </div>
                             </div>
-                            <div style="background: rgba(17, 24, 39, 0.9); padding: 8px 10px; border-radius: 10px; border: 1px solid var(--card-border);">
-                                <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 4px;">TOTAL QUESTIONS</label>
-                                <input type="number" id="totalQInput" min="1" value="40" onchange="updateTotalQuestions(this.value)" style="margin:0; padding: 6px; font-size: 0.9rem;">
+                            <div style="background: rgba(17, 24, 39, 0.9); padding: 6px 8px; border-radius: 8px; border: 1px solid var(--card-border);">
+                                <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">TOTAL Qs</label>
+                                <input type="number" id="totalQInput" min="1" value="40" onchange="updateTotalQuestions(this.value)" style="margin:0; padding: 4px; font-size: 0.85rem;">
+                            </div>
+                            <div style="background: rgba(17, 24, 39, 0.9); padding: 6px 8px; border-radius: 8px; border: 1px solid var(--card-border);">
+                                <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">TIMER (SEC)</label>
+                                <select id="timerDurationSelect" style="margin:0; padding: 4px; font-size: 0.85rem;">
+                                    <option value="10">10s</option>
+                                    <option value="15" selected>15s</option>
+                                    <option value="30">30s</option>
+                                    <option value="60">60s</option>
+                                </select>
                             </div>
                         </div>
                     </div>
 
                     <div style="text-align: center;">
-                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background: var(--success); font-size: 1.2rem; padding: 15px; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);">Open Buzzer for Question</button>
+                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background: var(--success); font-size: 1.1rem; padding: 12px; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);">Open Buzzer for Question</button>
                     </div>
 
                     <!-- MASSIVE LIVE BUZZER FEED -->
-                    <div id="liveAlertBox" style="background: rgba(3, 7, 18, 0.85); border: 3px solid var(--primary); padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);">
-                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px;">⚡ Massive Live Buzzer Feed ⚡</h3>
-                        <h2 id="buzzerWinnerDisplay" style="color: #fbbf24; margin: 10px 0; font-size: 1.6rem; font-weight: 800;">Buzzer is Closed</h2>
-                        <div id="selectedStudentCard" style="font-size: 1.1rem; color: #38bdf8; font-weight: 700;"></div>
+                    <div id="liveAlertBox" style="background: rgba(3, 7, 18, 0.85); border: 3px solid var(--primary); padding: 15px; border-radius: 16px; text-align: center; box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);">
+                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px;">⚡ Massive Live Buzzer Feed ⚡</h3>
+                        <div id="presenterTimer" style="font-size: 1.3rem; color: #fbbf24; font-weight: 800; margin: 2px 0;">Time Left: --s</div>
+                        <h2 id="buzzerWinnerDisplay" style="color: #fbbf24; margin: 6px 0; font-size: 1.4rem; font-weight: 800;">Buzzer is Closed</h2>
+                        <div id="selectedStudentCard" style="font-size: 1rem; color: #38bdf8; font-weight: 700;"></div>
                     </div>
 
-                    <div style="display: flex; gap: 12px;">
-                        <button onclick="gradeAnswer('correct')" style="background: var(--success); margin:0; font-size: 1.05rem; padding: 12px;">Right Answer ✓</button>
-                        <button onclick="gradeAnswer('wrong')" style="background: var(--danger); margin:0; font-size: 1.05rem; padding: 12px;">Wrong Answer ✗</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="gradeAnswer('correct')" style="background: var(--success); margin:0; font-size: 1rem; padding: 10px;">Right Answer ✓</button>
+                        <button onclick="gradeAnswer('wrong')" style="background: var(--danger); margin:0; font-size: 1rem; padding: 10px;">Wrong Answer ✗</button>
                     </div>
                 </div>
 
                 <!-- COLUMN 3: QR Code & Join Link -->
-                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 20px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; box-sizing: border-box;">
-                    <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;">📱 Scan to Join Live</h3>
+                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 15px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; box-sizing: border-box;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 1rem;">📱 Scan to Join Live</h3>
                     <div class="qr-box" id="qrcode"></div>
-                    <p style="margin: 15px 0 4px 0; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Direct Link:</p>
-                    <p style="margin: 0; word-break: break-all; font-size: 0.75rem; color: var(--accent); background: rgba(17, 24, 39, 0.9); padding: 8px; border-radius: 8px; border: 1px solid var(--card-border);" id="joinLinkText"></p>
+                    <p style="margin: 10px 0 3px 0; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Direct Link:</p>
+                    <p style="margin: 0; word-break: break-all; font-size: 0.7rem; color: var(--accent); background: rgba(17, 24, 39, 0.9); padding: 6px; border-radius: 6px; border: 1px solid var(--card-border);" id="joinLinkText"></p>
                 </div>
 
             </div>
@@ -342,29 +411,14 @@
 
         let myName = '';
         let myTeam = '';
+        let countdownInterval = null;
 
-        // Dynamic Themed Background Images matching the color palette
         const colorThemes = [
-            { 
-                primary: '#6366f1', accent: '#818cf8', 
-                bgImg: 'url("https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1920&auto=format&fit=crop")' 
-            }, // Indigo / Tech Circuit
-            { 
-                primary: '#10b981', accent: '#34d399', 
-                bgImg: 'url("https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1920&auto=format&fit=crop")' 
-            }, // Emerald / Vibrant Gradient
-            { 
-                primary: '#f59e0b', accent: '#fbbf24', 
-                bgImg: 'url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop")' 
-            }, // Amber / Sunset Gold
-            { 
-                primary: '#ec4899', accent: '#f472b6', 
-                bgImg: 'url("https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1920&auto=format&fit=crop")' 
-            }, // Rose / Cyberpunk Neon
-            { 
-                primary: '#06b6d4', accent: '#22d3ee', 
-                bgImg: 'url("https://images.unsplash.com/photo-1510519138161-51203b573514?q=80&w=1920&auto=format&fit=crop")' 
-            }  // Cyan / Deep Blue Tech
+            { primary: '#6366f1', accent: '#818cf8', bgImg: 'url("https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1920&auto=format&fit=crop")' },
+            { primary: '#10b981', accent: '#34d399', bgImg: 'url("https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1920&auto=format&fit=crop")' },
+            { primary: '#f59e0b', accent: '#fbbf24', bgImg: 'url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop")' },
+            { primary: '#ec4899', accent: '#f472b6', bgImg: 'url("https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1920&auto=format&fit=crop")' },
+            { primary: '#06b6d4', accent: '#22d3ee', bgImg: 'url("https://images.unsplash.com/photo-1510519138161-51203b573514?q=80&w=1920&auto=format&fit=crop")' }
         ];
 
         function applyTheme(qNum) {
@@ -382,6 +436,7 @@
                 generateJoinQRCode();
                 initPresenterSync();
                 listenForParticipants();
+                listenForLeaderboard();
             } else {
                 document.getElementById('participantLogin').classList.remove('hidden');
             }
@@ -394,8 +449,8 @@
             document.getElementById('qrcode').innerHTML = "";
             new QRCode(document.getElementById("qrcode"), {
                 text: joinUrl,
-                width: 140,
-                height: 140
+                width: 130,
+                height: 130
             });
             document.getElementById('joinLinkText').innerText = joinUrl;
         }
@@ -418,11 +473,14 @@
 
             newRef.onDisconnect().remove();
 
+            db.ref('scores/' + myTeam).transaction(curr => curr || 0);
+
             document.getElementById('participantLogin').classList.add('hidden');
             document.getElementById('participantScreen').classList.remove('hidden');
             document.getElementById('displayTeamName').innerText = `Team: ${myTeam}`;
 
             initParticipantSync();
+            listenForLeaderboard();
         }
 
         function listenForParticipants() {
@@ -465,7 +523,9 @@
                     questionNum: next,
                     buzzerOpen: false,
                     winnerTeam: null,
-                    selectedStudent: null
+                    selectedStudent: null,
+                    reactionTime: null,
+                    timerExpiresAt: null
                 });
             });
         }
@@ -483,7 +543,9 @@
                     questionNum: targetQ,
                     buzzerOpen: false,
                     winnerTeam: null,
-                    selectedStudent: null
+                    selectedStudent: null,
+                    reactionTime: null,
+                    timerExpiresAt: null
                 });
             });
         }
@@ -497,11 +559,22 @@
         function toggleBuzzerState() {
             db.ref('quizState/buzzerOpen').once('value', snapshot => {
                 let isOpen = snapshot.val();
-                db.ref('quizState').update({
-                    buzzerOpen: !isOpen,
-                    winnerTeam: null,
-                    selectedStudent: null
-                });
+                if (!isOpen) {
+                    // Opening buzzer with timer
+                    let durationSec = parseInt(document.getElementById('timerDurationSelect').value) || 15;
+                    let expiresAt = Date.now() + (durationSec * 1000);
+                    db.ref('quizState').update({
+                        buzzerOpen: true,
+                        winnerTeam: null,
+                        selectedStudent: null,
+                        reactionTime: null,
+                        openedAt: Date.now(),
+                        timerExpiresAt: expiresAt
+                    });
+                } else {
+                    // Manual close
+                    db.ref('quizState').update({ buzzerOpen: false, timerExpiresAt: null });
+                }
             });
         }
 
@@ -528,31 +601,115 @@
                 }
 
                 if (state.winnerTeam) {
-                    document.getElementById('buzzerWinnerDisplay').innerText = `⚡ ${state.winnerTeam} BUZZED FIRST!`;
+                    document.getElementById('buzzerWinnerDisplay').innerText = `⚡ ${state.winnerTeam} (${state.reactionTime}s)`;
                     document.getElementById('selectedStudentCard').innerText = `Representative: ${state.selectedStudent}`;
+                    document.getElementById('presenterTimer').innerText = "Buzzer Locked";
                 } else {
-                    document.getElementById('buzzerWinnerDisplay').innerText = state.buzzerOpen ? "🔔 Buzzer is OPEN! Waiting..." : "🔒 Buzzer is Closed";
+                    document.getElementById('buzzerWinnerDisplay').innerText = state.buzzerOpen ? "🔔 Buzzer is OPEN!" : "🔒 Buzzer is Closed";
                     document.getElementById('selectedStudentCard').innerText = "";
                 }
             });
         }
 
+        // Realtime Timer ticker for Presenter & Participants
+        setInterval(() => {
+            db.ref('quizState').once('value', snapshot => {
+                let state = snapshot.val();
+                if (!state || !state.buzzerOpen || !state.timerExpiresAt) return;
+
+                let timeLeft = Math.max(0, Math.ceil((state.timerExpiresAt - Date.now()) / 1000));
+                
+                let timerText = `Time Left: ${timeLeft}s`;
+                let pTimer = document.getElementById('presenterTimer');
+                let cTimer = document.getElementById('timerDisplay');
+
+                if (pTimer) pTimer.innerText = timerText;
+                if (cTimer) cTimer.innerText = `${timeLeft}s`;
+
+                // Auto turn off when timer expires
+                if (timeLeft <= 0 && state.buzzerOpen) {
+                    db.ref('quizState').update({ buzzerOpen: false, timerExpiresAt: null });
+                }
+            });
+        }, 500);
+
         function gradeAnswer(result) {
+            db.ref('quizState').once('value', snapshot => {
+                let state = snapshot.val();
+                if (state && state.winnerTeam) {
+                    let scoringTeam = state.winnerTeam.split(" (")[0];
+                    db.ref('scores/' + scoringTeam).transaction(curr => {
+                        let score = curr || 0;
+                        return result === 'correct' ? score + 10 : score - 5;
+                    });
+                }
+            });
+
+            db.ref('showLeaderboard').set(true);
+
             if (result === 'correct') {
-                alert('Marked Correct! Move to the next question.');
-                db.ref('quizState').update({ buzzerOpen: false, winnerTeam: null, selectedStudent: null });
+                db.ref('quizState').update({ buzzerOpen: false, winnerTeam: null, selectedStudent: null, reactionTime: null });
             } else {
-                alert('Marked Wrong. Re-opening buzzer for other teams.');
-                db.ref('quizState').update({ winnerTeam: null, selectedStudent: null, buzzerOpen: true });
+                db.ref('quizState').update({ winnerTeam: null, selectedStudent: null, reactionTime: null, buzzerOpen: true });
             }
+        }
+
+        function closeLeaderboard() {
+            db.ref('showLeaderboard').set(false);
+        }
+
+        function listenForLeaderboard() {
+            db.ref('showLeaderboard').on('value', snapshot => {
+                let show = snapshot.val();
+                let modal = document.getElementById('leaderboardModal');
+                if (show) {
+                    modal.classList.remove('hidden');
+                    updateLeaderboardUI();
+                } else {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+
+        function updateLeaderboardUI() {
+            db.ref('scores').once('value', snapshot => {
+                let scores = snapshot.val() || {};
+                let listContainer = document.getElementById('leaderboardList');
+                listContainer.innerHTML = "";
+
+                db.ref('quizState/reactionTime').once('value', rtSnap => {
+                    let lastReaction = rtSnap.val();
+
+                    let sortedTeams = Object.keys(scores).map(team => ({
+                        name: team,
+                        score: scores[team]
+                    })).sort((a, b) => b.score - a.score);
+
+                    if (sortedTeams.length === 0) {
+                        listContainer.innerHTML = `<p style="color: var(--text-muted);">No scores recorded yet.</p>`;
+                        return;
+                    }
+
+                    sortedTeams.forEach((t, index) => {
+                        let row = document.createElement('div');
+                        row.className = 'leaderboard-rank-row';
+                        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                        let reactionInfo = (index === 0 && lastReaction) ? ` ⚡ (${lastReaction}s)` : '';
+                        row.innerHTML = `<span>${medal} &nbsp; <strong>${t.name}</strong>${reactionInfo}</span> <span style="color: #fbbf24; font-weight: 800;">${t.score} pts</span>`;
+                        listContainer.appendChild(row);
+                    });
+                });
+            });
         }
 
         function hitBuzzer() {
             db.ref('quizState').transaction(state => {
                 if (state && state.buzzerOpen && !state.winnerTeam) {
+                    let reactionTime = ((Date.now() - state.openedAt) / 1000).toFixed(2);
                     state.winnerTeam = myTeam;
                     state.buzzerOpen = false; 
                     state.selectedStudent = myName + " (" + myTeam + ")";
+                    state.reactionTime = reactionTime;
                 }
                 return state;
             });
@@ -569,6 +726,7 @@
                 let statusTitle = document.getElementById('participantStatusTitle');
                 let statusDesc = document.getElementById('participantStatusDesc');
                 let statusPill = document.getElementById('statusPill');
+                let timerDisplay = document.getElementById('timerDisplay');
 
                 if (state.buzzerOpen) {
                     buzzerContainer.style.display = 'block';
@@ -582,13 +740,14 @@
                     statusPill.innerText = "Stand By";
                     statusPill.style.background = "rgba(156,163,175,0.2)";
                     statusPill.style.color = "var(--text-muted)";
+                    timerDisplay.innerText = "--:--";
 
                     if (state.winnerTeam === myTeam) {
                         statusTitle.innerText = `🎉 Your Team Buzzed First!`;
-                        statusDesc.innerText = `Selected Representative: ${state.selectedStudent}`;
+                        statusDesc.innerText = `Reaction Time: ${state.reactionTime}s | Rep: ${state.selectedStudent}`;
                     } else if (state.winnerTeam) {
                         statusTitle.innerText = `🔔 ${state.winnerTeam} buzzed first!`;
-                        statusDesc.innerText = "Stand by for potential steal.";
+                        statusDesc.innerText = `Speed: ${state.reactionTime}s. Stand by for steal.`;
                     } else {
                         statusTitle.innerText = `Question ${state.questionNum} / ${state.totalQuestions || 40}`;
                         statusDesc.innerText = "Waiting for presenter to open buzzer...";
