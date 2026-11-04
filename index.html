@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Quiz & Smart Board System</title>
+    <title>Kristu Jayanti University - Class Quiz & Smart Board System</title>
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -60,8 +60,8 @@
         }
 
         .container.projector-mode {
-            width: 95vw;
-            height: 92vh;
+            width: 98vw;
+            height: 96vh;
             max-width: none;
         }
 
@@ -283,13 +283,17 @@
             font-weight: bold;
         }
 
-        /* Intro Video Container for Projector */
+        /* Full Screen Looping Intro Video Container for Projector */
         #introVideoContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            position: relative;
             overflow: hidden;
-            border-radius: 16px;
+            border-radius: 20px;
+            z-index: 10;
+            background: #000;
         }
         #introVideoContainer video {
             width: 100%;
@@ -314,17 +318,17 @@
         
         <!-- ROLE SELECTION -->
         <div id="roleSelection" class="card">
-            <h1>🚀 Class Quiz & Smart Board</h1>
+            <h1>🚀 Kristu Jayanti University Quiz</h1>
             <p style="color: var(--text-muted); margin-bottom: 25px;">Select your portal to begin the session.</p>
             <button onclick="selectRole('presenter')">Presenter Dashboard</button>
             <button onclick="selectRole('participant')" style="background: #374151; margin-top: 12px;">Participant Entry</button>
             <button onclick="selectRole('projector')" style="background: #1e1b4b; border: 1px solid var(--primary); margin-top: 12px;">Projection View (Smart Board)</button>
         </div>
 
-        <!-- PARTICIPANT LOGIN (Pre-fed Selection) -->
+        <!-- PARTICIPANT LOGIN (Official BBA Section D Roster) -->
         <div id="participantLogin" class="card hidden">
             <h1>Join the Quiz</h1>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">Select your pre-registered profile & team.</p>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Select your official name & ID from Section D.</p>
             
             <label style="font-size: 0.8rem; color: var(--text-muted); display: block; text-align: left; margin-bottom: 4px;">SELECT YOUR NAME & ID</label>
             <select id="fedStudentSelect">
@@ -440,21 +444,16 @@
         <!-- DEDICATED PROJECTION VIEW (SMART BOARD) -->
         <div id="projectorView" class="card hidden" style="padding: 20px; position: relative;">
             
-            <!-- LOOPING INTRO VIDEO (Shown until Quiz starts) -->
+            <!-- FULL SCREEN LOOPING INTRO VIDEO (`college.mp4`) -->
             <div id="introVideoContainer">
-                <video autoplay loop muted playsinline poster="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1920&auto=format&fit=crop">
-                    <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-network-lines-27672-large.mp4" type="video/mp4">
-                    Your browser does not support video background.
+                <video autoplay loop muted playsinline>
+                    <source src="data:video/mp4;base64,AAAA..." type="video/mp4">
+                    Your browser does not support video playback.
                 </video>
-                <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(9,13,22,0.6); display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                    <h1 style="font-size: 3.5rem; text-shadow: 0 0 20px rgba(99,102,241,0.8);">🚀 WELCOME TO THE CLASS QUIZ</h1>
-                    <h2 style="color: var(--accent); font-size: 1.8rem;">Kannada Rajyothsava & Trivia Championship</h2>
-                    <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 20px;">Scan QR code or open link to join your team!</p>
-                </div>
             </div>
 
             <!-- LIVE GAME STATE SCREEN (Fades in when quiz begins) -->
-            <div id="projectorGameContent" class="hidden" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+            <div id="projectorGameContent" class="hidden" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; z-index: 5; position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border); padding-bottom: 15px;">
                     <h1 id="projectorQHeader" style="margin:0; font-size: 2.5rem; color: var(--accent);">Question 1 / 40</h1>
                     <div id="projectorTimer" style="font-size: 3rem; font-weight: 800; color: #fbbf24;">--:--</div>
@@ -495,13 +494,57 @@
         let myTeam = '';
         let currentRole = '';
 
-        // Pre-fed Student Roster List
+        // Official BBA I Semester Section D Roster
         const preFedStudents = [
-            { name: "Prathish Kumar V", id: "26BBAD45" },
-            { name: "Nirbasan Khundrakpam", id: "26BBAD15" },
-            { name: "Aditya Balakrishnan", id: "26BBAD04" },
-            { name: "Arkyaprava Pyne", id: "26BBAD32" },
-            { name: "Udit Kaushik", id: "26BBAD50" }
+            { name: "ABHIJEET MAHALIK", id: "26BBAD01" },
+            { name: "ABHINAV JAYAN", id: "26BBAD02" },
+            { name: "ADITYA BALAKRISHNAN", id: "26BBAD04" },
+            { name: "ANAYA JACCOB SHABU", id: "26BBAD05" },
+            { name: "ANGELA ELSA ANTO", id: "26BBAD06" },
+            { name: "AYUB RAMJAN KEWAR", id: "26BBAD07" },
+            { name: "DHANUSH DHARMENDRA", id: "26BBAD08" },
+            { name: "GONDELA SAI SATHWIK", id: "26BBAD09" },
+            { name: "IZAAN AHMED", id: "26BBAD10" },
+            { name: "JORDAN IMMANUEL STANLEY", id: "26BBAD11" },
+            { name: "MATHEW K M", id: "26BBAD12" },
+            { name: "MATTHEW VANMALSAWMSANGA CHAWNGTHU", id: "26BBAD13" },
+            { name: "MD WAQUAS KHAN", id: "26BBAD14" },
+            { name: "NIRBASAN KHUNDRAKPAM", id: "26BBAD15" },
+            { name: "RADHIKA SINGH", id: "26BBAD16" },
+            { name: "RAJ VERMA", id: "26BBAD17" },
+            { name: "REMRUATPUII", id: "26BBAD18" },
+            { name: "RIKHIL D", id: "26BBAD19" },
+            { name: "ROHIT", id: "26BBAD20" },
+            { name: "SALINA REANG", id: "26BBAD21" },
+            { name: "SANSKAR CHOUDHARY", id: "26BBAD22" },
+            { name: "SHAWN PAUL", id: "26BBAD23" },
+            { name: "SHRIMAN K", id: "26BBAD24" },
+            { name: "SK SAHIL HOSSAIN", id: "26BBAD25" },
+            { name: "SWARSHYA A", id: "26BBAD26" },
+            { name: "VANSHIKA SIDDHARTHA SARAOGI", id: "26BBAD27" },
+            { name: "VIDISHA SINHA", id: "26BBAD28" },
+            { name: "VIVIAN MATHEW BIJU", id: "26BBAD29" },
+            { name: "ADHIL JOSE BINOY", id: "26BBAD30" },
+            { name: "ANVITA K BALLAL", id: "26BBAD31" },
+            { name: "ARKYAPRAVA PYNE", id: "26BBAD32" },
+            { name: "KHUSHI DILEEP BHATI", id: "26BBAD33" },
+            { name: "MUSARATH SAFA", id: "26BBAD34" },
+            { name: "NANDA KRISHNAN S NAIR", id: "26BBAD35" },
+            { name: "SURAJ S", id: "26BBAD37" },
+            { name: "SYED AMEEN A", id: "26BBAD38" },
+            { name: "TAMMINENI DHARINEESH RAO", id: "26BBAD39" },
+            { name: "UDIT KAUSHIK", id: "26BBAD40" },
+            { name: "VINTI JAIN", id: "26BBAD41" },
+            { name: "Y JASON SANTO", id: "26BBAD42" },
+            { name: "KAVIKSHA P", id: "26BBAD43" },
+            { name: "LITHIKA S V", id: "26BBAD44" },
+            { name: "PRATHISH KUMAR V", id: "26BBAD45" },
+            { name: "RENISH J", id: "26BBAD46" },
+            { name: "YUSUF", id: "26BBAD47" },
+            { name: "VADDI UMA SRI VARSHITHA", id: "26BBAD49" },
+            { name: "GANESH", id: "26BBAD50" },
+            { name: "SAKSHI PRIYA", id: "26BBAD51" },
+            { name: "NUZO THISA", id: "26BBAD52" }
         ];
 
         const colorThemes = [
@@ -550,7 +593,7 @@
             } else if (role === 'projector') {
                 document.getElementById('mainContainer').classList.add('projector-mode');
                 document.getElementById('projectorView').classList.remove('hidden');
-                document.getElementById('closeLeaderboardBtn').classList.add('hidden'); // Presenter closes modal
+                document.getElementById('closeLeaderboardBtn').classList.add('hidden');
                 initProjectorSync();
                 listenForLeaderboard();
             } else {
@@ -600,7 +643,6 @@
             document.getElementById('participantScreen').classList.remove('hidden');
             document.getElementById('displayTeamName').innerText = `${myName} | ${myTeam}`;
 
-            // Anti-Cheat Tab-switch tracking
             document.addEventListener("visibilitychange", () => {
                 if (document.hidden) {
                     newRef.update({ tabSwitched: true });
@@ -707,7 +749,6 @@
                 let state = snapshot.val() || {};
                 
                 if (!state.buzzerOpen && !state.thinkingPhase) {
-                    // Trigger 5-second thinking reveal first
                     db.ref('quizState').update({
                         thinkingPhase: true,
                         buzzerOpen: false,
@@ -725,7 +766,7 @@
                             openedAt: Date.now(),
                             timerExpiresAt: expiresAt
                         });
-                    }, 5000); // 5 second reveal phase
+                    }, 5000);
                 } else {
                     db.ref('quizState').update({ buzzerOpen: false, thinkingPhase: false, timerExpiresAt: null });
                 }
@@ -833,7 +874,6 @@
             });
         }
 
-        // Global Timer Tick
         setInterval(() => {
             db.ref('quizState').once('value', snapshot => {
                 let state = snapshot.val();
