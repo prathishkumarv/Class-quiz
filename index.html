@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kristu Jayanti University - Class Quiz & Smart Board System</title>
+    <title>Kristu Jayanti University - Class Quiz System</title>
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -52,8 +52,8 @@
         }
 
         .container.dashboard-mode {
-            width: 85vw;
-            height: 85vh;
+            width: 90vw;
+            height: 88vh;
             max-width: none;
             display: flex;
             flex-direction: column;
@@ -108,13 +108,13 @@
 
         input, select {
             width: 100%;
-            padding: 12px;
+            padding: 10px 12px;
             background-color: rgba(3, 7, 18, 0.9);
             border: 2px solid #374151;
             border-radius: 12px;
             color: white;
-            font-size: 1rem;
-            margin-bottom: 12px;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
             box-sizing: border-box;
             text-align: center;
             transition: border-color 0.2s;
@@ -172,11 +172,11 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
-        /* 3-Column Layout */
+        /* 3-Column Presenter Grid */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 320px 1fr 320px;
-            gap: 20px;
+            grid-template-columns: 340px 1fr 280px;
+            gap: 16px;
             text-align: left;
             align-items: stretch;
             flex-grow: 1;
@@ -193,20 +193,20 @@
             background: rgba(3, 7, 18, 0.85);
             border: 1px solid var(--card-border);
             border-radius: 14px;
-            padding: 12px;
+            padding: 10px;
             overflow-y: auto;
             text-align: left;
-            margin-top: 10px;
+            margin-top: 8px;
             flex-grow: 1;
         }
 
         .participant-item {
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-bottom: 1px solid #1f2937;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             animation: fadeIn 0.3s ease;
         }
         .participant-item:last-child { border-bottom: none; }
@@ -227,7 +227,7 @@
             margin-bottom: 10px;
         }
 
-        /* Leaderboard Modal Overlay */
+        /* Leaderboard Modal */
         #leaderboardModal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -277,9 +277,9 @@
             background: rgba(239, 68, 68, 0.2);
             border: 1px solid var(--danger);
             color: #fca5a5;
-            padding: 4px 8px;
+            padding: 3px 6px;
             border-radius: 6px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: bold;
         }
 
@@ -299,6 +299,18 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .round-banner {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid var(--accent);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #c7d2fe;
+            margin-bottom: 10px;
+            text-align: center;
         }
     </style>
 </head>
@@ -362,47 +374,63 @@
         </div>
 
         <!-- PRESENTER DASHBOARD -->
-        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 20px;">
-            <h1 style="text-align: center; margin-bottom: 10px;">Presenter Dashboard</h1>
+        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 18px;">
+            <h1 style="text-align: center; margin-bottom: 6px; font-size: 1.6rem;">Presenter Dashboard</h1>
             
+            <!-- ACTIVE ROUND DISPLAY -->
+            <div id="presenterRoundBanner" class="round-banner">
+                Round 1: Kannada & Karnataka Culture 💛❤️
+            </div>
+
             <div class="dashboard-grid">
                 
-                <!-- COLUMN 1: Live Participants & Attendance Approval -->
-                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 15px; border-radius: 16px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
-                    <h3 style="margin: 0 0 12px 0; display: flex; justify-content: space-between; align-items: center; font-size: 1rem;">
-                        <span>👥 Attendance & Roster</span> 
-                        <span id="participantCountBadge" style="background: var(--primary); font-size: 0.75rem; padding: 3px 8px; border-radius: 10px;">0 Online</span>
+                <!-- COLUMN 1: Attendance, Roster Search & Participant Management -->
+                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 12px; border-radius: 16px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
+                    <h3 style="margin: 0 0 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;">
+                        <span>👥 Attendance Manager</span> 
+                        <span id="participantCountBadge" style="background: var(--primary); font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;">0 Online</span>
                     </h3>
+
+                    <!-- SEARCH BAR FOR ROSTER & ACTIVE ATTENDANCE -->
+                    <input type="text" id="rosterSearchInput" onkeyup="filterRosterAndOnline()" placeholder="🔍 Search student name or ID..." style="text-align: left; padding: 8px 12px; font-size: 0.85rem; margin-bottom: 6px;">
+
                     <div class="participant-list" id="participantContainer">
                         <p style="color: var(--text-muted); text-align: center; margin: 30px 0; font-style: italic;">Waiting for participants...</p>
                     </div>
                 </div>
 
-                <!-- COLUMN 2: Central Controls & Question reveal logic -->
+                <!-- COLUMN 2: Central Game Controls & Reveal Logic -->
                 <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-                    <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 15px; border-radius: 16px; text-align: center;">
-                        <h3 id="currentQHeader" style="margin: 0 0 10px 0; color: var(--accent); font-size: 1.1rem;">Question 1 / 40</h3>
+                    <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 12px; border-radius: 16px; text-align: center;">
                         
+                        <!-- START QUIZ / INTRO TOGGLE -->
                         <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                            <button id="startQuizBtn" onclick="startQuizOnProjector()" style="background: var(--success); margin:0; padding: 10px; font-size: 0.95rem; font-weight:700;">▶ Start Quiz (Stop Video Loop)</button>
+                            <button id="resetVideoBtn" onclick="resetToVideoLoop()" style="background: #374151; margin:0; padding: 10px; font-size: 0.85rem; width: auto;">🎬 Video Loop</button>
+                        </div>
+
+                        <h3 id="currentQHeader" style="margin: 0 0 8px 0; color: var(--accent); font-size: 1.1rem;">Question 1 / 40</h3>
+                        
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                             <button onclick="changeQuestion(-1)" style="margin:0; background: #1f2937; padding: 8px;">◀ Prev Q</button>
                             <button onclick="changeQuestion(1)" style="margin:0; background: #1f2937; padding: 8px;">Next Q ▶</button>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: left;">
-                            <div style="background: rgba(17, 24, 39, 0.9); padding: 6px 8px; border-radius: 8px; border: 1px solid var(--card-border);">
-                                <label style="font-size: 0.65rem; color: var(--text-muted); display: block;">JUMP Q</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: left;">
+                            <div style="background: rgba(17, 24, 39, 0.9); padding: 5px 6px; border-radius: 8px; border: 1px solid var(--card-border);">
+                                <label style="font-size: 0.6rem; color: var(--text-muted); display: block;">JUMP Q</label>
                                 <div style="display: flex; gap: 4px;">
-                                    <input type="number" id="jumpQInput" min="1" value="1" style="margin:0; padding: 4px; font-size: 0.85rem;">
-                                    <button onclick="jumpToQuestion()" style="margin:0; padding: 4px 8px; width: auto; font-size: 0.8rem;">Go</button>
+                                    <input type="number" id="jumpQInput" min="1" value="1" style="margin:0; padding: 3px; font-size: 0.8rem;">
+                                    <button onclick="jumpToQuestion()" style="margin:0; padding: 3px 6px; width: auto; font-size: 0.75rem;">Go</button>
                                 </div>
                             </div>
-                            <div style="background: rgba(17, 24, 39, 0.9); padding: 6px 8px; border-radius: 8px; border: 1px solid var(--card-border);">
-                                <label style="font-size: 0.65rem; color: var(--text-muted); display: block;">TOTAL Qs</label>
-                                <input type="number" id="totalQInput" min="1" value="40" onchange="updateTotalQuestions(this.value)" style="margin:0; padding: 4px; font-size: 0.85rem;">
+                            <div style="background: rgba(17, 24, 39, 0.9); padding: 5px 6px; border-radius: 8px; border: 1px solid var(--card-border);">
+                                <label style="font-size: 0.6rem; color: var(--text-muted); display: block;">TOTAL Qs</label>
+                                <input type="number" id="totalQInput" min="1" value="40" onchange="updateTotalQuestions(this.value)" style="margin:0; padding: 3px; font-size: 0.8rem;">
                             </div>
-                            <div style="background: rgba(17, 24, 39, 0.9); padding: 6px 8px; border-radius: 8px; border: 1px solid var(--card-border);">
-                                <label style="font-size: 0.65rem; color: var(--text-muted); display: block;">TIMER (SEC)</label>
-                                <select id="timerDurationSelect" style="margin:0; padding: 4px; font-size: 0.85rem;">
+                            <div style="background: rgba(17, 24, 39, 0.9); padding: 5px 6px; border-radius: 8px; border: 1px solid var(--card-border);">
+                                <label style="font-size: 0.6rem; color: var(--text-muted); display: block;">TIMER (SEC)</label>
+                                <select id="timerDurationSelect" style="margin:0; padding: 3px; font-size: 0.8rem;">
                                     <option value="10">10s</option>
                                     <option value="15" selected>15s</option>
                                     <option value="30">30s</option>
@@ -412,30 +440,30 @@
                         </div>
                     </div>
 
-                    <div style="text-align: center;">
-                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background: var(--success); font-size: 1.1rem; padding: 12px; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);">Launch 5s Reveal & Open Buzzer</button>
+                    <div style="text-align: center; margin: 6px 0;">
+                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background: var(--success); font-size: 1rem; padding: 10px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">Launch 5s Reveal & Open Buzzer</button>
                     </div>
 
                     <!-- MASSIVE LIVE BUZZER FEED -->
-                    <div id="liveAlertBox" style="background: rgba(3, 7, 18, 0.85); border: 3px solid var(--primary); padding: 15px; border-radius: 16px; text-align: center; box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);">
-                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px;">⚡ Massive Live Feed ⚡</h3>
-                        <div id="presenterTimer" style="font-size: 1.3rem; color: #fbbf24; font-weight: 800; margin: 2px 0;">Time Left: --s</div>
-                        <h2 id="buzzerWinnerDisplay" style="color: #fbbf24; margin: 6px 0; font-size: 1.4rem; font-weight: 800;">Buzzer is Closed</h2>
-                        <div id="selectedStudentCard" style="font-size: 1rem; color: #38bdf8; font-weight: 700;"></div>
+                    <div id="liveAlertBox" style="background: rgba(3, 7, 18, 0.85); border: 2px solid var(--primary); padding: 10px; border-radius: 14px; text-align: center;">
+                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">⚡ Live Feed ⚡</h3>
+                        <div id="presenterTimer" style="font-size: 1.1rem; color: #fbbf24; font-weight: 800;">Time Left: --s</div>
+                        <h2 id="buzzerWinnerDisplay" style="color: #fbbf24; margin: 4px 0; font-size: 1.2rem; font-weight: 800;">Buzzer Closed</h2>
+                        <div id="selectedStudentCard" style="font-size: 0.9rem; color: #38bdf8; font-weight: 700;"></div>
                     </div>
 
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="gradeAnswer('correct')" style="background: var(--success); margin:0; font-size: 1rem; padding: 10px;">Right Answer ✓</button>
-                        <button onclick="gradeAnswer('wrong')" style="background: var(--danger); margin:0; font-size: 1rem; padding: 10px;">Wrong Answer (Assign Dare 🎭)</button>
+                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                        <button onclick="gradeAnswer('correct')" style="background: var(--success); margin:0; font-size: 0.9rem; padding: 8px;">Right Answer ✓</button>
+                        <button onclick="gradeAnswer('wrong')" style="background: var(--danger); margin:0; font-size: 0.9rem; padding: 8px;">Wrong Answer (Assign Dare 🎭)</button>
                     </div>
                 </div>
 
                 <!-- COLUMN 3: QR Code & Direct Link -->
-                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 15px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; box-sizing: border-box;">
-                    <h3 style="margin: 0 0 8px 0; font-size: 1rem;">📱 Join Session</h3>
+                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 12px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; box-sizing: border-box;">
+                    <h3 style="margin: 0 0 6px 0; font-size: 0.9rem;">📱 Join Session</h3>
                     <div class="qr-box" id="qrcode"></div>
-                    <p style="margin: 10px 0 3px 0; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Direct Link:</p>
-                    <p style="margin: 0; word-break: break-all; font-size: 0.7rem; color: var(--accent); background: rgba(17, 24, 39, 0.9); padding: 6px; border-radius: 6px; border: 1px solid var(--card-border);" id="joinLinkText"></p>
+                    <p style="margin: 8px 0 2px 0; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Direct Link:</p>
+                    <p style="margin: 0; word-break: break-all; font-size: 0.65rem; color: var(--accent); background: rgba(17, 24, 39, 0.9); padding: 4px; border-radius: 6px; border: 1px solid var(--card-border);" id="joinLinkText"></p>
                 </div>
 
             </div>
@@ -447,12 +475,12 @@
             <!-- FULL SCREEN LOOPING INTRO VIDEO (`college.mp4`) -->
             <div id="introVideoContainer">
                 <video autoplay loop muted playsinline>
-                    <source src="data:video/mp4;base64,AAAA..." type="video/mp4">
+                    <source src="college.mp4" type="video/mp4">
                     Your browser does not support video playback.
                 </video>
             </div>
 
-            <!-- LIVE GAME STATE SCREEN (Fades in when quiz begins) -->
+            <!-- LIVE GAME STATE SCREEN (Fades in when quiz starts) -->
             <div id="projectorGameContent" class="hidden" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; z-index: 5; position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border); padding-bottom: 15px;">
                     <h1 id="projectorQHeader" style="margin:0; font-size: 2.5rem; color: var(--accent);">Question 1 / 40</h1>
@@ -493,6 +521,7 @@
         let myName = '';
         let myTeam = '';
         let currentRole = '';
+        let rawParticipantsData = {};
 
         // Official BBA I Semester Section D Roster
         const preFedStudents = [
@@ -609,8 +638,8 @@
             document.getElementById('qrcode').innerHTML = "";
             new QRCode(document.getElementById("qrcode"), {
                 text: joinUrl,
-                width: 130,
-                height: 130
+                width: 120,
+                height: 120
             });
             document.getElementById('joinLinkText').innerText = joinUrl;
         }
@@ -657,22 +686,31 @@
 
         function listenForParticipants() {
             db.ref('activeParticipants').on('value', snapshot => {
-                let container = document.getElementById('participantContainer');
-                let badge = document.getElementById('participantCountBadge');
-                let data = snapshot.val();
+                rawParticipantsData = snapshot.val() || {};
+                filterRosterAndOnline();
+            });
+        }
 
-                if (!data) {
-                    badge.innerText = "0 Online";
-                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 30px 0; font-style: italic;">Waiting for participants...</p>`;
-                    return;
-                }
+        function filterRosterAndOnline() {
+            let container = document.getElementById('participantContainer');
+            let badge = document.getElementById('participantCountBadge');
+            let query = (document.getElementById('rosterSearchInput').value || '').toLowerCase().trim();
 
-                let keys = Object.keys(data);
-                badge.innerText = `${keys.length} Online`;
-                container.innerHTML = "";
+            let keys = Object.keys(rawParticipantsData);
+            badge.innerText = `${keys.length} Online`;
 
-                keys.forEach(key => {
-                    let p = data[key];
+            if (keys.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 20px 0; font-style: italic;">No active participants online.</p>`;
+                return;
+            }
+
+            container.innerHTML = "";
+
+            keys.forEach(key => {
+                let p = rawParticipantsData[key];
+                let searchString = `${p.name} ${p.team}`.toLowerCase();
+
+                if (!query || searchString.includes(query)) {
                     let item = document.createElement('div');
                     item.className = 'participant-item';
                     
@@ -685,12 +723,20 @@
                         <button onclick="removeParticipant('${key}')" style="width:auto; padding:4px 8px; font-size:0.75rem; background:var(--danger); margin:0;">Remove</button>
                     `;
                     container.appendChild(item);
-                });
+                }
             });
         }
 
         function removeParticipant(key) {
             db.ref('activeParticipants/' + key).remove();
+        }
+
+        function startQuizOnProjector() {
+            db.ref('quizState').update({ quizStarted: true });
+        }
+
+        function resetToVideoLoop() {
+            db.ref('quizState').update({ quizStarted: false });
         }
 
         function changeQuestion(dir) {
@@ -781,6 +827,10 @@
 
                 applyTheme(qNum);
 
+                // Round Banner Calculation
+                let roundIdx = Math.floor((qNum - 1) / 10);
+                document.getElementById('presenterRoundBanner').innerText = roundNames[roundIdx] || roundNames[0];
+
                 document.getElementById('currentQHeader').innerText = `Question ${qNum} / ${totalQ}`;
                 document.getElementById('totalQInput').value = totalQ;
                 document.getElementById('jumpQInput').value = qNum;
@@ -802,7 +852,7 @@
                     document.getElementById('selectedStudentCard').innerText = `Rep: ${state.selectedStudent}`;
                     document.getElementById('presenterTimer').innerText = "Buzzer Locked";
                 } else {
-                    document.getElementById('buzzerWinnerDisplay').innerText = state.buzzerOpen ? "🔔 Buzzer is OPEN!" : "🔒 Buzzer is Closed";
+                    document.getElementById('buzzerWinnerDisplay').innerText = state.buzzerOpen ? "🔔 Buzzer is OPEN!" : "🔒 Buzzer Closed";
                     document.getElementById('selectedStudentCard').innerText = "";
                 }
             });
@@ -821,6 +871,9 @@
                 if (state.quizStarted) {
                     videoContainer.classList.add('hidden');
                     gameContent.classList.remove('hidden');
+                } else {
+                    videoContainer.classList.remove('hidden');
+                    gameContent.classList.add('hidden');
                 }
 
                 let qNum = state.questionNum || 1;
