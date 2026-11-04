@@ -15,24 +15,29 @@
 <body class="min-h-screen p-4 md:p-8 flex flex-col justify-center items-center font-sans">
 
     <!-- ========================================== -->
-    <!-- 0. LAUNCH HUB HOME (Shown if no view selected) -->
+    <!-- LAUNCH HUB HOME (Default Landing Page) -->
     <!-- ========================================== -->
     <div id="homeHub" class="w-full max-w-md card p-8 text-center shadow-2xl">
-        <h1 class="text-2xl font-black text-indigo-400 mb-2">Club Activity Portal</h1>
+        <h1 class="text-3xl font-black text-indigo-400 mb-2">Club Activity Portal</h1>
         <p class="text-xs text-gray-400 mb-6">Select the view you want to launch for this session:</p>
         
         <div class="flex flex-col gap-4">
-            <button onclick="launchView('student')" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl text-base shadow-lg transition">📱 Participant View</button>
-            <button onclick="launchView('presenter')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl text-base shadow-lg transition">🎛️ Presenter Dashboard</button>
-            <button onclick="launchView('projector')" class="w-full py-3.5 bg-amber-600 hover:bg-amber-500 font-bold rounded-xl text-base shadow-lg transition">🖥️ Projection View</button>
+            <button onclick="launchView('student')" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl text-base shadow-lg transition">📱 Participant View</button>
+            <button onclick="launchView('presenter')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl text-base shadow-lg transition">🎛️ Presenter Dashboard</button>
+            <button onclick="launchView('projector')" class="w-full py-4 bg-amber-600 hover:bg-amber-500 font-bold rounded-xl text-base shadow-lg transition">🖥️ Projection View</button>
         </div>
     </div>
 
     <!-- MAIN APP WRAPPER (Hidden until a view is selected) -->
     <main id="appContainer" class="w-full max-w-6xl mx-auto flex-grow flex flex-col hidden">
 
+        <!-- Back to Hub Navigation bar -->
+        <div class="mb-4">
+            <button onclick="returnToHub()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-lg text-gray-300">⬅️ Back to Launch Hub</button>
+        </div>
+
         <!-- ========================================== -->
-        <!-- 1. STUDENT AUTHENTICATION & BUZZER VIEW -->
+        <!-- 1. STUDENT / PARTICIPANT AUTH & BUZZER VIEW -->
         <!-- ========================================== -->
         <div id="studentView" class="card p-6 flex-grow flex flex-col items-center justify-center text-center hidden">
             <div id="studentAuthBox" class="w-full max-w-md">
@@ -378,6 +383,11 @@
         function launchView(role) {
             const currentUrl = window.location.href.split('?')[0];
             window.location.href = `${currentUrl}?view=${role}`;
+        }
+
+        function returnToHub() {
+            const currentUrl = window.location.href.split('?')[0];
+            window.location.href = currentUrl;
         }
 
         function autoFillID() {
