@@ -10,6 +10,20 @@
     <style>
         :root { background-color: #030712; color: #f3f4f6; }
         .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; }
+        
+        /* Confetti Animation */
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            opacity: 0.8;
+            animation: fall 3s infinite linear;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gray-950 flex flex-col justify-center items-center font-sans antialiased">
@@ -32,7 +46,7 @@
     <main id="appContainer" class="w-full min-h-screen flex flex-col hidden">
 
         <!-- ========================================== -->
-        <!-- 1. STUDENT / PARTICIPANT VIEW (No Nav Bar) -->
+        <!-- 1. STUDENT / PARTICIPANT VIEW              -->
         <!-- ========================================== -->
         <div id="studentView" class="p-4 md:p-8 flex-grow flex flex-col items-center justify-center text-center hidden w-full max-w-4xl mx-auto">
             <div id="studentAuthBox" class="w-full max-w-md card p-6">
@@ -101,13 +115,14 @@
                         <button onclick="returnToHub()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-lg text-gray-300">⬅️ Hub</button>
                         <div>
                             <h2 class="text-2xl font-bold text-indigo-300">Presenter Master Controls</h2>
-                            <p class="text-xs text-gray-400">Managing Question Timers, Participant Roster & Buzzer</p>
+                            <p class="text-xs text-gray-400">Managing Question Timers, Participant Roster & Winner Announcement</p>
                         </div>
                     </div>
-                    <div class="flex space-x-2">
+                    <div class="flex flex-wrap gap-2">
                         <button id="quizStateToggleBtn" onclick="toggleQuizState()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg text-sm">▶️ Start Quiz</button>
                         <button onclick="openBuzzerManually()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold rounded-lg text-sm">🔓 Open Buzzer</button>
                         <button onclick="lockBuzzerManually()" class="px-4 py-2 bg-red-600 hover:bg-red-500 font-bold rounded-lg text-sm">🔒 Close Buzzer</button>
+                        <button onclick="triggerWinnerAnnouncement()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 font-black rounded-lg text-sm shadow-lg border border-yellow-400 text-black">🏆 Announce Winner</button>
                     </div>
                 </div>
 
@@ -145,31 +160,29 @@
                     </div>
                 </div>
 
-                <!-- Buzzed Winner Box -->
+                <!-- Buzzed Winner Box with Correct/Wrong buttons -->
                 <div id="presWinnerBox" class="card p-6 mb-6 border-emerald-500/50 bg-emerald-950/20 text-center hidden">
                     <span class="text-xs uppercase font-bold text-emerald-400">Buzzer Captured!</span>
                     <h2 id="presWinnerTeam" class="text-3xl font-extrabold text-white">Team 1</h2>
                     <p class="text-lg text-amber-300 font-semibold mt-2">Selected Participant to Answer: <span id="presSelectedStudent" class="text-white font-bold underline"></span></p>
-                    <div class="mt-4 space-x-2">
-                        <button onclick="awardPoints(10)" class="px-4 py-1.5 bg-emerald-600 font-bold rounded-lg text-xs">+10 Points</button>
-                        <button onclick="awardPoints(-5)" class="px-4 py-1.5 bg-red-600 font-bold rounded-lg text-xs">-5 Points</button>
+                    <div class="mt-4 space-x-3">
+                        <button onclick="awardPoints(10)" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg text-sm shadow">✅ Right (+10)</button>
+                        <button onclick="awardPoints(-5)" class="px-5 py-2 bg-red-600 hover:bg-red-500 font-bold rounded-lg text-sm shadow">❌ Wrong (-5)</button>
                     </div>
                 </div>
 
-                <!-- NEW: LIVE PARTICIPANTS ROSTER SECTION WITH SEARCH -->
+                <!-- LIVE PARTICIPANTS ROSTER SECTION WITH TAB & LOGOUT TRACKING -->
                 <div class="card p-5 mb-6 bg-gray-900/40 border border-gray-800">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
                         <div class="flex items-center gap-3">
                             <h3 class="text-lg font-bold text-indigo-300">Active Participants Roster</h3>
                             <span id="presParticipantCount" class="px-2.5 py-0.5 bg-indigo-950 border border-indigo-800 text-indigo-400 font-mono text-xs font-bold rounded-full">0 Joined</span>
                         </div>
-                        <!-- Search Bar -->
                         <div class="w-full md:w-72">
                             <input type="text" id="participantSearchInput" oninput="renderParticipantsList()" placeholder="🔍 Search Name or ID..." class="w-full px-3 py-2 bg-gray-950 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500">
                         </div>
                     </div>
 
-                    <!-- Participants Table -->
                     <div class="overflow-x-auto max-h-56 overflow-y-auto border border-gray-800 rounded-lg">
                         <table class="w-full text-left text-sm">
                             <thead class="bg-gray-950 text-xs font-bold text-gray-400 uppercase sticky top-0">
@@ -177,12 +190,13 @@
                                     <th class="p-3 border-b border-gray-800">University ID</th>
                                     <th class="p-3 border-b border-gray-800">Student Name</th>
                                     <th class="p-3 border-b border-gray-800">Assigned Team</th>
+                                    <th class="p-3 border-b border-gray-800">Connection & Tab Activity</th>
                                     <th class="p-3 border-b border-gray-800">Turn Status</th>
                                 </tr>
                             </thead>
                             <tbody id="presParticipantTableBody" class="divide-y divide-gray-800 text-gray-300 font-mono">
                                 <tr>
-                                    <td colspan="4" class="p-4 text-center text-gray-500 italic">No participants registered yet...</td>
+                                    <td colspan="5" class="p-4 text-center text-gray-500 italic">No participants registered yet...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -190,10 +204,10 @@
                 </div>
             </div>
 
-            <!-- Presenter Navigation Bar -->
+            <!-- Presenter Navigation Bar (Manual Reading Phase Button Removed) -->
             <div class="flex justify-between items-center pt-4 border-t border-gray-800">
                 <button onclick="prevQuestion()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 font-bold rounded-lg text-sm">⬅️ Prev Question</button>
-                <button onclick="triggerReadingPhase()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold rounded-lg text-sm">📖 Start 5s Reading Phase</button>
+                <div class="text-xs text-indigo-400 font-semibold">⚡ 5s Reading timer runs automatically on question change</div>
                 <button onclick="nextQuestion()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-lg text-sm">Next Question ➡️</button>
             </div>
         </div>
@@ -204,9 +218,12 @@
         <!-- ========================================== -->
         <div id="projectorView" class="hidden fixed inset-0 w-screen h-screen bg-gray-950 flex flex-col justify-between p-8 z-50 overflow-hidden">
             
-            <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-4">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-3">
                 <span class="text-base text-indigo-400 font-black tracking-widest uppercase">SMART BOARD PROJECTION</span>
-                <button id="projStartBtn" onclick="toggleQuizState()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm font-bold rounded-lg shadow">Start Quiz</button>
+                <div class="flex gap-2">
+                    <button id="projStartBtn" onclick="toggleQuizState()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm font-bold rounded-lg shadow">Start Quiz</button>
+                    <button onclick="triggerWinnerAnnouncement()" class="px-5 py-2 bg-yellow-500 hover:bg-yellow-400 text-sm font-black text-black rounded-lg shadow-lg border border-yellow-300">🏆 Announce Winner</button>
+                </div>
             </div>
 
             <!-- Logo Splash Screen (Before Quiz Starts) -->
@@ -223,22 +240,29 @@
                 </div>
             </div>
 
-            <!-- Live Game Screen (Active Quiz State - Expanded Layout) -->
+            <!-- Live Game Screen (Active Quiz State - Displaying Active Round) -->
             <div id="projectorGameContent" class="hidden h-full flex flex-col justify-between z-30">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 id="projQNum" class="text-4xl font-extrabold text-indigo-400">Question 1 / 40</h2>
-                    <div id="projReadTimer" class="text-5xl font-black text-amber-400 bg-amber-950/30 px-6 py-2 rounded-2xl border border-amber-900/50">5s</div>
+                
+                <!-- Display Active Round Name Prominently -->
+                <div class="p-3 bg-indigo-950/60 border border-indigo-900/80 rounded-xl mb-4 text-center">
+                    <span id="projRoundName" class="text-xl md:text-2xl font-black text-indigo-300 tracking-wide uppercase">Round 1</span>
                 </div>
 
-                <div class="card p-10 bg-gray-900/90 mb-6 flex-grow flex items-center justify-center border-2 border-indigo-900/50 shadow-2xl">
-                    <h3 id="projQText" class="text-4xl font-black text-white text-center leading-relaxed">Question text will display here...</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="projQNum" class="text-3xl font-extrabold text-indigo-400">Question 1 / 40</h2>
+                    <div id="projReadTimer" class="text-4xl font-black text-amber-400 bg-amber-950/30 px-6 py-2 rounded-2xl border border-amber-900/50">5s</div>
                 </div>
 
-                <div id="projOptionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 hidden">
-                    <button class="p-6 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-2xl font-bold text-gray-200 shadow-xl" id="projOpt0">Option A</button>
-                    <button class="p-6 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-lg md:text-2xl font-bold text-gray-200 shadow-xl" id="projOpt1">Option B</button>
-                    <button class="p-6 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-lg md:text-2xl font-bold text-gray-200 shadow-xl" id="projOpt2">Option C</button>
-                    <button class="p-6 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-lg md:text-2xl font-bold text-gray-200 shadow-xl" id="projOpt3">Option D</button>
+                <div class="card p-8 bg-gray-900/90 mb-4 flex-grow flex items-center justify-center border-2 border-indigo-900/50 shadow-2xl">
+                    <h3 id="projQText" class="text-3xl md:text-4xl font-black text-white text-center leading-relaxed">Question text will display here...</h3>
+                </div>
+
+                <!-- Options Grid (Hidden during 5s reading phase, auto-shown when timer finishes) -->
+                <div id="projOptionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden">
+                    <button class="p-5 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-xl font-bold text-gray-200 shadow-xl" id="projOpt0">Option A</button>
+                    <button class="p-5 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-xl font-bold text-gray-200 shadow-xl" id="projOpt1">Option B</button>
+                    <button class="p-5 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-xl font-bold text-gray-200 shadow-xl" id="projOpt2">Option C</button>
+                    <button class="p-5 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-xl font-bold text-gray-200 shadow-xl" id="projOpt3">Option D</button>
                 </div>
 
                 <div id="projBuzzerBanner" class="text-center my-4 p-6 card border-2 border-emerald-500 bg-emerald-950/40 shadow-2xl hidden">
@@ -247,24 +271,63 @@
                     <p class="text-2xl text-amber-300 font-bold mt-3">Selected Participant: <span id="projSelectedStudent" class="text-white underline"></span></p>
                 </div>
 
-                <div class="card p-6 bg-gray-950/95 border-2 border-gray-800 mt-auto">
-                    <h4 class="text-sm font-extrabold text-gray-400 uppercase tracking-widest mb-3 text-center">Inter-Team Leaderboard</h4>
+                <div class="card p-5 bg-gray-950/95 border-2 border-gray-800 mt-auto">
+                    <h4 class="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-2 text-center">Inter-Team Leaderboard</h4>
                     <div class="grid grid-cols-3 gap-6 text-center font-bold">
-                        <div class="p-4 bg-indigo-950/60 border border-indigo-900 rounded-xl">
-                            <span class="text-sm text-indigo-400 block mb-1">TEAM 1</span>
-                            <span id="scoreTeam1" class="text-4xl font-black text-white">0</span>
+                        <div class="p-3 bg-indigo-950/60 border border-indigo-900 rounded-xl">
+                            <span class="text-xs text-indigo-400 block mb-1">TEAM 1</span>
+                            <span id="scoreTeam1" class="text-3xl font-black text-white">0</span>
                         </div>
-                        <div class="p-4 bg-emerald-950/60 border border-emerald-900 rounded-xl">
-                            <span class="text-sm text-emerald-400 block mb-1">TEAM 2</span>
-                            <span id="scoreTeam2" class="text-4xl font-black text-white">0</span>
+                        <div class="p-3 bg-emerald-950/60 border border-emerald-900 rounded-xl">
+                            <span class="text-xs text-emerald-400 block mb-1">TEAM 2</span>
+                            <span id="scoreTeam2" class="text-3xl font-black text-white">0</span>
                         </div>
-                        <div class="p-4 bg-amber-950/60 border border-amber-900 rounded-xl">
-                            <span class="text-sm text-amber-400 block mb-1">TEAM 3</span>
-                            <span id="scoreTeam3" class="text-4xl font-black text-white">0</span>
+                        <div class="p-3 bg-amber-950/60 border border-amber-900 rounded-xl">
+                            <span class="text-xs text-amber-400 block mb-1">TEAM 3</span>
+                            <span id="scoreTeam3" class="text-3xl font-black text-white">0</span>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- ========================================== -->
+            <!-- 4. GRAND WINNER ANNOUNCEMENT MODAL OVERLAY -->
+            <!-- ========================================== -->
+            <div id="winnerAnnouncementModal" class="hidden fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-8 text-center overflow-hidden">
+                <div id="confettiContainer" class="absolute inset-0 pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-4xl w-full flex flex-col items-center">
+                    <div class="text-6xl md:text-8xl mb-4 animate-bounce">🏆</div>
+                    <h1 class="text-4xl md:text-6xl font-black text-yellow-400 tracking-wider mb-2 uppercase drop-shadow-lg">GRAND CHAMPION ANNOUNCEMENT</h1>
+                    <p class="text-gray-400 text-lg md:text-xl font-bold uppercase tracking-widest mb-8">Club Activity Quiz Competition</p>
+
+                    <!-- 1st Place Champion Highlight Card -->
+                    <div id="championCard" class="w-full card p-8 bg-gradient-to-b from-yellow-950/80 to-amber-900/40 border-4 border-yellow-400 rounded-3xl shadow-2xl mb-8 transform scale-105">
+                        <span class="text-sm font-extrabold uppercase tracking-widest text-yellow-400 bg-yellow-950 px-4 py-1 rounded-full border border-yellow-500">🥇 FIRST PLACE CHAMPION</span>
+                        <h2 id="champTeamName" class="text-5xl md:text-7xl font-black text-white mt-4 tracking-tight">TEAM 1</h2>
+                        <div class="text-3xl md:text-4xl font-extrabold text-yellow-300 font-mono mt-2"><span id="champScore">0</span> PTS</div>
+                    </div>
+
+                    <!-- Runner-ups Grid (2nd & 3rd Place) -->
+                    <div class="grid grid-cols-2 gap-6 w-full max-w-3xl mb-8">
+                        <div class="card p-5 bg-gray-900/90 border-2 border-gray-400 rounded-2xl text-center">
+                            <span class="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-1">🥈 2nd Place</span>
+                            <h3 id="runnerUp1Team" class="text-2xl md:text-3xl font-black text-white">Team 2</h3>
+                            <p id="runnerUp1Score" class="text-xl font-bold text-gray-300 font-mono mt-1">0 PTS</p>
+                        </div>
+                        <div class="card p-5 bg-gray-900/90 border-2 border-amber-700 rounded-2xl text-center">
+                            <span class="text-xs font-bold text-amber-500 uppercase tracking-wider block mb-1">🥉 3rd Place</span>
+                            <h3 id="runnerUp2Team" class="text-2xl md:text-3xl font-black text-white">Team 3</h3>
+                            <p id="runnerUp2Score" class="text-xl font-bold text-amber-500 font-mono mt-1">0 PTS</p>
+                        </div>
+                    </div>
+
+                    <button onclick="closeWinnerAnnouncement()" class="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold rounded-xl border border-gray-700 text-sm">
+                        ✖ Close Announcement
+                    </button>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -323,54 +386,55 @@
             { id: "26BBAD52", name: "NUZO THISA" }
         ];
 
-       const firebaseConfig = { databaseURL: "https://class-quiz-a8d09-default-rtdb.firebaseio.com/" };
+        // Database URL
+        const firebaseConfig = { databaseURL: "https://class-quiz-a8d09-default-rtdb.firebaseio.com/" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         const allQuestions = [
-            { id: 1, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Read out loud: "Ondhu-vare aaguthe Boss!" When an Auto Anna says this before you get in, what does he mean?', options: ["A) The ride will take 15 minutes", "B) The fare is 1.5x (One-and-a-half) the meter rate", "C) He can only take 1 passenger", "D) The meter is broken"], correctAnswer: "B) The fare is 1.5x (One-and-a-half) the meter rate", answerKey: "B", dare: "🎭 DARE (The Auto Anna Negotiator): Walk up to a classmate, put your hands on your hips, and dramatically say: 'Ondhu-vare aaguthe Boss, meter mele extra ten rupees!'" },
-            { id: 2, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "What iconic South Indian breakfast item is this crispy crepe served with red chutney inside, coconut chutney, and sambar?", options: ["A) Set Dosa", "B) Rava Dosa", "C) Mysore Masala Dosa", "D) Paper Plain Dosa"], correctAnswer: "C) Mysore Masala Dosa", answerKey: "C", dare: "🎭 DARE (The By-Two Coffee Drama): Order a cup of water from a friend, hand an empty cup, and shout: 'By-Two maadi bro!'" },
-            { id: 3, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'You are shopping at Commercial Street and want to ask "How much is this?" in Kannada. What should you say?', options: ["A) Idhu eshto?", "B) Yelli idhe?", "C) Hego idhe?", "D) Naale banni!"], correctAnswer: "A) Idhu eshto?", answerKey: "A", dare: "🎭 DARE (The Masala Dosa Monologue): Spend 30 seconds describing a Mysore Masala Dosa like it's the love of your life." },
-            { id: 4, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Read out loud: "Swalpa straight hogi, right thegodhi!" What is the passerby asking you to do?', options: ["A) Take a left, then stop", "B) Go straight a little, then turn right", "C) Turn right immediately", "D) Go straight for 5 kilometers"], correctAnswer: "B) Go straight a little, then turn right", answerKey: "B", dare: "🎭 DARE: Say 'Kannada swalpa swalpa baruthe!' to anyone in class with complete confidence and bow silently." },
-            { id: 5, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "Which famous getaway spot ~60 km from Bengaluru is famous for sunrise views above the cloud line?", options: ["A) Savandurga Hill", "B) Skandagiri", "C) Nandi Hills", "D) Shivagange"], correctAnswer: "C) Nandi Hills", answerKey: "C", dare: "🎭 DARE: High-five 3 classmates calling each 'Macha!' or 'Maga!' in an action movie voice." },
-            { id: 6, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'When your local classmate calls you "Macha" or "Maga", what does it mean?', options: ["A) Teacher / Professor", "B) Boss / Manager", "C) Buddy / Bro / Dude", "D) Stranger"], correctAnswer: "C) Buddy / Bro / Dude", answerKey: "C", dare: "🎭 DARE: Stand up and mimic the Namma Metro chime out loud: 'Dayavittu dharaviyisiri... Next station, MG Road!'" },
-            { id: 7, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Read out loud: "Ondhu Filter Coffee, By-Two maadi!" What are you requesting at the coffee counter?', options: ["A) 2 full cups of coffee", "B) 1 cup of coffee split into 2 smaller cups", "C) 1 coffee with extra sugar", "D) 1 coffee and 1 tea"], correctAnswer: "B) 1 cup of coffee split into 2 smaller cups", answerKey: "B", dare: "🎭 DARE: Pick up a pen from a friend's desk, hold it like a hawk, ask 'Idhu eshto?' and refuse to pay > ₹5." },
-            { id: 8, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "What is the official brand name of Bengaluru’s Metro train system?", options: ["A) Namma Metro", "B) Bengaluru Express", "C) Swift Rail", "D) Metro Mitra"], correctAnswer: "A) Namma Metro", answerKey: "A", dare: "🎭 DARE: Walk in slow motion across the front of class fanning imaginary morning fog like searching for Nandi Hills sunrise." },
-            { id: 9, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Why is Bengaluru historically nicknamed the "Garden City of India"?', options: ["A) It produces the most flowers in Asia", "B) It is home to vast green havens like Lalbagh & Cubbon Park", "C) Every house must have a rooftop garden", "D) It has the largest botanical research lab"], correctAnswer: "B) It is home to vast green havens like Lalbagh & Cubbon Park", answerKey: "B", dare: "🎭 DARE: Explain how to reach college canteen using only wild hand gestures & repeating 'Straight hogi, right thegodhi!'" },
-            { id: 10, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Instead of saying "Kannada Gothilla", what friendly phrase shows you are learning?', options: ["A) Kannada gothilla boss!", "B) Kannada swalpa swalpa baruthe!", "C) Nange beku!", "D) Oota aitha?"], correctAnswer: "B) Kannada swalpa swalpa baruthe!", answerKey: "B", dare: "🎭 DARE: Stand in tree pose in the middle of room and announce 'Respect me, I am Lalbagh.'" },
+            { id: 1, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: 'Read out loud: "Ondhu-vare aaguthe Boss!" When an Auto Anna says this before you get in, what does he mean?', options: ["A) The ride will take 15 minutes", "B) The fare is 1.5x (One-and-a-half) the meter rate", "C) He can only take 1 passenger", "D) The meter is broken"], correctAnswer: "B) The fare is 1.5x (One-and-a-half) the meter rate", answerKey: "B", dare: "🎭 DARE (The Auto Anna Negotiator): Walk up to a classmate, put your hands on your hips, and dramatically say: 'Ondhu-vare aaguthe Boss, meter mele extra ten rupees!'" },
+            { id: 2, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: "What iconic South Indian breakfast item is this crispy crepe served with red chutney inside, coconut chutney, and sambar?", options: ["A) Set Dosa", "B) Rava Dosa", "C) Mysore Masala Dosa", "D) Paper Plain Dosa"], correctAnswer: "C) Mysore Masala Dosa", answerKey: "C", dare: "🎭 DARE (The By-Two Coffee Drama): Order a cup of water from a friend, hand an empty cup, and shout: 'By-Two maadi bro!'" },
+            { id: 3, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: 'You are shopping at Commercial Street and want to ask "How much is this?" in Kannada. What should you say?', options: ["A) Idhu eshto?", "B) Yelli idhe?", "C) Hego idhe?", "D) Naale banni!"], correctAnswer: "A) Idhu eshto?", answerKey: "A", dare: "🎭 DARE (The Masala Dosa Monologue): Spend 30 seconds describing a Mysore Masala Dosa like it's the love of your life." },
+            { id: 4, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: 'Read out loud: "Swalpa straight hogi, right thegodhi!" What is the passerby asking you to do?', options: ["A) Take a left, then stop", "B) Go straight a little, then turn right", "C) Turn right immediately", "D) Go straight for 5 kilometers"], correctAnswer: "B) Go straight a little, then turn right", answerKey: "B", dare: "🎭 DARE: Say 'Kannada swalpa swalpa baruthe!' to anyone in class with complete confidence and bow silently." },
+            { id: 5, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: "Which famous getaway spot ~60 km from Bengaluru is famous for sunrise views above the cloud line?", options: ["A) Savandurga Hill", "B) Skandagiri", "C) Nandi Hills", "D) Shivagange"], correctAnswer: "C) Nandi Hills", answerKey: "C", dare: "🎭 DARE: High-five 3 classmates calling each 'Macha!' or 'Maga!' in an action movie voice." },
+            { id: 6, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: 'When your local classmate calls you "Macha" or "Maga", what does it mean?', options: ["A) Teacher / Professor", "B) Boss / Manager", "C) Buddy / Bro / Dude", "D) Stranger"], correctAnswer: "C) Buddy / Bro / Dude", answerKey: "C", dare: "🎭 DARE: Stand up and mimic the Namma Metro chime out loud: 'Dayavittu dharaviyisiri... Next station, MG Road!'" },
+            { id: 7, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: 'Read out loud: "Ondhu Filter Coffee, By-Two maadi!" What are you requesting at the coffee counter?', options: ["A) 2 full cups of coffee", "B) 1 cup of coffee split into 2 smaller cups", "C) 1 coffee with extra sugar", "D) 1 coffee and 1 tea"], correctAnswer: "B) 1 cup of coffee split into 2 smaller cups", answerKey: "B", dare: "🎭 DARE: Pick up a pen from a friend's desk, hold it like a hawk, ask 'Idhu eshto?' and refuse to pay > ₹5." },
+            { id: 8, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: "What is the official brand name of Bengaluru’s Metro train system?", options: ["A) Namma Metro", "B) Bengaluru Express", "C) Swift Rail", "D) Metro Mitra"], correctAnswer: "A) Namma Metro", answerKey: "A", dare: "🎭 DARE: Walk in slow motion across the front of class fanning imaginary morning fog like searching for Nandi Hills sunrise." },
+            { id: 9, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: 'Why is Bengaluru historically nicknamed the "Garden City of India"?', options: ["A) It produces the most flowers in Asia", "B) It is home to vast green havens like Lalbagh & Cubbon Park", "C) Every house must have a rooftop garden", "D) It has the largest botanical research lab"], correctAnswer: "B) It is home to vast green havens like Lalbagh & Cubbon Park", answerKey: "B", dare: "🎭 DARE: Explain how to reach college canteen using only wild hand gestures & repeating 'Straight hogi, right thegodhi!'" },
+            { id: 10, round: 1, roundName: "Round 1 - Kannada & Karnataka Culture", question: 'Instead of saying "Kannada Gothilla", what friendly phrase shows you are learning?', options: ["A) Kannada gothilla boss!", "B) Kannada swalpa swalpa baruthe!", "C) Nange beku!", "D) Oota aitha?"], correctAnswer: "B) Kannada swalpa swalpa baruthe!", answerKey: "B", dare: "🎭 DARE: Stand in tree pose in the middle of room and announce 'Respect me, I am Lalbagh.'" },
 
-            { id: 11, round: 2, roundName: "2 - Bollywood Comedy", question: "If Sunny Deol found out that someone ate his lunch from the college fridge, what would his dialogue be?", options: ["A) “Beta, lunch khaya hai ya meri property pe kabza kiya hai?”", "B) “Yeh lunch mera tha! Lunch box wapas karo!”", "C) “Ek lunch ki keemat tum kya jaano, canteen babu!”", "D) “Lunch chor, tu college ka sabse bada villain hai!”"], correctAnswer: "B) “Yeh lunch mera tha! Lunch box wapas karo!”", answerKey: "B", dare: "🎭 DARE: Flex biceps and yell 'Yeh Dhai Kilo Ka Haath!' in Sunny Deol voice." },
-            { id: 12, round: 2, roundName: "2 - Bollywood Comedy", question: "If Baburao became your college principal, what would he do if students demanded free attendance?", options: ["A) “Attendance chahiye? Pehle meri chai ka bill bharo!”", "B) “Sabko 100% attendance, bas college aana mat!”", "C) “Paisa laao, attendance le jaao!”", "D) “Attendance ke badle apna Aadhaar card jama karo!”"], correctAnswer: "C) “Paisa laao, attendance le jaao!”", answerKey: "C", dare: "🎭 DARE: Do Baburao's iconic walk shouting 'Paisa laao, attendance le jaao!'" },
-            { id: 13, round: 2, roundName: "2 - Bollywood Comedy", question: "Gabbar Singh enters an empty classroom. Nobody has come to class. What will he ask?", options: ["A) “Kitne students absent the?”", "B) “Kitne students canteen mein chhupe hain?”", "C) “Kitne students assignment se bhaag gaye?”", "D) “Kitne students ne proxy lagayi hai?”"], correctAnswer: "A) “Kitne students absent the?”", answerKey: "A", dare: "🎭 DARE: Do a loud villainous laugh and yell 'Kitne students absent the?!'" },
-            { id: 14, round: 2, roundName: "2 - Bollywood Comedy", question: "Baburao falls in love for the first time. The girl asks, “What can you give me that no other boy can?” What will Baburao say?", options: ["A) “Ek asli 500-rupee note… woh bhi udhaar ka!”", "B) “Main tumhe roz free attendance dilwaunga!”", "C) “Mere paas pyaar bhi hai aur pending assignments bhi!”", "D) “Main tumhare liye poori canteen ka udhaar chuka dunga!”"], correctAnswer: "A) “Ek asli 500-rupee note… woh bhi udhaar ka!”", answerKey: "A", dare: "🎭 DARE: Offer an imaginary ₹500 note to a classmate as a proposal." },
-            { id: 15, round: 2, roundName: "2 - Bollywood Comedy", question: "Majnu Bhai draws a donkey on the blackboard. A student asks, “Sir, what is this?” What should the student say for full marks?", options: ["A) “Sir, is donkey ka future bright hai!”", "B) “Sir, masterpiece toh hai… bas donkey ko bhi pata hona chahiye ki woh donkey hai!”", "C) “Sir, Picasso bhi aapke saamne fail hai!”", "D) “Sir, is drawing ko dekhkar asli donkey confuse ho jayega!”"], correctAnswer: "B) “Sir, masterpiece toh hai… bas donkey ko bhi pata hona chahiye ki woh donkey hai!”", answerKey: "B", dare: "🎭 DARE: Draw a stick figure on the board and announce 'Masterpiece toh hai!'" },
-            { id: 16, round: 2, roundName: "2 - Bollywood Comedy", question: "Sunny Deol orders two samosas. The canteen uncle gives him one and says, “Sir, GST is extra.” What happens next?", options: ["A) Sunny Deol pays GST and asks for invoice.", "B) He starts selling samosas outside college.", "C) He gives a five-minute patriotic speech about the fundamental right to eat samosas!", "D) He calls Baburao for discount."], correctAnswer: "C) He gives a five-minute patriotic speech about the fundamental right to eat samosas!", answerKey: "C", dare: "🎭 DARE: Deliver a speech demanding 'Tareekh pe Tareekh... par Samosa kab milega?!'" },
-            { id: 17, round: 2, roundName: "2 - Bollywood Comedy", question: "A boat is full of people. It hasn't sunk, but when you look again, you can't see a single person on the boat. Why?", options: ["A) Everyone jumped into the water.", "B) Everyone went below deck.", "C) The boat entered a magic tunnel.", "D) All the people were married!"], correctAnswer: "D) All the people were married!", answerKey: "D", dare: "🎭 DARE: Explain why being married makes everyone disappear from the boat!" },
-            { id: 18, round: 2, roundName: "2 - Bollywood Comedy", question: "If Gabbar became a professor and the whole class bunked, what would he say?", options: ["A) “Kitne students the? Aur sabko chhutti kisne di?”", "B) “Yeh classroom hai ya picnic spot?”", "C) “Jo absent hai, woh kal double assignment karega!”", "D) “Principal ko bulao, aaj attendance ka faisla hoga!”"], correctAnswer: "A) “Kitne students the? Aur sabko chhutti kisne di?”", answerKey: "A", dare: "🎭 DARE: Mimic Gabbar asking who gave permission for a mass bunk." },
-            { id: 19, round: 2, roundName: "2 - Bollywood Comedy", question: "Baburao gets married. His wife asks, “Darling, what did you love most about me?” What will Baburao say?", options: ["A) “Tumhari aankhein”", "B) “Tumhari smile”", "C) “Tumhare papa ne jo fridge diya tha!”", "D) “Tumhara pyaar”"], correctAnswer: "C) “Tumhare papa ne jo fridge diya tha!”", answerKey: "C", dare: "🎭 DARE: Express romantic love to an imaginary refrigerator." },
-            { id: 20, round: 2, roundName: "2 - Bollywood Comedy", question: "Majnu Bhai paints a picture of a horse. The horse sees it and files a complaint. What is the complaint?", options: ["A) “Your Honour, this painting has damaged my reputation!”", "B) “Your Honour, he forgot to paint my tail!”", "C) “Your Honour, he painted me without permission!”", "D) “Your Honour, everyone is laughing at me!”"], correctAnswer: "A) “Your Honour, this painting has damaged my reputation!”", answerKey: "A", dare: "🎭 DARE: Act like an offended horse complaining to a judge about a portrait." },
+            { id: 11, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "If Sunny Deol found out that someone ate his lunch from the college fridge, what would his dialogue be?", options: ["A) “Beta, lunch khaya hai ya meri property pe kabza kiya hai?”", "B) “Yeh lunch mera tha! Lunch box wapas karo!”", "C) “Ek lunch ki keemat tum kya jaano, canteen babu!”", "D) “Lunch chor, tu college ka sabse bada villain hai!”"], correctAnswer: "B) “Yeh lunch mera tha! Lunch box wapas karo!”", answerKey: "B", dare: "🎭 DARE: Flex biceps and yell 'Yeh Dhai Kilo Ka Haath!' in Sunny Deol voice." },
+            { id: 12, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "If Baburao became your college principal, what would he do if students demanded free attendance?", options: ["A) “Attendance chahiye? Pehle meri chai ka bill bharo!”", "B) “Sabko 100% attendance, bas college aana mat!”", "C) “Paisa laao, attendance le jaao!”", "D) “Attendance ke badle apna Aadhaar card jama karo!”"], correctAnswer: "C) “Paisa laao, attendance le jaao!”", answerKey: "C", dare: "🎭 DARE: Do Baburao's iconic walk shouting 'Paisa laao, attendance le jaao!'" },
+            { id: 13, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "Gabbar Singh enters an empty classroom. Nobody has come to class. What will he ask?", options: ["A) “Kitne students absent the?”", "B) “Kitne students canteen mein chhupe hain?”", "C) “Kitne students assignment se bhaag gaye?”", "D) “Kitne students ne proxy lagayi hai?”"], correctAnswer: "A) “Kitne students absent the?”", answerKey: "A", dare: "🎭 DARE: Do a loud villainous laugh and yell 'Kitne students absent the?!'" },
+            { id: 14, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "Baburao falls in love for the first time. The girl asks, “What can you give me that no other boy can?” What will Baburao say?", options: ["A) “Ek asli 500-rupee note… woh bhi udhaar ka!”", "B) “Main tumhe roz free attendance dilwaunga!”", "C) “Mere paas pyaar bhi hai aur pending assignments bhi!”", "D) “Main tumhare liye poori canteen ka udhaar chuka dunga!”"], correctAnswer: "A) “Ek asli 500-rupee note… woh bhi udhaar ka!”", answerKey: "A", dare: "🎭 DARE: Offer an imaginary ₹500 note to a classmate as a proposal." },
+            { id: 15, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "Majnu Bhai draws a donkey on the blackboard. A student asks, “Sir, what is this?” What should the student say for full marks?", options: ["A) “Sir, is donkey ka future bright hai!”", "B) “Sir, masterpiece toh hai… bas donkey ko bhi pata hona chahiye ki woh donkey hai!”", "C) “Sir, Picasso bhi aapke saamne fail hai!”", "D) “Sir, is drawing ko dekhkar asli donkey confuse ho jayega!”"], correctAnswer: "B) “Sir, masterpiece toh hai… bas donkey ko bhi pata hona chahiye ki woh donkey hai!”", answerKey: "B", dare: "🎭 DARE: Draw a stick figure on the board and announce 'Masterpiece toh hai!'" },
+            { id: 16, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "Sunny Deol orders two samosas. The canteen uncle gives him one and says, “Sir, GST is extra.” What happens next?", options: ["A) Sunny Deol pays GST and asks for invoice.", "B) He starts selling samosas outside college.", "C) He gives a five-minute patriotic speech about the fundamental right to eat samosas!", "D) He calls Baburao for discount."], correctAnswer: "C) He gives a five-minute patriotic speech about the fundamental right to eat samosas!", answerKey: "C", dare: "🎭 DARE: Deliver a speech demanding 'Tareekh pe Tareekh... par Samosa kab milega?!'" },
+            { id: 17, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "A boat is full of people. It hasn't sunk, but when you look again, you can't see a single person on the boat. Why?", options: ["A) Everyone jumped into the water.", "B) Everyone went below deck.", "C) The boat entered a magic tunnel.", "D) All the people were married!"], correctAnswer: "D) All the people were married!", answerKey: "D", dare: "🎭 DARE: Explain why being married makes everyone disappear from the boat!" },
+            { id: 18, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "If Gabbar became a professor and the whole class bunked, what would he say?", options: ["A) “Kitne students the? Aur sabko chhutti kisne di?”", "B) “Yeh classroom hai ya picnic spot?”", "C) “Jo absent hai, woh kal double assignment karega!”", "D) “Principal ko bulao, aaj attendance ka faisla hoga!”"], correctAnswer: "A) “Kitne students the? Aur sabko chhutti kisne di?”", answerKey: "A", dare: "🎭 DARE: Mimic Gabbar asking who gave permission for a mass bunk." },
+            { id: 19, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "Baburao gets married. His wife asks, “Darling, what did you love most about me?” What will Baburao say?", options: ["A) “Tumhari aankhein”", "B) “Tumhari smile”", "C) “Tumhare papa ne jo fridge diya tha!”", "D) “Tumhara pyaar”"], correctAnswer: "C) “Tumhare papa ne jo fridge diya tha!”", answerKey: "C", dare: "🎭 DARE: Express romantic love to an imaginary refrigerator." },
+            { id: 20, round: 2, roundName: "Round 2 - Bollywood Comedy", question: "Majnu Bhai paints a picture of a horse. The horse sees it and files a complaint. What is the complaint?", options: ["A) “Your Honour, this painting has damaged my reputation!”", "B) “Your Honour, he forgot to paint my tail!”", "C) “Your Honour, he painted me without permission!”", "D) “Your Honour, everyone is laughing at me!”"], correctAnswer: "A) “Your Honour, this painting has damaged my reputation!”", answerKey: "A", dare: "🎭 DARE: Act like an offended horse complaining to a judge about a portrait." },
 
-            { id: 21, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which genre of music would you most likely find playing on Shawn Paul's playlist?", options: ["A. Folk/Country", "B. Rock/Metal", "C. Romantic", "D. Classical"], correctAnswer: "B. Rock/Metal", answerKey: "B" },
-            { id: 22, round: 3, roundName: "3 - University & Classmate Trivia", question: 'Which classmate goes by the nickname "Tom"?', options: ["A. Vivian", "B. Rikhil", "C. Vidisha", "D. Nirbasan"], correctAnswer: "D. Nirbasan", answerKey: "D" },
-            { id: 23, round: 3, roundName: "3 - University & Classmate Trivia", question: "What is Yusuf's favourite activity during college hours, apart from bunking classes?", options: ["A. Putting things in ears", "B. Dancing", "C. Fit check", "D. Standing on table"], correctAnswer: "C. Fit check", answerKey: "C" },
-            { id: 24, round: 3, roundName: "3 - University & Classmate Trivia", question: "What name does Nanda proudly use to describe himself?", options: ["A. Noble Nanda", "B. Nonchalant Nanda", "C. Nice Nanda", "D. Cutie Nanda"], correctAnswer: "C. Nice Nanda", answerKey: "C" },
-            { id: 25, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which two classmates are popularly recognised as the class clown duo?", options: ["A. Abhijeet and Ganesh", "B. Swarshya and Sakshi", "C. Ayub and Raj Verma", "D. Izzan and Rohit"], correctAnswer: "D. Izzan and Rohit", answerKey: "D" },
-            { id: 26, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which three classmates are associated with the backbenchers' corner?", options: ["A. Jordan, Suraj and Sahil", "B. Shriman, Jason and Dharineesh", "C. Safa, Angela and Anaya", "D. Renish, Waquas and Ameen"], correctAnswer: "B. Shriman, Jason and Dharineesh", answerKey: "B" },
-            { id: 27, round: 3, roundName: "3 - University & Classmate Trivia", question: "Who is known for arriving 30 mins late and delivering an entire monologue with excuses?", options: ["A. Kaviksha", "B. Shawn Paul", "C. Salina", "D. Yusuf"], correctAnswer: "B. Shawn Paul", answerKey: "B" },
-            { id: 28, round: 3, roundName: "3 - University & Classmate Trivia", question: "Who is believed to hold the special position of being Minu Ma'am's favourite child?", options: ["A. Aditya", "B. Remruatpuii", "C. Yusuf", "D. Arkyaprava"], correctAnswer: "C. Yusuf", answerKey: "C" },
-            { id: 29, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which classmate conducted a seminar on Good Touch and Bad Touch?", options: ["A. Sanskar", "B. Rohit", "C. Adhil", "D. Izzan"], correctAnswer: "B. Rohit", answerKey: "B" },
-            { id: 30, round: 3, roundName: "3 - University & Classmate Trivia", question: 'Who holds the title of the "Supreme Leader" of our class?', options: ["A. Vivian", "B. Litika", "C. Abhinav", "D. Angela"], correctAnswer: "D. Angela", answerKey: "D" },
+            { id: 21, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: "Which genre of music would you most likely find playing on Shawn Paul's playlist?", options: ["A. Folk/Country", "B. Rock/Metal", "C. Romantic", "D. Classical"], correctAnswer: "B. Rock/Metal", answerKey: "B" },
+            { id: 22, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: 'Which classmate goes by the nickname "Tom"?', options: ["A. Vivian", "B. Rikhil", "C. Vidisha", "D. Nirbasan"], correctAnswer: "D. Nirbasan", answerKey: "D" },
+            { id: 23, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: "What is Yusuf's favourite activity during college hours, apart from bunking classes?", options: ["A. Putting things in ears", "B. Dancing", "C. Fit check", "D. Standing on table"], correctAnswer: "C. Fit check", answerKey: "C" },
+            { id: 24, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: "What name does Nanda proudly use to describe himself?", options: ["A. Noble Nanda", "B. Nonchalant Nanda", "C. Nice Nanda", "D. Cutie Nanda"], correctAnswer: "C. Nice Nanda", answerKey: "C" },
+            { id: 25, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: "Which two classmates are popularly recognised as the class clown duo?", options: ["A. Abhijeet and Ganesh", "B. Swarshya and Sakshi", "C. Ayub and Raj Verma", "D. Izzan and Rohit"], correctAnswer: "D. Izzan and Rohit", answerKey: "D" },
+            { id: 26, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: "Which three classmates are associated with the backbenchers' corner?", options: ["A. Jordan, Suraj and Sahil", "B. Shriman, Jason and Dharineesh", "C. Safa, Angela and Anaya", "D. Renish, Waquas and Ameen"], correctAnswer: "B. Shriman, Jason and Dharineesh", answerKey: "B" },
+            { id: 27, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: "Who is known for arriving 30 mins late and delivering an entire monologue with excuses?", options: ["A. Kaviksha", "B. Shawn Paul", "C. Salina", "D. Yusuf"], correctAnswer: "B. Shawn Paul", answerKey: "B" },
+            { id: 28, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: "Who is believed to hold the special position of being Minu Ma'am's favourite child?", options: ["A. Aditya", "B. Remruatpuii", "C. Yusuf", "D. Arkyaprava"], correctAnswer: "C. Yusuf", answerKey: "C" },
+            { id: 29, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: "Which classmate conducted a seminar on Good Touch and Bad Touch?", options: ["A. Sanskar", "B. Rohit", "C. Adhil", "D. Izzan"], correctAnswer: "B. Rohit", answerKey: "B" },
+            { id: 30, round: 3, roundName: "Round 3 - University & Classmate Trivia", question: 'Who holds the title of the "Supreme Leader" of our class?', options: ["A. Vivian", "B. Litika", "C. Abhinav", "D. Angela"], correctAnswer: "D. Angela", answerKey: "D" },
 
-            { id: 31, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🦁👑 (Guess the movie)", options: ["A) Madagascar", "B) The Lion King", "C) Jungle Book", "D) Tarzan"], correctAnswer: "B) The Lion King", answerKey: "B" },
-            { id: 32, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🕷️👨 (Guess the superhero)", options: ["A) Batman", "B) Superman", "C) Spider-Man", "D) Ant-Man"], correctAnswer: "C) Spider-Man", answerKey: "C" },
-            { id: 33, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "What has to be broken before you can use it?", options: ["A) A coconut", "B) An egg", "C) A promise", "D) A glass"], correctAnswer: "B) An egg", answerKey: "B" },
-            { id: 34, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "I speak without a mouth and hear without ears. What am I?", options: ["A) Shadow", "B) Echo", "C) Cloud", "D) Whisper"], correctAnswer: "B) Echo", answerKey: "B" },
-            { id: 35, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🍦🍫 (Guess dessert)", options: ["A) Choco Bar", "B) Ice Cream Sandwich", "C) Brownie Sundae", "D) Fudge"], correctAnswer: "A) Choco Bar", answerKey: "A" },
-            { id: 36, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "I have keys but no locks. You can enter, but can't go outside. What am I?", options: ["A) Piano", "B) Keyboard", "C) Map", "D) Spaceship"], correctAnswer: "B) Keyboard", answerKey: "B" },
-            { id: 37, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🚗⚡ (Guess brand)", options: ["A) Ford", "B) Tesla", "C) BMW", "D) Audi"], correctAnswer: "B) Tesla", answerKey: "B" },
-            { id: 38, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "What gets wetter the more it dries?", options: ["A) Sponge", "B) Towel", "C) Rain", "D) Cotton"], correctAnswer: "B) Towel", answerKey: "B" },
-            { id: 39, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🌮🔥 (Guess food)", options: ["A) Spicy Burger", "B) Tacos", "C) Nachos", "D) Burrito"], correctAnswer: "B) Tacos", answerKey: "B" },
-            { id: 40, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "The more of me you take, the more you leave behind. What am I?", options: ["A) Memories", "B) Footsteps", "C) Time", "D) Secrets"], correctAnswer: "B) Footsteps", answerKey: "B" }
+            { id: 31, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "🦁👑 (Guess the movie)", options: ["A) Madagascar", "B) The Lion King", "C) Jungle Book", "D) Tarzan"], correctAnswer: "B) The Lion King", answerKey: "B" },
+            { id: 32, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "🕷️👨 (Guess the superhero)", options: ["A) Batman", "B) Superman", "C) Spider-Man", "D) Ant-Man"], correctAnswer: "C) Spider-Man", answerKey: "C" },
+            { id: 33, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "What has to be broken before you can use it?", options: ["A) A coconut", "B) An egg", "C) A promise", "D) A glass"], correctAnswer: "B) An egg", answerKey: "B" },
+            { id: 34, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "I speak without a mouth and hear without ears. What am I?", options: ["A) Shadow", "B) Echo", "C) Cloud", "D) Whisper"], correctAnswer: "B) Echo", answerKey: "B" },
+            { id: 35, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "🍦🍫 (Guess dessert)", options: ["A) Choco Bar", "B) Ice Cream Sandwich", "C) Brownie Sundae", "D) Fudge"], correctAnswer: "A) Choco Bar", answerKey: "A" },
+            { id: 36, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "I have keys but no locks. You can enter, but can't go outside. What am I?", options: ["A) Piano", "B) Keyboard", "C) Map", "D) Spaceship"], correctAnswer: "B) Keyboard", answerKey: "B" },
+            { id: 37, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "🚗⚡ (Guess brand)", options: ["A) Ford", "B) Tesla", "C) BMW", "D) Audi"], correctAnswer: "B) Tesla", answerKey: "B" },
+            { id: 38, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "What gets wetter the more it dries?", options: ["A) Sponge", "B) Towel", "C) Rain", "D) Cotton"], correctAnswer: "B) Towel", answerKey: "B" },
+            { id: 39, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "🌮🔥 (Guess food)", options: ["A) Spicy Burger", "B) Tacos", "C) Nachos", "D) Burrito"], correctAnswer: "B) Tacos", answerKey: "B" },
+            { id: 40, round: 4, roundName: "Round 4 - Emoji Puzzles & Riddles", question: "The more of me you take, the more you leave behind. What am I?", options: ["A) Memories", "B) Footsteps", "C) Time", "D) Secrets"], correctAnswer: "B) Footsteps", answerKey: "B" }
         ];
 
         let currentQuestionIdx = 0;
@@ -468,11 +532,28 @@
             document.getElementById('studentAuthBox').classList.add('hidden');
             document.getElementById('studentWaitingRoom').classList.remove('hidden');
 
-            db.ref(`teams/${team}/${stObj.id}`).set({
+            const studentRef = db.ref(`teams/${team}/${stObj.id}`);
+            
+            studentRef.set({
                 name: stObj.name,
                 id: stObj.id,
                 team: team,
+                status: "online",
+                tabFocused: true,
                 hasBeenSelected: false
+            });
+
+            studentRef.onDisconnect().update({
+                status: "offline",
+                tabFocused: false
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    studentRef.update({ tabFocused: false, status: "away" });
+                } else {
+                    studentRef.update({ tabFocused: true, status: "online" });
+                }
             });
         }
 
@@ -487,6 +568,15 @@
                 const gameContent = document.getElementById('projectorGameContent');
                 const startBtn = document.getElementById('quizStateToggleBtn');
                 const projStartBtn = document.getElementById('projStartBtn');
+                const winnerModal = document.getElementById('winnerAnnouncementModal');
+
+                if (state.winnerAnnounced) {
+                    if (winnerModal) winnerModal.classList.remove('hidden');
+                    renderWinnerLeaderboard();
+                    createConfetti();
+                } else {
+                    if (winnerModal) winnerModal.classList.add('hidden');
+                }
 
                 if (state.quizStarted) {
                     if (introPhoto) introPhoto.classList.add('hidden');
@@ -527,73 +617,14 @@
                 updateStudentUI(state);
             });
 
-            // Listen to live teams for Presenter Participant Roster
             db.ref('teams').on('value', (snapshot) => {
                 activeTeamsData = snapshot.val() || {};
                 renderParticipantsList();
             });
         }
 
-        // RENDER LIVE PARTICIPANTS LIST IN PRESENTER VIEW WITH SEARCH FILTER
-        function renderParticipantsList() {
-            const tbody = document.getElementById('presParticipantTableBody');
-            const countBadge = document.getElementById('presParticipantCount');
-            const searchVal = (document.getElementById('participantSearchInput')?.value || '').toLowerCase().trim();
-
-            if (!tbody) return;
-
-            let allParticipants = [];
-            Object.keys(activeTeamsData).forEach(teamKey => {
-                const members = activeTeamsData[teamKey] || {};
-                Object.values(members).forEach(m => {
-                    allParticipants.push(m);
-                });
-            });
-
-            if (countBadge) countBadge.innerText = `${allParticipants.length} Joined`;
-
-            // Filter participants by search query
-            const filtered = allParticipants.filter(p => 
-                p.name.toLowerCase().includes(searchVal) || 
-                p.id.toLowerCase().includes(searchVal) ||
-                p.team.toLowerCase().includes(searchVal)
-            );
-
-            tbody.innerHTML = '';
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500 italic">No matching participants found...</td></tr>`;
-                return;
-            }
-
-            filtered.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-800/50 transition";
-                tr.innerHTML = `
-                    <td class="p-3 text-indigo-300 font-bold">${p.id}</td>
-                    <td class="p-3 text-white font-sans font-semibold">${p.name}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${p.team === 'Team 1' ? 'bg-indigo-950 text-indigo-300 border border-indigo-800' : p.team === 'Team 2' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">${p.team}</span></td>
-                    <td class="p-3">${p.hasBeenSelected ? '<span class="text-xs text-amber-400 font-bold">🎯 Called</span>' : '<span class="text-xs text-gray-500">Ready</span>'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function toggleQuizState() {
-            db.ref('quizState').once('value', (snap) => {
-                const state = snap.val() || {};
-                const newState = !state.quizStarted;
-                db.ref('quizState').update({
-                    quizStarted: newState,
-                    buzzerOpen: false,
-                    buzzedWinner: null,
-                    selectedStudent: null,
-                    optionsRevealed: false
-                });
-            });
-        }
-
-        function triggerReadingPhase() {
+        // TRIGGER AUTOMATIC 5-SECOND READING TIMER WHEN QUESTION CHANGES
+        function startAutomaticReadingPhase() {
             db.ref('quizState').update({
                 readingPhase: true,
                 optionsRevealed: false,
@@ -620,6 +651,122 @@
             }, 1000);
         }
 
+        function triggerWinnerAnnouncement() {
+            db.ref('quizState').update({ winnerAnnounced: true });
+        }
+
+        function closeWinnerAnnouncement() {
+            db.ref('quizState').update({ winnerAnnounced: false });
+        }
+
+        function renderWinnerLeaderboard() {
+            db.ref('scores').once('value', (sSnap) => {
+                const sc = sSnap.val() || {};
+                const teams = [
+                    { name: 'Team 1', score: sc.Team1 || 0 },
+                    { name: 'Team 2', score: sc.Team2 || 0 },
+                    { name: 'Team 3', score: sc.Team3 || 0 }
+                ];
+
+                teams.sort((a, b) => b.score - a.score);
+
+                document.getElementById('champTeamName').innerText = teams[0].name;
+                document.getElementById('champScore').innerText = teams[0].score;
+
+                document.getElementById('runnerUp1Team').innerText = teams[1].name;
+                document.getElementById('runnerUp1Score').innerText = `${teams[1].score} PTS`;
+
+                document.getElementById('runnerUp2Team').innerText = teams[2].name;
+                document.getElementById('runnerUp2Score').innerText = `${teams[2].score} PTS`;
+            });
+        }
+
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            if (!container || container.childElementCount > 0) return;
+
+            const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#3b82f6'];
+            for (let i = 0; i < 60; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(confetti);
+            }
+        }
+
+        function renderParticipantsList() {
+            const tbody = document.getElementById('presParticipantTableBody');
+            const countBadge = document.getElementById('presParticipantCount');
+            const searchVal = (document.getElementById('participantSearchInput')?.value || '').toLowerCase().trim();
+
+            if (!tbody) return;
+
+            let allParticipants = [];
+            Object.keys(activeTeamsData).forEach(teamKey => {
+                const members = activeTeamsData[teamKey] || {};
+                Object.values(members).forEach(m => {
+                    allParticipants.push(m);
+                });
+            });
+
+            if (countBadge) countBadge.innerText = `${allParticipants.length} Joined`;
+
+            const filtered = allParticipants.filter(p => 
+                p.name.toLowerCase().includes(searchVal) || 
+                p.id.toLowerCase().includes(searchVal) ||
+                p.team.toLowerCase().includes(searchVal)
+            );
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">No matching participants found...</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-800/50 transition";
+                
+                let statusBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">🟢 Active</span>';
+                if (p.status === 'offline') {
+                    statusBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-900 text-gray-500 border border-gray-700">🔴 Offline / Logged Out</span>';
+                } else if (p.status === 'away' || p.tabFocused === false) {
+                    statusBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-950 text-red-400 border border-red-800 animate-pulse">⚠️ Away (Tab Switched)</span>';
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3 text-indigo-300 font-bold">${p.id}</td>
+                    <td class="p-3 text-white font-sans font-semibold">${p.name}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${p.team === 'Team 1' ? 'bg-indigo-950 text-indigo-300 border border-indigo-800' : p.team === 'Team 2' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">${p.team}</span></td>
+                    <td class="p-3">${statusBadge}</td>
+                    <td class="p-3">${p.hasBeenSelected ? '<span class="text-xs text-amber-400 font-bold">🎯 Called</span>' : '<span class="text-xs text-gray-500">Ready</span>'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleQuizState() {
+            db.ref('quizState').once('value', (snap) => {
+                const state = snap.val() || {};
+                const newState = !state.quizStarted;
+                db.ref('quizState').update({
+                    quizStarted: newState,
+                    buzzerOpen: false,
+                    buzzedWinner: null,
+                    selectedStudent: null,
+                    optionsRevealed: false,
+                    winnerAnnounced: false
+                });
+                if (newState) {
+                    startAutomaticReadingPhase();
+                }
+            });
+        }
+
         function openBuzzerManually() {
             db.ref('quizState').update({ buzzerOpen: true, buzzedWinner: null, selectedStudent: null });
         }
@@ -632,11 +779,10 @@
             if (currentQuestionIdx < allQuestions.length - 1) {
                 db.ref('quizState').update({
                     questionIdx: currentQuestionIdx + 1,
-                    buzzerOpen: false,
                     buzzedWinner: null,
-                    selectedStudent: null,
-                    optionsRevealed: false
+                    selectedStudent: null
                 });
+                startAutomaticReadingPhase();
             }
         }
 
@@ -644,11 +790,10 @@
             if (currentQuestionIdx > 0) {
                 db.ref('quizState').update({
                     questionIdx: currentQuestionIdx - 1,
-                    buzzerOpen: false,
                     buzzedWinner: null,
-                    selectedStudent: null,
-                    optionsRevealed: false
+                    selectedStudent: null
                 });
+                startAutomaticReadingPhase();
             }
         }
 
@@ -744,10 +889,13 @@
         function updateProjectorUI(state) {
             const q = allQuestions[state.questionIdx || 0];
             if (!q) return;
+            
+            document.getElementById('projRoundName').innerText = q.roundName;
             document.getElementById('projQNum').innerText = `Question ${(state.questionIdx || 0) + 1} / 40`;
             document.getElementById('projQText').innerText = q.question;
             document.getElementById('projReadTimer').innerText = (state.readTimer !== undefined ? state.readTimer : 5) + 's';
 
+            // Options show only when state.optionsRevealed is true (after 5s timer)
             const grid = document.getElementById('projOptionsGrid');
             if (state.optionsRevealed) {
                 grid.classList.remove('hidden');
@@ -788,7 +936,7 @@
                 btn.className = "w-48 h-48 mx-auto rounded-full font-black text-2xl uppercase shadow-2xl transition-all transform active:scale-95 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer border-4 border-emerald-400 flex items-center justify-center animate-bounce";
             } else {
                 banner.className = "p-4 rounded-xl mb-6 bg-red-950/40 border border-red-900 text-red-400 font-bold text-lg";
-                banner.innerText = "🔒 BUZZER CLOSED";
+                banner.innerText = state.readingPhase ? "📖 READING PHASE (OPTIONS HIDDEN)..." : "🔒 BUZZER LOCKED";
                 btn.disabled = true;
                 btn.className = "w-48 h-48 mx-auto rounded-full font-black text-2xl uppercase shadow-2xl bg-gray-800 text-gray-600 cursor-not-allowed border-4 border-gray-700 flex items-center justify-center";
             }
