@@ -283,8 +283,8 @@
             font-weight: bold;
         }
 
-        /* Bulletproof Video / Fallback Container */
-        #introVideoContainer {
+        /* Photo Emblem Splash Container */
+        #introPhotoContainer {
             position: absolute;
             top: 0;
             left: 0;
@@ -293,12 +293,30 @@
             overflow: hidden;
             border-radius: 20px;
             z-index: 10;
-            background: #000;
+            background: radial-gradient(circle, #0f172a 0%, #030712 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        #introVideoContainer video {
-            width: 100%;
-            height: 100%;
+
+        .emblem-logo {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
             object-fit: cover;
+            border: 4px solid var(--accent);
+            box-shadow: 0 0 40px rgba(129, 140, 248, 0.4);
+            margin-bottom: 20px;
+            animation: pulseEmblem 3s infinite ease-in-out;
+        }
+
+        @keyframes pulseEmblem {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(129, 140, 248, 0.3); }
+            50% { transform: scale(1.03); box-shadow: 0 0 50px rgba(129, 140, 248, 0.6); }
         }
 
         .round-banner {
@@ -311,12 +329,6 @@
             color: #c7d2fe;
             margin-bottom: 10px;
             text-align: center;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
     </style>
 </head>
@@ -409,10 +421,10 @@
                 <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                     <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 12px; border-radius: 16px; text-align: center;">
                         
-                        <!-- START QUIZ / INTRO TOGGLE -->
+                        <!-- START QUIZ / EMBLEM TOGGLE -->
                         <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                            <button id="startQuizBtn" onclick="startQuizOnProjector()" style="background: var(--success); margin:0; padding: 10px; font-size: 0.95rem; font-weight:700;">▶ Start Quiz (Stop Video Loop)</button>
-                            <button id="resetVideoBtn" onclick="resetToVideoLoop()" style="background: #374151; margin:0; padding: 10px; font-size: 0.85rem; width: auto;">🎬 Video Loop</button>
+                            <button id="startQuizBtn" onclick="startQuizOnProjector()" style="background: var(--success); margin:0; padding: 10px; font-size: 0.95rem; font-weight:700;">▶ Start Quiz</button>
+                            <button id="resetVideoBtn" onclick="resetToVideoLoop()" style="background: #374151; margin:0; padding: 10px; font-size: 0.85rem; width: auto;">🏛️ Show Emblem</button>
                         </div>
 
                         <h3 id="currentQHeader" style="margin: 0 0 8px 0; color: var(--accent); font-size: 1.1rem;">Question 1 / 40</h3>
@@ -475,19 +487,15 @@
             </div>
         </div>
 
-        <!-- DEDICATED PROJECTION VIEW (SMART BOARD) -->
+        <!-- DEDICATED PROJECTION VIEW (SMART BOARD) WITH EMBLEM LOGO -->
         <div id="projectorView" class="card hidden" style="padding: 20px; position: relative;">
             
-            <!-- BULLETPROOF INTRO VIDEO CONTAINER WITH CSS FALLBACK -->
-            <div id="introVideoContainer">
-                <video autoplay loop muted playsinline id="masterVideoEl" style="width: 100%; height: 100%; object-fit: cover;" onerror="fallbackToCSSAnimation()">
-                    <source src="college.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-                <div id="cssFallbackBg" class="hidden" style="width: 100%; height: 100%; background: linear-gradient(-45deg, #0f172a, #1e1b4b, #311b92, #0f172a); background-size: 400% 400%; animation: gradientBG 10s ease infinite; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px;">
-                    <h1 style="font-size: 3.5rem; color: #fff; text-shadow: 0 0 25px rgba(129,140,248,0.8); margin: 0;">🚀 KRISTU JAYANTI UNIVERSITY</h1>
-                    <h2 style="color: var(--accent); font-size: 2rem; margin-top: 10px;">BBA I Semester - Section D Quiz Championship</h2>
-                </div>
+            <!-- UNIVERSITY EMBLEM LOGO SPLASH SCREEN -->
+            <div id="introPhotoContainer">
+                <img src="logo.png" alt="Kristu Jayanti University Emblem" class="emblem-logo" onerror="this.src='https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=400&auto=format&fit=crop'">
+                <h1 style="font-size: 3rem; color: #fff; text-shadow: 0 0 25px rgba(129,140,248,0.8); margin: 0 0 10px 0;">KRISTU JAYANTI UNIVERSITY</h1>
+                <h2 style="color: var(--accent); font-size: 1.6rem; margin: 0 0 20px 0;">(Autonomous), Bengaluru | BBA Section D Quiz Championship</h2>
+                <p style="font-size: 1.1rem; color: var(--text-muted);">Scan the QR code on participant devices to connect your team!</p>
             </div>
 
             <!-- LIVE GAME STATE SCREEN (Fades in when quiz starts) -->
@@ -635,23 +643,10 @@
                 document.getElementById('closeLeaderboardBtn').classList.add('hidden');
                 initProjectorSync();
                 listenForLeaderboard();
-                
-                // Force play video on projector load
-                const vid = document.getElementById("masterVideoEl");
-                if (vid) {
-                    vid.play().catch(() => fallbackToCSSAnimation());
-                }
             } else {
                 document.getElementById('participantLogin').classList.remove('hidden');
                 populateFedStudents();
             }
-        }
-
-        function fallbackToCSSAnimation() {
-            const vid = document.getElementById("masterVideoEl");
-            const fallback = document.getElementById("cssFallbackBg");
-            if (vid) vid.style.display = 'none';
-            if (fallback) fallback.classList.remove('hidden');
         }
 
         function generateJoinQRCode() {
@@ -887,14 +882,14 @@
 
                 applyTheme(state.questionNum || 1);
 
-                let videoContainer = document.getElementById('introVideoContainer');
+                let photoContainer = document.getElementById('introPhotoContainer');
                 let gameContent = document.getElementById('projectorGameContent');
 
                 if (state.quizStarted) {
-                    videoContainer.classList.add('hidden');
+                    photoContainer.classList.add('hidden');
                     gameContent.classList.remove('hidden');
                 } else {
-                    videoContainer.classList.remove('hidden');
+                    photoContainer.classList.remove('hidden');
                     gameContent.classList.add('hidden');
                 }
 
