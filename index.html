@@ -3,1111 +3,492 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kristu Jayanti University - Class Quiz System</title>
-    
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    
-    <!-- QR Code Generator Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
+    <title>BBA Section D Live Quiz System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase App & Realtime Database CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-overlay: rgba(9, 13, 22, 0.88);
-            --card-bg: rgba(17, 24, 39, 0.85);
+            --bg-dark: #030712;
+            --card-bg: #111827;
             --card-border: #1f2937;
-            --text: #f3f4f6;
-            --text-muted: #9ca3af;
             --accent: #818cf8;
-            --danger: #ef4444;
-            --success: #10b981;
-            --warning: #f59e0b;
+            --success: #34d399;
+            --danger: #f87171;
         }
-
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
-            transition: background-image 0.6s ease-in-out;
-            overflow-x: hidden;
+            background-color: var(--bg-dark);
+            color: #f3f4f6;
+            font-family: system-ui, -apple-system, sans-serif;
         }
-
-        .container {
-            width: 100%;
-            max-width: 550px;
-            box-sizing: border-box;
-            transition: all 0.4s ease;
-        }
-
-        .container.dashboard-mode {
-            width: 90vw;
-            height: 88vh;
-            max-width: none;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .container.projector-mode {
-            width: 98vw;
-            height: 96vh;
-            max-width: none;
-        }
-
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-            text-align: center;
-            backdrop-filter: blur(12px);
-            transition: background-color 0.5s ease, border-color 0.5s ease;
+            border-radius: 1rem;
         }
-
-        .container.dashboard-mode .card,
-        .container.projector-mode .card {
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        h1, h2, h3 { color: var(--text); margin-top: 0; font-weight: 700; }
-
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            font-size: 1rem;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.25s ease;
-            font-weight: 600;
-            margin-top: 6px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        button:hover { filter: brightness(1.15); transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
-
-        input, select {
-            width: 100%;
-            padding: 10px 12px;
-            background-color: rgba(3, 7, 18, 0.9);
-            border: 2px solid #374151;
-            border-radius: 12px;
-            color: white;
-            font-size: 0.95rem;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-            text-align: center;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, select:focus { border-color: var(--primary); outline: none; }
-
-        .hidden { display: none !important; }
-
-        /* Pulsing Buzzer */
-        .buzzer-btn {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            font-size: 2.2rem;
-            color: white;
-            font-weight: 800;
-            border-radius: 50%;
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 35px rgba(239, 68, 68, 0.4);
-            border: 6px solid #f87171;
-            cursor: pointer;
-            animation: pulseBuzzer 1.5s infinite;
-            transition: transform 0.1s;
-        }
-
-        .buzzer-btn:active { transform: scale(0.93); }
-
-        @keyframes pulseBuzzer {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.04); box-shadow: 0 0 0 25px rgba(239, 68, 68, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-
-        .team-badge {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--primary);
-            padding: 8px 20px;
-            border-radius: 30px;
-            display: inline-block;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 15px;
-        }
-
-        .qr-box {
-            background: white;
-            padding: 10px;
-            border-radius: 12px;
-            display: inline-block;
-            margin: 8px 0;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
-
-        /* 3-Column Presenter Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 340px 1fr 280px;
-            gap: 16px;
-            text-align: left;
-            align-items: stretch;
-            flex-grow: 1;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
-        @media (max-width: 1100px) {
-            .dashboard-grid { grid-template-columns: 1fr; overflow-y: auto; }
-            .container.dashboard-mode { height: auto; width: 95vw; }
-        }
-
-        .participant-list {
-            background: rgba(3, 7, 18, 0.85);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 10px;
-            overflow-y: auto;
-            text-align: left;
-            margin-top: 8px;
-            flex-grow: 1;
-        }
-
-        .participant-item {
-            padding: 8px 10px;
-            border-bottom: 1px solid #1f2937;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            animation: fadeIn 0.3s ease;
-        }
-        .participant-item:last-child { border-bottom: none; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .status-pill {
-            display: inline-block;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-
-        /* Leaderboard Modal */
-        #leaderboardModal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(3, 7, 18, 0.92);
-            display: flex;
-            justify-content: center;
+            display: inline-flex;
             align-items: center;
-            z-index: 9999;
-            backdrop-filter: blur(10px);
-        }
-        .leaderboard-card {
-            background: #111827;
-            border: 2px solid var(--primary);
-            border-radius: 24px;
-            padding: 35px;
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(99, 102, 241, 0.4);
-            animation: zoomIn 0.3s ease;
-        }
-        @keyframes zoomIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .leaderboard-rank-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(3, 7, 18, 0.7);
-            padding: 12px 18px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border: 1px solid #1f2937;
-            font-size: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
             font-weight: 600;
-        }
-
-        #timerDisplay {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #fbbf24;
-            margin: 5px 0;
-        }
-
-        .tab-alert {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid var(--danger);
-            color: #fca5a5;
-            padding: 3px 6px;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-
-        /* Photo Emblem Splash Container */
-        #introPhotoContainer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            border-radius: 20px;
-            z-index: 10;
-            background: radial-gradient(circle, #0f172a 0%, #030712 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .emblem-logo {
-            width: 240px;
-            height: 240px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--accent);
-            box-shadow: 0 0 40px rgba(129, 140, 248, 0.4);
-            margin-bottom: 20px;
-            animation: pulseEmblem 3s infinite ease-in-out;
-        }
-
-        @keyframes pulseEmblem {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(129, 140, 248, 0.3); }
-            50% { transform: scale(1.03); box-shadow: 0 0 50px rgba(129, 140, 248, 0.6); }
-        }
-
-        .round-banner {
-            background: rgba(99, 102, 241, 0.15);
-            border: 1px solid var(--accent);
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #c7d2fe;
-            margin-bottom: 10px;
-            text-align: center;
+            font-size: 0.875rem;
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen p-4 md:p-8 flex flex-col justify-between">
 
-    <!-- LEADERBOARD POPUP MODAL -->
-    <div id="leaderboardModal" class="hidden">
-        <div class="leaderboard-card">
-            <h1 style="color: #fbbf24; margin-bottom: 5px;">🏆 Live Leaderboard & Speed 🏆</h1>
-            <p id="leaderboardSubtitle" style="color: var(--text-muted); margin-bottom: 20px;">Current Standings</p>
-            <div id="leaderboardList" style="max-height: 280px; overflow-y: auto; margin-bottom: 20px;"></div>
-            <button id="closeLeaderboardBtn" onclick="closeLeaderboard()" style="background: var(--success); font-size: 1.1rem; padding: 14px;">Continue to Next Question ➔</button>
+    <!-- TOP HEADER -->
+    <header class="w-full max-w-6xl mx-auto flex justify-between items-center mb-6 card p-4">
+        <div>
+            <h1 class="text-xl font-bold text-indigo-400">BBA Section D Live Quiz</h1>
+            <p id="roleIndicator" class="text-xs text-gray-400">Connecting to Firebase...</p>
         </div>
-    </div>
-
-    <div class="container" id="mainContainer">
-        
-        <!-- ROLE SELECTION -->
-        <div id="roleSelection" class="card">
-            <h1>🚀 Kristu Jayanti University Quiz</h1>
-            <p style="color: var(--text-muted); margin-bottom: 25px;">Select your portal to begin the session.</p>
-            <button onclick="selectRole('presenter')">Presenter Dashboard</button>
-            <button onclick="selectRole('participant')" style="background: #374151; margin-top: 12px;">Participant Entry</button>
-            <button onclick="selectRole('projector')" style="background: #1e1b4b; border: 1px solid var(--primary); margin-top: 12px;">Projection View (Smart Board)</button>
+        <div id="topNavControls">
+            <button onclick="switchView('presenter')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold rounded-lg mr-2">Presenter Dashboard</button>
+            <button onclick="switchView('student')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold rounded-lg mr-2">Student Buzzer</button>
+            <button onclick="switchView('projector')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-sm font-semibold rounded-lg">Smart Board View</button>
         </div>
+    </header>
 
-        <!-- PARTICIPANT LOGIN (Official BBA Section D Roster) -->
-        <div id="participantLogin" class="card hidden">
-            <h1>Join the Quiz</h1>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">Select your official name & ID from Section D.</p>
-            
-            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; text-align: left; margin-bottom: 4px;">SELECT YOUR NAME & ID</label>
-            <select id="fedStudentSelect">
-                <option value="">-- Choose Name & University ID --</option>
-            </select>
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-6xl mx-auto flex-grow flex flex-col">
 
-            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; text-align: left; margin-bottom: 4px; margin-top: 10px;">SELECT YOUR TEAM</label>
-            <select id="partTeamSelect">
-                <option value="Team Alpha">Team Alpha</option>
-                <option value="Team Titans">Team Titans</option>
-                <option value="Team Warriors">Team Warriors</option>
-                <option value="Team Legends">Team Legends</option>
-            </select>
+        <!-- 1. PRESENTER VIEW -->
+        <div id="presenterView" class="card p-6 hidden flex-grow flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-indigo-300">Presenter Master Dashboard</h2>
+                    <div class="space-x-2">
+                        <button onclick="resetBuzzer()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold rounded-lg text-sm">🔓 Open Buzzer</button>
+                        <button onclick="lockBuzzer()" class="px-4 py-2 bg-red-600 hover:bg-red-500 font-bold rounded-lg text-sm">🔒 Close Buzzer</button>
+                    </div>
+                </div>
 
-            <button onclick="registerParticipant()" style="margin-top: 15px;">Connect to Classroom</button>
-        </div>
+                <!-- Live Status Banner -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="card p-4 text-center">
+                        <span class="text-gray-400 text-sm">Current Round</span>
+                        <div id="presRoundName" class="text-lg font-bold text-indigo-400">Round 1</div>
+                    </div>
+                    <div class="card p-4 text-center">
+                        <span class="text-gray-400 text-sm">Active Question</span>
+                        <div id="presQNum" class="text-2xl font-bold text-white">Q1 / 40</div>
+                    </div>
+                    <div class="card p-4 text-center">
+                        <span class="text-gray-400 text-sm">Timer Control</span>
+                        <div id="presTimerDisplay" class="text-2xl font-bold text-amber-400">30s</div>
+                    </div>
+                </div>
 
-        <!-- PARTICIPANT BUZZER SCREEN -->
-        <div id="participantScreen" class="card hidden">
-            <div class="team-badge" id="displayTeamName">Team Name</div>
-            <div id="statusPillContainer">
-                <span class="status-pill" id="statusPill" style="background: rgba(156,163,175,0.2); color: var(--text-muted);">Stand By</span>
-            </div>
-            <div id="timerDisplay">--:--</div>
-            <h2 id="participantStatusTitle" style="margin-top: 10px;">Waiting for Presenter...</h2>
-            <p id="participantStatusDesc" style="color: var(--text-muted); font-size: 0.95rem;">The buzzer will activate after the 5-second thinking phase.</p>
-            
-            <div id="buzzerContainer" style="display:none;">
-                <div id="bigBuzzer" class="buzzer-btn" onclick="hitBuzzer()">BUZZ!</div>
-            </div>
-        </div>
+                <!-- Question Control Box -->
+                <div class="card p-6 mb-6 bg-gray-900/50">
+                    <h3 id="presQuestionText" class="text-xl font-semibold mb-4 text-white">Loading question bank...</h3>
+                    <div id="presOptionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4"></div>
+                    <div class="p-3 bg-indigo-950/40 border border-indigo-900 rounded-lg">
+                        <span class="text-xs uppercase font-bold text-indigo-400">Correct Answer:</span>
+                        <p id="presCorrectAnswer" class="text-sm font-semibold text-emerald-400">-</p>
+                    </div>
+                    <div id="presExtraBox" class="mt-3 p-3 bg-amber-950/30 border border-amber-900/50 rounded-lg hidden">
+                        <span id="presExtraLabel" class="text-xs uppercase font-bold text-amber-400">Tip / Dare:</span>
+                        <p id="presExtraText" class="text-sm text-amber-200 mt-1"></p>
+                    </div>
+                </div>
 
-        <!-- PRESENTER DASHBOARD -->
-        <div id="presenterDashboard" class="card hidden" style="text-align: left; padding: 18px;">
-            <h1 style="text-align: center; margin-bottom: 6px; font-size: 1.6rem;">Presenter Dashboard</h1>
-            
-            <!-- ACTIVE ROUND DISPLAY -->
-            <div id="presenterRoundBanner" class="round-banner">
-                Round 1: Kannada & Karnataka Culture 💛❤️
+                <!-- First Buzzed Winner Section -->
+                <div id="presWinnerBox" class="card p-6 mb-6 border-emerald-500/50 bg-emerald-950/20 text-center hidden">
+                    <span class="text-xs uppercase tracking-wider text-emerald-400 font-bold">First Team Buzzed In!</span>
+                    <h2 id="presWinnerName" class="text-3xl font-extrabold text-white mt-1">None</h2>
+                </div>
             </div>
 
-            <div class="dashboard-grid">
+            <!-- Navigation Controls Footer -->
+            <div class="flex justify-between items-center pt-4 border-t border-gray-800">
+                <button onclick="prevQuestion()" class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 font-bold rounded-lg">⬅️ Previous Question</button>
+                <div class="space-x-2">
+                    <button onclick="startTimer(30)" class="px-4 py-2 bg-indigo-700 hover:bg-indigo-600 text-sm font-bold rounded-lg">Start 30s Timer</button>
+                    <button onclick="startTimer(60)" class="px-4 py-2 bg-indigo-700 hover:bg-indigo-600 text-sm font-bold rounded-lg">Start 60s Timer</button>
+                </div>
+                <button onclick="nextQuestion()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-lg">Next Question ➡️</button>
+            </div>
+        </div>
+
+        <!-- 2. STUDENT BUZZER VIEW -->
+        <div id="studentView" class="card p-6 hidden flex-grow flex flex-col items-center justify-center text-center">
+            <div id="teamLoginBox" class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-300">Join Quiz As Team</h2>
+                <input type="text" id="teamNameInput" placeholder="Enter Team Name (e.g., Titans)" class="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg mb-4 text-white text-center font-bold text-lg focus:outline-none focus:border-indigo-500">
+                <button onclick="registerTeam()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-lg text-lg">Enter Arena 🚀</button>
+            </div>
+
+            <div id="teamActiveBox" class="w-full max-w-md hidden">
+                <div class="mb-6">
+                    <span class="text-sm text-gray-400">Playing As:</span>
+                    <h3 id="displayTeamName" class="text-2xl font-extrabold text-indigo-400">Team</h3>
+                </div>
                 
-                <!-- COLUMN 1: Attendance, Roster Search & Participant Management -->
-                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 12px; border-radius: 16px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
-                    <h3 style="margin: 0 0 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;">
-                        <span>👥 Attendance Manager</span> 
-                        <span id="participantCountBadge" style="background: var(--primary); font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;">0 Online</span>
-                    </h3>
-
-                    <!-- SEARCH BAR FOR ROSTER & ACTIVE ATTENDANCE -->
-                    <input type="text" id="rosterSearchInput" onkeyup="filterRosterAndOnline()" placeholder="🔍 Search student name or ID..." style="text-align: left; padding: 8px 12px; font-size: 0.85rem; margin-bottom: 6px;">
-
-                    <div class="participant-list" id="participantContainer">
-                        <p style="color: var(--text-muted); text-align: center; margin: 30px 0; font-style: italic;">Waiting for participants...</p>
-                    </div>
+                <div id="buzzerStatusBanner" class="p-4 rounded-xl mb-6 bg-red-950/40 border border-red-900 text-red-400 font-bold text-lg">
+                    🔒 BUZZER LOCKED
                 </div>
 
-                <!-- COLUMN 2: Central Game Controls & Reveal Logic -->
-                <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-                    <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 12px; border-radius: 16px; text-align: center;">
-                        
-                        <!-- START QUIZ / EMBLEM TOGGLE -->
-                        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                            <button id="startQuizBtn" onclick="startQuizOnProjector()" style="background: var(--success); margin:0; padding: 10px; font-size: 0.95rem; font-weight:700;">▶ Start Quiz</button>
-                            <button id="resetVideoBtn" onclick="resetToVideoLoop()" style="background: #374151; margin:0; padding: 10px; font-size: 0.85rem; width: auto;">🏛️ Show Emblem</button>
-                        </div>
-
-                        <h3 id="currentQHeader" style="margin: 0 0 8px 0; color: var(--accent); font-size: 1.1rem;">Question 1 / 40</h3>
-                        
-                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                            <button onclick="changeQuestion(-1)" style="margin:0; background: #1f2937; padding: 8px;">◀ Prev Q</button>
-                            <button onclick="changeQuestion(1)" style="margin:0; background: #1f2937; padding: 8px;">Next Q ▶</button>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: left;">
-                            <div style="background: rgba(17, 24, 39, 0.9); padding: 5px 6px; border-radius: 8px; border: 1px solid var(--card-border);">
-                                <label style="font-size: 0.6rem; color: var(--text-muted); display: block;">JUMP Q</label>
-                                <div style="display: flex; gap: 4px;">
-                                    <input type="number" id="jumpQInput" min="1" value="1" style="margin:0; padding: 3px; font-size: 0.8rem;">
-                                    <button onclick="jumpToQuestion()" style="margin:0; padding: 3px 6px; width: auto; font-size: 0.75rem;">Go</button>
-                                </div>
-                            </div>
-                            <div style="background: rgba(17, 24, 39, 0.9); padding: 5px 6px; border-radius: 8px; border: 1px solid var(--card-border);">
-                                <label style="font-size: 0.6rem; color: var(--text-muted); display: block;">TOTAL Qs</label>
-                                <input type="number" id="totalQInput" min="1" value="40" onchange="updateTotalQuestions(this.value)" style="margin:0; padding: 3px; font-size: 0.8rem;">
-                            </div>
-                            <div style="background: rgba(17, 24, 39, 0.9); padding: 5px 6px; border-radius: 8px; border: 1px solid var(--card-border);">
-                                <label style="font-size: 0.6rem; color: var(--text-muted); display: block;">TIMER (SEC)</label>
-                                <select id="timerDurationSelect" style="margin:0; padding: 3px; font-size: 0.8rem;">
-                                    <option value="10">10s</option>
-                                    <option value="15" selected>15s</option>
-                                    <option value="30">30s</option>
-                                    <option value="60">60s</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="text-align: center; margin: 6px 0;">
-                        <button id="toggleBuzzerBtn" onclick="toggleBuzzerState()" style="background: var(--success); font-size: 1rem; padding: 10px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">Launch 5s Reveal & Open Buzzer</button>
-                    </div>
-
-                    <!-- MASSIVE LIVE BUZZER FEED -->
-                    <div id="liveAlertBox" style="background: rgba(3, 7, 18, 0.85); border: 2px solid var(--primary); padding: 10px; border-radius: 14px; text-align: center;">
-                        <h3 style="margin-top:0; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">⚡ Live Feed ⚡</h3>
-                        <div id="presenterTimer" style="font-size: 1.1rem; color: #fbbf24; font-weight: 800;">Time Left: --s</div>
-                        <h2 id="buzzerWinnerDisplay" style="color: #fbbf24; margin: 4px 0; font-size: 1.2rem; font-weight: 800;">Buzzer Closed</h2>
-                        <div id="selectedStudentCard" style="font-size: 0.9rem; color: #38bdf8; font-weight: 700;"></div>
-                    </div>
-
-                    <div style="display: flex; gap: 8px; margin-top: 6px;">
-                        <button onclick="gradeAnswer('correct')" style="background: var(--success); margin:0; font-size: 0.9rem; padding: 8px;">Right Answer ✓</button>
-                        <button onclick="gradeAnswer('wrong')" style="background: var(--danger); margin:0; font-size: 0.9rem; padding: 8px;">Wrong Answer (Assign Dare 🎭)</button>
-                    </div>
-                </div>
-
-                <!-- COLUMN 3: QR Code & Direct Link -->
-                <div style="background: rgba(3, 7, 18, 0.75); border: 1px solid var(--card-border); padding: 12px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; box-sizing: border-box;">
-                    <h3 style="margin: 0 0 6px 0; font-size: 0.9rem;">📱 Join Session</h3>
-                    <div class="qr-box" id="qrcode"></div>
-                    <p style="margin: 8px 0 2px 0; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Direct Link:</p>
-                    <p style="margin: 0; word-break: break-all; font-size: 0.65rem; color: var(--accent); background: rgba(17, 24, 39, 0.9); padding: 4px; border-radius: 6px; border: 1px solid var(--card-border);" id="joinLinkText"></p>
-                </div>
-
+                <button id="buzzButton" onclick="triggerBuzz()" disabled class="w-48 h-48 mx-auto rounded-full font-black text-2xl uppercase tracking-wider shadow-2xl transition-all transform active:scale-95 bg-gray-700 text-gray-400 cursor-not-allowed border-4 border-gray-600 flex items-center justify-center">
+                    BUZZ!
+                </button>
+                <div id="buzzerResultNotice" class="mt-6 text-xl font-bold"></div>
             </div>
         </div>
 
-        <!-- DEDICATED PROJECTION VIEW (SMART BOARD) WITH EMBLEM LOGO -->
-        <div id="projectorView" class="card hidden" style="padding: 20px; position: relative;">
+        <!-- 3. PROJECTOR VIEW (SMART BOARD WITH EMBLEM ONLY) -->
+        <div id="projectorView" class="card hidden flex-grow flex flex-col justify-between relative p-6 overflow-hidden min-h-[500px]">
             
-            <!-- UNIVERSITY EMBLEM LOGO SPLASH SCREEN -->
-            <div id="introPhotoContainer">
-                <img src="logo.png" alt="Kristu Jayanti University Emblem" class="emblem-logo" onerror="this.src='https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=400&auto=format&fit=crop'">
-                <h1 style="font-size: 3rem; color: #fff; text-shadow: 0 0 25px rgba(129,140,248,0.8); margin: 0 0 10px 0;">KRISTU JAYANTI UNIVERSITY</h1>
-                <h2 style="color: var(--accent); font-size: 1.6rem; margin: 0 0 20px 0;">(Autonomous), Bengaluru | BBA Section D Quiz Championship</h2>
-                <p style="font-size: 1.1rem; color: var(--text-muted);">Scan the QR code on participant devices to connect your team!</p>
+            <!-- EMBLEM ONLY INITIALIZATION SCREEN -->
+            <div id="introPhotoContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; border-radius: 20px; z-index: 10; background: #030712; display: flex; justify-content: center; align-items: center;">
+                <img src="logo.png" alt="Kristu Jayanti University Emblem" style="max-width: 80%; max-height: 80%; object-fit: contain;">
             </div>
 
-            <!-- LIVE GAME STATE SCREEN (Fades in when quiz starts) -->
-            <div id="projectorGameContent" class="hidden" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; z-index: 5; position: relative;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border); padding-bottom: 15px;">
-                    <h1 id="projectorQHeader" style="margin:0; font-size: 2.5rem; color: var(--accent);">Question 1 / 40</h1>
-                    <div id="projectorTimer" style="font-size: 3rem; font-weight: 800; color: #fbbf24;">--:--</div>
+            <!-- LIVE GAME STATE SCREEN -->
+            <div id="projectorGameContent" class="hidden h-full flex flex-col justify-between z-50 relative">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-4">
+                    <h1 id="projectorQHeader" class="text-3xl font-extrabold text-indigo-400">Question 1 / 40</h1>
+                    <div id="projectorTimer" class="text-4xl font-black text-amber-400">--:--</div>
                 </div>
 
-                <div style="margin: 40px 0; text-align: center;">
-                    <div id="projectorPhaseBadge" class="status-pill" style="background: rgba(129,140,248,0.2); color: var(--accent); font-size: 1.2rem; padding: 10px 30px;">Thinking Phase</div>
-                    <h2 id="projectorBuzzerState" style="font-size: 3.5rem; margin: 25px 0; font-weight: 800;">🔒 Buzzer Closed</h2>
-                    <div id="projectorWinnerDisplay" style="font-size: 2.2rem; color: #38bdf8; font-weight: 700;"></div>
-                    <div id="projectorTabAlerts" style="margin-top: 15px;"></div>
+                <div class="my-8 text-center">
+                    <div id="projectorPhaseBadge" class="status-pill bg-indigo-900/40 text-indigo-300 text-lg px-6 py-2 mb-4">Thinking Phase</div>
+                    <h2 id="projectorBuzzerState" class="text-5xl font-black mb-6">🔒 Buzzer Closed</h2>
+                    <div id="projectorWinnerDisplay" class="text-3xl text-cyan-400 font-bold"></div>
+                    <div id="projectorTabAlerts" class="mt-4"></div>
                 </div>
 
-                <div style="background: rgba(3,7,18,0.8); border: 2px solid var(--card-border); padding: 15px; border-radius: 16px; display: flex; justify-content: space-around; font-size: 1.2rem;">
-                    <span>Round: <strong id="projectorRoundName" style="color: var(--accent);">1 - Karnataka Culture</strong></span>
-                    <span>Teams Active: <strong id="projectorTeamCount" style="color: var(--success);">0</strong></span>
+                <div class="bg-gray-950/80 border border-gray-800 p-4 rounded-xl flex justify-between items-center text-lg">
+                    <span>Round: <strong id="projectorRoundName" class="text-indigo-400">1 - Karnataka Culture</strong></span>
+                    <span>Teams Active: <strong id="projectorTeamCount" class="text-emerald-400">0</strong></span>
                 </div>
             </div>
-
         </div>
 
-    </div>
+    </main>
 
+    <!-- FOOTER -->
+    <footer class="w-full max-w-6xl mx-auto text-center mt-6 text-xs text-gray-500">
+        BBA Section D Quiz System &bull; Powered by Firebase Realtime Database
+    </footer>
+
+    <!-- APPLICATION LOGIC SCRIPT -->
     <script>
+        // FIREBASE CONFIGURATION (Placeholder or initialized project)
         const firebaseConfig = {
-            apiKey: "AIzaSyBnXmTdVTbI0y8RhwkMOoPn3dCnzxEwyMw",
-            authDomain: "class-quiz-a8d09.firebaseapp.com",
-            databaseURL: "https://class-quiz-a8d09-default-rtdb.firebaseio.com",
-            projectId: "class-quiz-a8d09",
-            storageBucket: "class-quiz-a8d09.firebasestorage.app",
-            messagingSenderId: "472766447288",
-            appId: "1:472766447288:web:3c5ce34cef41d7c67bbe4d"
+            databaseURL: "https://bba-section-d-quiz-default-rtdb.firebaseio.com/"
         };
-
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.database();
 
-        let myName = '';
-        let myTeam = '';
-        let currentRole = '';
-        let rawParticipantsData = {};
+        // 40 QUESTIONS MASTER DATASET
+        const allQuestions = [
+            // ROUND 1: KANNADA & KARNATAKA CULTURE (Q1 - Q10)
+            { id: 1, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Audio / Pronunciation Prompt) Read out loud to the class: \"Ondhu-vare aaguthe Boss!\" When an Auto Anna says this before you get in, what does he mean?", options: ["A) The ride will take 15 minutes", "B) The fare is 1.5x (One-and-a-half) the meter rate", "C) He can only take 1 passenger", "D) The meter is broken"], correctAnswer: "B) The fare is 1.5x (One-and-a-half) the meter rate", answerKey: "B", tip: "Tip: You usually hear this late at night or during heavy rains!", dare: "🎭 DARE (The Auto Anna Negotiator): Walk up to a classmate, put your hands on your hips, and dramatically say: 'Ondhu-vare aaguthe Boss, meter mele extra ten rupees!'" },
+            { id: 2, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Pictorial Prompt) What iconic South Indian breakfast item is this crispy crepe served with red chutney inside, coconut chutney, and sambar?", options: ["A) Set Dosa", "B) Rava Dosa", "C) Mysore Masala Dosa", "D) Paper Plain Dosa"], correctAnswer: "C) Mysore Masala Dosa", answerKey: "C", dare: "🎭 DARE (The By-Two Coffee Drama): Order a single cup of water or coffee from a friend, hand them an empty cup, and shout: 'By-Two maadi bro!' while making a sharp chopping gesture in the air." },
+            { id: 3, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Survival Phrase) You are shopping at Commercial Street or Chickpet and want to ask \"How much is this?\" in Kannada. What should you say?", options: ["A) Idhu eshto?", "B) Yelli idhe?", "C) Hego idhe?", "D) Naale banni!"], correctAnswer: "A) Idhu eshto?", answerKey: "A", dare: "🎭 DARE (The Masala Dosa Monologue): Spend 30 seconds describing a Mysore Masala Dosa to the person next to you like it’s the love of your life." },
+            { id: 4, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Audio / Direction Prompt) Read out loud to the class: \"Swalpa straight hogi, right thegodhi!\" What is the passerby asking you to do?", options: ["A) Take a left, then stop", "B) Go straight a little, then turn right", "C) Turn right immediately", "D) Go straight for 5 kilometers"], correctAnswer: "B) Go straight a little, then turn right", answerKey: "B", dare: "🎭 DARE (The 'Swalpa Swalpa' Confession): Go up to anyone in class, look them in the eye with complete confidence, and say: 'Kannada swalpa swalpa baruthe!'—then immediately bow and walk away in silence." },
+            { id: 5, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Pictorial Prompt) Which famous weekend getaway spot ~60 km from Bengaluru is famous for sunrise views above the cloud line?", options: ["A) Savandurga Hill", "B) Skandagiri", "C) Nandi Hills", "D) Shivagange"], correctAnswer: "C) Nandi Hills", answerKey: "C", dare: "🎭 DARE (The Macha Greeting): High-five 3 different non-local classmates in a row while enthusiastically calling each of them 'Macha!' or 'Maga!' in a deep South Indian action-movie voice." },
+            { id: 6, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Campus Slang) When your local classmate calls you \"Macha\" or \"Maga\", what does it mean?", options: ["A) Teacher / Professor", "B) Boss / Manager", "C) Buddy / Bro / Dude", "D) Stranger"], correctAnswer: "C) Buddy / Bro / Dude", answerKey: "C", dare: "🎭 DARE (The Namma Metro Announcer): Stand up and mimic the Namma Metro chime out loud: 'Dayavittu dharaviyisiri... Next station, MG Road!'" },
+            { id: 7, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Audio / Darshini Culture Prompt) Read out loud to the class: \"Ondhu Filter Coffee, By-Two maadi!\" What are you requesting at the coffee counter?", options: ["A) 2 full cups of coffee", "B) 1 cup of coffee split into 2 smaller cups", "C) 1 coffee with extra sugar", "D) 1 coffee and 1 tea"], correctAnswer: "B) 1 cup of coffee split into 2 smaller cups", answerKey: "B", dare: "🎭 DARE (The Commercial Street Bargain): Pick up a pen or notebook from a friend's desk, hold it up like a hawk, and ask 'Idhu eshto?'—then flat-out refuse to pay more than ₹5." },
+            { id: 8, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Pictorial Prompt) What is the official brand name of Bengaluru’s Metro train system?", options: ["A) Namma Metro", "B) Bengaluru Express", "C) Swift Rail", "D) Metro Mitra"], correctAnswer: "A) Namma Metro", answerKey: "A", tip: "Fact: \"Namma\" means \"Our\" in Kannada!", dare: "🎭 DARE (The Nandi Hills Fog Hike): Walk in extreme slow-motion across the front of the classroom while fanning away imaginary morning fog like you're searching for the sunrise at Nandi Hills." },
+            { id: 9, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(City Culture & Landmarks) Why is Bengaluru historically nicknamed the \"Garden City of India\"?", options: ["A) It produces the most flowers in Asia", "B) It is home to vast historical green havens like Lalbagh & Cubbon Park", "C) Every house must have a rooftop garden by law", "D) It has the largest botanical research lab in South Asia"], correctAnswer: "B) It is home to vast historical green havens like Lalbagh & Cubbon Park", answerKey: "B", dare: "🎭 DARE (The Direction Master): Explain how to reach the college canteen using only wild hand gestures and repeating: 'Straight hogi, right thegodhi, swalpa straight!'" },
+            { id: 10, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Polite Local Interaction) Instead of saying \"Kannada Gothilla\" (I don't know Kannada), what friendly phrase shows you are learning?", options: ["A) Kannada gothilla boss!", "B) Kannada swalpa swalpa baruthe!", "C) Nange beku!", "D) Oota aitha?"], correctAnswer: "B) Kannada swalpa swalpa baruthe!", answerKey: "B", tip: "Meaning: I know a little bit of Kannada!", dare: "🎭 DARE (The Garden City Tree Pose): Stand in the middle of the room, do a yoga tree pose, and announce to everyone: 'Respect me, I am Lalbagh.'" },
 
-        // Official BBA I Semester Section D Roster
-        const preFedStudents = [
-            { name: "ABHIJEET MAHALIK", id: "26BBAD01" },
-            { name: "ABHINAV JAYAN", id: "26BBAD02" },
-            { name: "ADITYA BALAKRISHNAN", id: "26BBAD04" },
-            { name: "ANAYA JACCOB SHABU", id: "26BBAD05" },
-            { name: "ANGELA ELSA ANTO", id: "26BBAD06" },
-            { name: "AYUB RAMJAN KEWAR", id: "26BBAD07" },
-            { name: "DHANUSH DHARMENDRA", id: "26BBAD08" },
-            { name: "GONDELA SAI SATHWIK", id: "26BBAD09" },
-            { name: "IZAAN AHMED", id: "26BBAD10" },
-            { name: "JORDAN IMMANUEL STANLEY", id: "26BBAD11" },
-            { name: "MATHEW K M", id: "26BBAD12" },
-            { name: "MATTHEW VANMALSAWMSANGA CHAWNGTHU", id: "26BBAD13" },
-            { name: "MD WAQUAS KHAN", id: "26BBAD14" },
-            { name: "NIRBASAN KHUNDRAKPAM", id: "26BBAD15" },
-            { name: "RADHIKA SINGH", id: "26BBAD16" },
-            { name: "RAJ VERMA", id: "26BBAD17" },
-            { name: "REMRUATPUII", id: "26BBAD18" },
-            { name: "RIKHIL D", id: "26BBAD19" },
-            { name: "ROHIT", id: "26BBAD20" },
-            { name: "SALINA REANG", id: "26BBAD21" },
-            { name: "SANSKAR CHOUDHARY", id: "26BBAD22" },
-            { name: "SHAWN PAUL", id: "26BBAD23" },
-            { name: "SHRIMAN K", id: "26BBAD24" },
-            { name: "SK SAHIL HOSSAIN", id: "26BBAD25" },
-            { name: "SWARSHYA A", id: "26BBAD26" },
-            { name: "VANSHIKA SIDDHARTHA SARAOGI", id: "26BBAD27" },
-            { name: "VIDISHA SINHA", id: "26BBAD28" },
-            { name: "VIVIAN MATHEW BIJU", id: "26BBAD29" },
-            { name: "ADHIL JOSE BINOY", id: "26BBAD30" },
-            { name: "ANVITA K BALLAL", id: "26BBAD31" },
-            { name: "ARKYAPRAVA PYNE", id: "26BBAD32" },
-            { name: "KHUSHI DILEEP BHATI", id: "26BBAD33" },
-            { name: "MUSARATH SAFA", id: "26BBAD34" },
-            { name: "NANDA KRISHNAN S NAIR", id: "26BBAD35" },
-            { name: "SURAJ S", id: "26BBAD37" },
-            { name: "SYED AMEEN A", id: "26BBAD38" },
-            { name: "TAMMINENI DHARINEESH RAO", id: "26BBAD39" },
-            { name: "UDIT KAUSHIK", id: "26BBAD40" },
-            { name: "VINTI JAIN", id: "26BBAD41" },
-            { name: "Y JASON SANTO", id: "26BBAD42" },
-            { name: "KAVIKSHA P", id: "26BBAD43" },
-            { name: "LITHIKA S V", id: "26BBAD44" },
-            { name: "PRATHISH KUMAR V", id: "26BBAD45" },
-            { name: "RENISH J", id: "26BBAD46" },
-            { name: "YUSUF", id: "26BBAD47" },
-            { name: "VADDI UMA SRI VARSHITHA", id: "26BBAD49" },
-            { name: "GANESH", id: "26BBAD50" },
-            { name: "SAKSHI PRIYA", id: "26BBAD51" },
-            { name: "NUZO THISA", id: "26BBAD52" }
+            // ROUND 2: BOLLYWOOD COMEDY (Q11 - Q20)
+            { id: 11, round: 2, roundName: "2 - Bollywood Comedy", question: "If Sunny Deol found out that someone ate his lunch from the college fridge, what would his dialogue be?", options: ["A) “Beta, lunch khaya hai ya meri property pe kabza kiya hai?”", "B) “Yeh lunch mera tha! Lunch box wapas karo!”", "C) “Ek lunch ki keemat tum kya jaano, canteen babu!”", "D) “Lunch chor, tu college ka sabse bada villain hai!”"], correctAnswer: "B) “Yeh lunch mera tha! Lunch box wapas karo!”", answerKey: "B", dare: "🎭 DARE (Sunny Deol's Missing Lunch): Flex your biceps, look dramatically at the class, and deliver your best angry Sunny Deol dialogue about a stolen lunch box." },
+            { id: 12, round: 2, roundName: "2 - Bollywood Comedy", question: "If Baburao became your college principal, what would he do if students demanded free attendance?", options: ["A) “Attendance chahiye? Pehle meri chai ka bill bharo!”", "B) “Sabko 100% attendance, bas college aana mat!”", "C) “Paisa laao, attendance le jaao!”", "D) “Attendance ke badle apna Aadhaar card jama karo!”"], correctAnswer: "C) “Paisa laao, attendance le jaao!”", answerKey: "C", dare: "🎭 DARE (Baburao's Business Plan): Put on round glasses (or make eye-glasses with your fingers) and do Baburao's iconic style walk across the room shouting 'Paisa laao, attendance le jaao!'" },
+            { id: 13, round: 2, roundName: "2 - Bollywood Comedy", question: "Gabbar Singh enters an empty classroom. Nobody has come to class. What will he ask?", options: ["A) “Kitne students absent the?”", "B) “Kitne students canteen mein chhupe hain?”", "C) “Kitne students assignment se bhaag gaye?”", "D) “Kitne students ne proxy lagayi hai?”"], correctAnswer: "A) “Kitne students absent the?”", answerKey: "A", dare: "🎭 DARE (Gabbar Singh's Attendance): Stand in front of the board, do a loud villainous laugh, and ask the empty room 'Kitne students absent the?!'" },
+            { id: 14, round: 2, roundName: "2 - Bollywood Comedy", question: "Baburao falls in love for the first time. The girl asks, “What can you give me that no other boy can?” What will Baburao say?", options: ["A) “Ek asli 500-rupee note… woh bhi udhaar ka!”", "B) “Main tumhe roz free attendance dilwaunga!”", "C) “Mere paas pyaar bhi hai aur pending assignments bhi!”", "D) “Main tumhare liye poori canteen ka udhaar chuka dunga!”"], correctAnswer: "A) “Ek asli 500-rupee note… woh bhi udhaar ka!”", answerKey: "A", dare: "🎭 DARE (Baburao Falls in Love): Walk up to a classmate, dramatically pull out an imaginary ₹500 note, and offer it as a romantic proposal." },
+            { id: 15, round: 2, roundName: "2 - Bollywood Comedy", question: "Majnu Bhai draws a donkey on the blackboard. A student asks, “Sir, what is this?” Majnu Bhai says, “My masterpiece!” What should the student say to get full marks?", options: ["A) “Sir, is donkey ka future bhi bright hai!”", "B) “Sir, masterpiece toh hai… bas donkey ko bhi pata hona chahiye ki woh donkey hai!”", "C) “Sir, Picasso bhi aapke saamne fail hai!”", "D) “Sir, is drawing ko dekhkar asli donkey bhi confuse ho jayega!”"], correctAnswer: "B) “Sir, masterpiece toh hai… bas donkey ko bhi pata hona chahiye ki woh donkey hai!”", answerKey: "B", dare: "🎭 DARE (Majnu Bhai's Masterpiece): Draw a quick stick figure or animal on the board and announce to everyone 'Masterpiece toh hai, bas donkey ko bhi pata hona chahiye!'" },
+            { id: 16, round: 2, roundName: "2 - Bollywood Comedy", question: "Sunny Deol orders two samosas. The canteen uncle gives him one and says, “Sir, GST is extra.” What happens next?", options: ["A) Sunny Deol pays GST and asks for a GST invoice.", "B) He starts selling samosas outside the college.", "C) He gives a five-minute patriotic speech about the fundamental right to eat samosas!", "D) He calls Baburao to negotiate a discount."], correctAnswer: "C) He gives a five-minute patriotic speech about the fundamental right to eat samosas!", answerKey: "C", dare: "🎭 DARE (Sunny Deol vs. Canteen Uncle): Deliver a passionate 20-second speech about the fundamental right to eat samosas without extra tax." },
+            { id: 17, round: 2, roundName: "2 - Bollywood Comedy", question: "A boat is full of people. It hasn't sunk, but when you look again, you can't see a single person on the boat. Why?", options: ["A) Everyone jumped into the water.", "B) Everyone went below deck.", "C) The boat entered a magic tunnel.", "D) All the people were married!"], correctAnswer: "D) All the people were married!", answerKey: "D", dare: "🎭 DARE (The Mysterious Boat): Stand up and explain the punchline of why being married makes everyone disappear from the boat!" },
+            { id: 18, round: 2, roundName: "2 - Bollywood Comedy", question: "If Gabbar became a professor and the whole class bunked, what would he say?", options: ["A) “Kitne students the? Aur sabko chhutti kisne di?”", "B) “Yeh classroom hai ya picnic spot?”", "C) “Jo absent hai, woh kal double assignment karega!”", "D) “Principal ko bulao, aaj attendance ka faisla hoga!”"], correctAnswer: "A) “Kitne students the? Aur sabko chhutti kisne di?”", answerKey: "A", dare: "🎭 DARE (Gabbar Professor): Mimic Gabbar leaning against a desk and asking who gave permission for a mass bunk." },
+            { id: 19, round: 2, roundName: "2 - Bollywood Comedy", question: "Baburao gets married. His wife asks, “Darling, what did you love most about me?” What will Baburao say?", options: ["A) “Tumhari aankhein, jo mujhe dekhkar chamakti hain!”", "B) “Tumhari smile, jo mera dil chura leti hai!”", "C) “Tumhare papa ne jo fridge diya tha!”", "D) “Tumhara pyaar, jo meri zindagi badal dega!”"], correctAnswer: "C) “Tumhare papa ne jo fridge diya tha!”", answerKey: "C", dare: "🎭 DARE (Baburao's Romance): Express deep emotional love to an imaginary refrigerator with total cinematic seriousness." },
+            { id: 20, round: 2, roundName: "2 - Bollywood Comedy", question: "Majnu Bhai paints a picture of a horse. The horse sees it and files a complaint. What is the complaint?", options: ["A) “Your Honour, this painting has damaged my reputation!”", "B) “Your Honour, he forgot to paint my tail!”", "C) “Your Honour, he painted me without my permission!”", "D) “Your Honour, everyone is laughing at me because of this painting!”"], correctAnswer: "A) “Your Honour, this painting has damaged my reputation!”", answerKey: "A", dare: "🎭 DARE (Majnu Bhai's Art Exhibition): Act like an offended horse complaining to a judge about a terrible abstract portrait." },
+
+            // ROUND 3: UNIVERSITY & CLASSMATE TRIVIA (Q21 - Q30)
+            { id: 21, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which genre of music would you most likely find playing on Shawn Paul's playlist?", options: ["A. Folk/Country", "B. Rock/Metal", "C. Romantic", "D. Classical"], correctAnswer: "B. Rock/Metal", answerKey: "B" },
+            { id: 22, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which classmate goes by the nickname \"Tom\"?", options: ["A. Vivian", "B. Rikhil", "C. Vidisha", "D. Nirbasan"], correctAnswer: "D. Nirbasan", answerKey: "D" },
+            { id: 23, round: 3, roundName: "3 - University & Classmate Trivia", question: "What is Yusuf's favourite activity during college hours, apart from bunking classes?", options: ["A. Putting things in other people's ears", "B. Dancing", "C. Fit check", "D. Standing on a table"], correctAnswer: "C. Fit check", answerKey: "C" },
+            { id: 24, round: 3, roundName: "3 - University & Classmate Trivia", question: "What name does Nanda proudly use to describe himself?", options: ["A. Noble Nanda", "B. Nonchalant Nanda", "C. Nice Nanda", "D. Cutie Nanda"], correctAnswer: "C. Nice Nanda", answerKey: "C" },
+            { id: 25, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which two classmates are popularly recognised as the class clown duo?", options: ["A. Abhijeet and Ganesh", "B. Swarshya and Sakshi", "C. Ayub and Raj Verma", "D. Izzan and Rohit"], correctAnswer: "D. Izzan and Rohit", answerKey: "D" },
+            { id: 26, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which three classmates are most frequently associated with the backbenchers' corner?", options: ["A. Jordan, Suraj and Sahil", "B. Shriman, Jason and Dharineesh", "C. Safa, Angela and Anaya", "D. Renish, Waquas and Ameen"], correctAnswer: "B. Shriman, Jason and Dharineesh", answerKey: "B" },
+            { id: 27, round: 3, roundName: "3 - University & Classmate Trivia", question: "Who is known for arriving 30 minutes late and then delivering an entire monologue, complete with a backstory and a series of excuses?", options: ["A. Kaviksha", "B. Shawn Paul", "C. Salina", "D. Yusuf"], correctAnswer: "B. Shawn Paul", answerKey: "B" },
+            { id: 28, round: 3, roundName: "3 - University & Classmate Trivia", question: "Among our classmates, who is believed to hold the special position of being Minu Ma'am's favourite child?", options: ["A. Aditya", "B. Remruatpuii", "C. Yusuf", "D. Arkyaprava"], correctAnswer: "C. Yusuf", answerKey: "C" },
+            { id: 29, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which classmate was assigned the responsibility of conducting a seminar on the topic of Good Touch and Bad Touch?", options: ["A. Sanskar", "B. Rohit", "C. Adhil", "D. Izzan"], correctAnswer: "B. Rohit", answerKey: "B" },
+            { id: 30, round: 3, roundName: "3 - University & Classmate Trivia", question: "Who holds the unofficial yet powerful title of the \"Supreme Leader\" of our class?", options: ["A. Vivian", "B. Litika", "C. Abhinav", "D. Angela"], correctAnswer: "D. Angela", answerKey: "D" },
+
+            // ROUND 4: EMOJI PUZZLES & RIDDLES (Q31 - Q40)
+            { id: 31, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🦁👑 (Guess the blockbuster movie title)", options: ["A) Madagascar", "B) The Lion King", "C) Jungle Book", "D) Tarzan"], correctAnswer: "B) The Lion King", answerKey: "B" },
+            { id: 32, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🕷️👨 (Guess the superhero)", options: ["A) Batman", "B) Superman", "C) Spider-Man", "D) Ant-Man"], correctAnswer: "C) Spider-Man", answerKey: "C" },
+            { id: 33, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "What has to be broken before you can use it?", options: ["A) A coconut", "B) An egg", "C) A promise", "D) A glass"], correctAnswer: "B) An egg", answerKey: "B" },
+            { id: 34, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?", options: ["A) A shadow", "B) An echo", "C) A cloud", "D) A whisper"], correctAnswer: "B) An echo", answerKey: "B" },
+            { id: 35, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🍦🍫 (Guess the popular dessert treat)", options: ["A) Choco Bar", "B) Ice Cream Sandwich", "C) Brownie Sundae", "D) Chocolate Fudge"], correctAnswer: "A) Choco Bar", answerKey: "A" },
+            { id: 36, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "I have keys but no locks. I have space but no room. You can enter, but can't go outside. What am I?", options: ["A) A piano", "B) A keyboard", "C) A map", "D) A spaceship"], correctAnswer: "B) A keyboard", answerKey: "B" },
+            { id: 37, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🚗⚡ (Guess the automotive brand)", options: ["A) Ford", "B) Tesla", "C) BMW", "D) Audi"], correctAnswer: "B) Tesla", answerKey: "B" },
+            { id: 38, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "What gets wetter the more it dries?", options: ["A) A sponge", "B) A towel", "C) Rain", "D) Cotton"], correctAnswer: "B) A towel", answerKey: "B" },
+            { id: 39, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🌮🔥 (Guess the popular food item)", options: ["A) Spicy Burger", "B) Tacos", "C) Nachos", "D) Burrito"], correctAnswer: "B) Tacos", answerKey: "B" },
+            { id: 40, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "The more of me you take, the more you leave behind. What am I?", options: ["A) Memories", "B) Footsteps", "C) Time", "D) Secrets"], correctAnswer: "B) Footsteps", answerKey: "B" }
         ];
 
-        const colorThemes = [
-            { primary: '#6366f1', accent: '#818cf8', bgImg: 'url("https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1920&auto=format&fit=crop")' },
-            { primary: '#10b981', accent: '#34d399', bgImg: 'url("https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1920&auto=format&fit=crop")' },
-            { primary: '#f59e0b', accent: '#fbbf24', bgImg: 'url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop")' },
-            { primary: '#ec4899', accent: '#f472b6', bgImg: 'url("https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1920&auto=format&fit=crop")' }
-        ];
+        // STATE VARIABLES
+        let currentQuestionIdx = 0;
+        let myTeamName = localStorage.getItem("bba_team_name") || "";
+        let hasBuzzedThisQ = false;
 
-        const roundNames = [
-            "Round 1: Kannada & Karnataka Culture 💛❤️",
-            "Round 2: Entertainment & Pop Culture 🎬",
-            "Round 3: University & Classmate Trivia 🏫",
-            "Round 4: Emoji Puzzles & Riddles 🧩"
-        ];
+        // VIEW SWITCHER
+        function switchView(view) {
+            document.getElementById('presenterView').classList.add('hidden');
+            document.getElementById('studentView').classList.add('hidden');
+            document.getElementById('projectorView').classList.add('hidden');
 
-        function populateFedStudents() {
-            let select = document.getElementById('fedStudentSelect');
-            select.innerHTML = `<option value="">-- Choose Name & University ID --</option>`;
-            preFedStudents.forEach(s => {
-                let opt = document.createElement('option');
-                opt.value = `${s.name} (${s.id})`;
-                opt.innerText = `${s.name} — ID: ${s.id}`;
-                select.appendChild(opt);
-            });
-        }
-
-        function applyTheme(qNum) {
-            let theme = colorThemes[(qNum - 1) % colorThemes.length];
-            document.documentElement.style.setProperty('--primary', theme.primary);
-            document.documentElement.style.setProperty('--accent', theme.accent);
-            document.body.style.backgroundImage = `linear-gradient(rgba(9, 13, 22, 0.85), rgba(9, 13, 22, 0.88)), ${theme.bgImg}`;
-        }
-
-        function selectRole(role) {
-            currentRole = role;
-            document.getElementById('roleSelection').classList.add('hidden');
-            
-            if (role === 'presenter') {
-                document.getElementById('mainContainer').classList.add('dashboard-mode');
-                document.getElementById('presenterDashboard').classList.remove('hidden');
-                generateJoinQRCode();
-                initPresenterSync();
-                listenForParticipants();
-                listenForLeaderboard();
-            } else if (role === 'projector') {
-                document.getElementById('mainContainer').classList.add('projector-mode');
+            if (view === 'presenter') {
+                document.getElementById('presenterView').classList.remove('hidden');
+                document.getElementById('roleIndicator').innerText = "Role: Presenter Dashboard";
+            } else if (view === 'student') {
+                document.getElementById('studentView').classList.remove('hidden');
+                document.getElementById('roleIndicator').innerText = "Role: Student Buzzer (" + (myTeamName || "Not Joined") + ")";
+                checkTeamSession();
+            } else if (view === 'projector') {
                 document.getElementById('projectorView').classList.remove('hidden');
-                document.getElementById('closeLeaderboardBtn').classList.add('hidden');
-                initProjectorSync();
-                listenForLeaderboard();
-            } else {
-                document.getElementById('participantLogin').classList.remove('hidden');
-                populateFedStudents();
+                document.getElementById('roleIndicator').innerText = "Role: Smart Board Projection View";
             }
         }
 
-        function generateJoinQRCode() {
-            let baseUrl = window.location.href.split('?')[0];
-            let joinUrl = baseUrl + "?role=participant";
-            
-            document.getElementById('qrcode').innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), {
-                text: joinUrl,
-                width: 120,
-                height: 120
-            });
-            document.getElementById('joinLinkText').innerText = joinUrl;
-        }
-
-        function registerParticipant() {
-            let selectedStudent = document.getElementById('fedStudentSelect').value;
-            myTeam = document.getElementById('partTeamSelect').value;
-
-            if (!selectedStudent || !myTeam) {
-                alert('Please select your Name/ID and Team Name.');
-                return;
-            }
-
-            myName = selectedStudent;
-
-            let newRef = db.ref('activeParticipants').push();
-            newRef.set({
-                name: myName,
-                team: myTeam,
-                approved: true,
-                tabSwitched: false,
-                joinedAt: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            newRef.onDisconnect().remove();
-
-            db.ref('scores/' + myTeam).transaction(curr => curr || 0);
-
-            document.getElementById('participantLogin').classList.add('hidden');
-            document.getElementById('participantScreen').classList.remove('hidden');
-            document.getElementById('displayTeamName').innerText = `${myName} | ${myTeam}`;
-
-            document.addEventListener("visibilitychange", () => {
-                if (document.hidden) {
-                    newRef.update({ tabSwitched: true });
-                } else {
-                    newRef.update({ tabSwitched: false });
-                }
-            });
-
-            initParticipantSync();
-            listenForLeaderboard();
-        }
-
-        function listenForParticipants() {
-            db.ref('activeParticipants').on('value', snapshot => {
-                rawParticipantsData = snapshot.val() || {};
-                filterRosterAndOnline();
-            });
-        }
-
-        function filterRosterAndOnline() {
-            let container = document.getElementById('participantContainer');
-            let badge = document.getElementById('participantCountBadge');
-            let query = (document.getElementById('rosterSearchInput').value || '').toLowerCase().trim();
-
-            let keys = Object.keys(rawParticipantsData);
-            badge.innerText = `${keys.length} Online`;
-
-            if (keys.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 20px 0; font-style: italic;">No active participants online.</p>`;
-                return;
-            }
-
-            container.innerHTML = "";
-
-            keys.forEach(key => {
-                let p = rawParticipantsData[key];
-                let searchString = `${p.name} ${p.team}`.toLowerCase();
-
-                if (!query || searchString.includes(query)) {
-                    let item = document.createElement('div');
-                    item.className = 'participant-item';
-                    
-                    let tabStatus = p.tabSwitched ? `<span class="tab-alert">⚠️ TAB OUT</span>` : '';
-                    item.innerHTML = `
-                        <div>
-                            <strong>${p.name}</strong> ${tabStatus}<br>
-                            <span style="color: var(--accent); font-size: 0.75rem;">${p.team}</span>
-                        </div>
-                        <button onclick="removeParticipant('${key}')" style="width:auto; padding:4px 8px; font-size:0.75rem; background:var(--danger); margin:0;">Remove</button>
-                    `;
-                    container.appendChild(item);
-                }
-            });
-        }
-
-        function removeParticipant(key) {
-            db.ref('activeParticipants/' + key).remove();
-        }
-
-        function startQuizOnProjector() {
-            db.ref('quizState').update({ quizStarted: true });
-        }
-
-        function resetToVideoLoop() {
-            db.ref('quizState').update({ quizStarted: false });
-        }
-
-        function changeQuestion(dir) {
-            db.ref('quizState').once('value', snapshot => {
-                let state = snapshot.val() || { questionNum: 1, totalQuestions: 40 };
-                let curr = state.questionNum || 1;
-                let maxQ = state.totalQuestions || 40;
-                let next = curr + dir;
-                
-                if (next < 1) next = 1;
-                if (next > maxQ) next = maxQ;
-
-                db.ref('quizState').update({
-                    questionNum: next,
-                    buzzerOpen: false,
-                    thinkingPhase: false,
-                    winnerTeam: null,
-                    selectedStudent: null,
-                    reactionTime: null,
-                    timerExpiresAt: null,
-                    quizStarted: true
-                });
-            });
-        }
-
-        function jumpToQuestion() {
-            let targetQ = parseInt(document.getElementById('jumpQInput').value);
-            db.ref('quizState').once('value', snapshot => {
-                let state = snapshot.val() || { totalQuestions: 40 };
-                let maxQ = state.totalQuestions || 40;
-
-                if (!targetQ || targetQ < 1) targetQ = 1;
-                if (targetQ > maxQ) targetQ = maxQ;
-
-                db.ref('quizState').update({
-                    questionNum: targetQ,
-                    buzzerOpen: false,
-                    thinkingPhase: false,
-                    winnerTeam: null,
-                    selectedStudent: null,
-                    reactionTime: null,
-                    timerExpiresAt: null,
-                    quizStarted: true
-                });
-            });
-        }
-
-        function updateTotalQuestions(newTotal) {
-            let total = parseInt(newTotal);
-            if (!total || total < 1) total = 1;
-            db.ref('quizState').update({ totalQuestions: total });
-        }
-
-        function toggleBuzzerState() {
-            db.ref('quizState').once('value', snapshot => {
-                let state = snapshot.val() || {};
-                
-                if (!state.buzzerOpen && !state.thinkingPhase) {
-                    db.ref('quizState').update({
-                        thinkingPhase: true,
-                        buzzerOpen: false,
-                        quizStarted: true,
-                        winnerTeam: null,
-                        selectedStudent: null
-                    });
-
-                    setTimeout(() => {
-                        let durationSec = parseInt(document.getElementById('timerDurationSelect').value) || 15;
-                        let expiresAt = Date.now() + (durationSec * 1000);
-                        db.ref('quizState').update({
-                            thinkingPhase: false,
-                            buzzerOpen: true,
-                            openedAt: Date.now(),
-                            timerExpiresAt: expiresAt
-                        });
-                    }, 5000);
-                } else {
-                    db.ref('quizState').update({ buzzerOpen: false, thinkingPhase: false, timerExpiresAt: null });
-                }
-            });
-        }
-
-        function initPresenterSync() {
-            db.ref('quizState').on('value', snapshot => {
-                let state = snapshot.val() || { questionNum: 1, totalQuestions: 40, buzzerOpen: false };
-                let qNum = state.questionNum || 1;
-                let totalQ = state.totalQuestions || 40;
-
-                applyTheme(qNum);
-
-                let roundIdx = Math.floor((qNum - 1) / 10);
-                document.getElementById('presenterRoundBanner').innerText = roundNames[roundIdx] || roundNames[0];
-
-                document.getElementById('currentQHeader').innerText = `Question ${qNum} / ${totalQ}`;
-                document.getElementById('totalQInput').value = totalQ;
-                document.getElementById('jumpQInput').value = qNum;
-
-                let btn = document.getElementById('toggleBuzzerBtn');
-                if (state.thinkingPhase) {
-                    btn.innerText = "⏳ 5s Reading Phase Active...";
-                    btn.style.background = "var(--warning)";
-                } else if (state.buzzerOpen) {
-                    btn.innerText = "Close Buzzer";
-                    btn.style.background = "var(--danger)";
-                } else {
-                    btn.innerText = "Launch 5s Reveal & Open Buzzer";
-                    btn.style.background = "var(--success)";
-                }
-
-                if (state.winnerTeam) {
-                    document.getElementById('buzzerWinnerDisplay').innerText = `⚡ ${state.winnerTeam} (${state.reactionTime}s)`;
-                    document.getElementById('selectedStudentCard').innerText = `Rep: ${state.selectedStudent}`;
-                    document.getElementById('presenterTimer').innerText = "Buzzer Locked";
-                } else {
-                    document.getElementById('buzzerWinnerDisplay').innerText = state.buzzerOpen ? "🔔 Buzzer is OPEN!" : "🔒 Buzzer Closed";
-                    document.getElementById('selectedStudentCard').innerText = "";
-                }
-            });
-        }
-
-        function initProjectorSync() {
-            db.ref('quizState').on('value', snapshot => {
-                let state = snapshot.val();
-                if (!state) return;
-
-                applyTheme(state.questionNum || 1);
-
-                let photoContainer = document.getElementById('introPhotoContainer');
-                let gameContent = document.getElementById('projectorGameContent');
-
-                if (state.quizStarted) {
-                    photoContainer.classList.add('hidden');
-                    gameContent.classList.remove('hidden');
-                } else {
-                    photoContainer.classList.remove('hidden');
-                    gameContent.classList.add('hidden');
-                }
-
-                let qNum = state.questionNum || 1;
-                let roundIdx = Math.floor((qNum - 1) / 10);
-                document.getElementById('projectorQHeader').innerText = `Question ${qNum} / ${state.totalQuestions || 40}`;
-                document.getElementById('projectorRoundName').innerText = roundNames[roundIdx] || roundNames[0];
-
-                let phaseBadge = document.getElementById('projectorPhaseBadge');
-                let stateDisplay = document.getElementById('projectorBuzzerState');
-                let winnerDisplay = document.getElementById('projectorWinnerDisplay');
-
-                if (state.thinkingPhase) {
-                    phaseBadge.innerText = "📖 Reading Question (5s Thinking Phase)";
-                    phaseBadge.style.background = "rgba(245, 158, 11, 0.2)";
-                    phaseBadge.style.color = "var(--warning)";
-                    stateDisplay.innerText = "🔒 Buzzers Armed...";
-                    winnerDisplay.innerText = "";
-                } else if (state.buzzerOpen) {
-                    phaseBadge.innerText = "🚨 BUZZER IS LIVE";
-                    phaseBadge.style.background = "rgba(16, 185, 129, 0.2)";
-                    phaseBadge.style.color = "var(--success)";
-                    stateDisplay.innerText = "⚡ BUZZ NOW! ⚡";
-                    winnerDisplay.innerText = "";
-                } else if (state.winnerTeam) {
-                    phaseBadge.innerText = "🎯 BUZZER LOCKED";
-                    phaseBadge.style.background = "rgba(99, 102, 241, 0.2)";
-                    phaseBadge.style.color = "var(--accent)";
-                    stateDisplay.innerText = `🎉 ${state.winnerTeam} BUZZED FIRST!`;
-                    winnerDisplay.innerText = `Speed: ${state.reactionTime}s | Rep: ${state.selectedStudent}`;
-                } else {
-                    phaseBadge.innerText = "Stand By";
-                    phaseBadge.style.background = "rgba(156,163,175,0.2)";
-                    phaseBadge.style.color = "var(--text-muted)";
-                    stateDisplay.innerText = "🔒 Buzzer Closed";
-                    winnerDisplay.innerText = "";
-                }
-            });
-
-            db.ref('activeParticipants').on('value', snapshot => {
-                let data = snapshot.val() || {};
-                let count = Object.keys(data).length;
-                document.getElementById('projectorTeamCount').innerText = count;
-
-                let alertsDiv = document.getElementById('projectorTabAlerts');
-                alertsDiv.innerHTML = "";
-                Object.values(data).forEach(p => {
-                    if (p.tabSwitched) {
-                        alertsDiv.innerHTML += `<div class="tab-alert" style="font-size:1.1rem; margin-top:5px;">⚠️ ${p.name} switched tabs!</div>`;
-                    }
-                });
-            });
-        }
-
-        setInterval(() => {
-            db.ref('quizState').once('value', snapshot => {
-                let state = snapshot.val();
-                if (!state || !state.buzzerOpen || !state.timerExpiresAt) return;
-
-                let timeLeft = Math.max(0, Math.ceil((state.timerExpiresAt - Date.now()) / 1000));
-                
-                let pTimer = document.getElementById('presenterTimer');
-                let cTimer = document.getElementById('timerDisplay');
-                let projTimer = document.getElementById('projectorTimer');
-
-                if (pTimer) pTimer.innerText = `Time Left: ${timeLeft}s`;
-                if (cTimer) cTimer.innerText = `${timeLeft}s`;
-                if (projTimer) projTimer.innerText = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
-
-                if (timeLeft <= 0 && state.buzzerOpen) {
-                    db.ref('quizState').update({ buzzerOpen: false, timerExpiresAt: null });
-                }
-            });
-        }, 500);
-
-        function gradeAnswer(result) {
-            db.ref('quizState').once('value', snapshot => {
-                let state = snapshot.val();
-                if (state && state.winnerTeam) {
-                    let scoringTeam = state.winnerTeam.split(" (")[0];
-                    db.ref('scores/' + scoringTeam).transaction(curr => {
-                        let score = curr || 0;
-                        return result === 'correct' ? score + 10 : score - 5;
-                    });
-                }
-            });
-
-            if (result === 'wrong') {
-                alert("🎭 DARE ALERT: This team got it wrong! Assign a fun classroom dare!");
-            }
-
-            db.ref('showLeaderboard').set(true);
-
-            if (result === 'correct') {
-                db.ref('quizState').update({ buzzerOpen: false, winnerTeam: null, selectedStudent: null, reactionTime: null });
-            } else {
-                db.ref('quizState').update({ winnerTeam: null, selectedStudent: null, reactionTime: null, buzzerOpen: true });
-            }
-        }
-
-        function closeLeaderboard() {
-            db.ref('showLeaderboard').set(false);
-        }
-
-        function listenForLeaderboard() {
-            db.ref('showLeaderboard').on('value', snapshot => {
-                let show = snapshot.val();
-                let modal = document.getElementById('leaderboardModal');
-                if (show) {
-                    modal.classList.remove('hidden');
-                    updateLeaderboardUI();
-                } else {
-                    modal.classList.add('hidden');
-                }
-            });
-        }
-
-        function updateLeaderboardUI() {
-            db.ref('scores').once('value', snapshot => {
-                let scores = snapshot.val() || {};
-                let listContainer = document.getElementById('leaderboardList');
-                listContainer.innerHTML = "";
-
-                db.ref('quizState/reactionTime').once('value', rtSnap => {
-                    let lastReaction = rtSnap.val();
-
-                    let sortedTeams = Object.keys(scores).map(team => ({
-                        name: team,
-                        score: scores[team]
-                    })).sort((a, b) => b.score - a.score);
-
-                    if (sortedTeams.length === 0) {
-                        listContainer.innerHTML = `<p style="color: var(--text-muted);">No scores recorded yet.</p>`;
-                        return;
-                    }
-
-                    sortedTeams.forEach((t, index) => {
-                        let row = document.createElement('div');
-                        row.className = 'leaderboard-rank-row';
-                        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-                        let reactionInfo = (index === 0 && lastReaction) ? ` ⚡ (${lastReaction}s)` : '';
-                        row.innerHTML = `<span>${medal} &nbsp; <strong>${t.name}</strong>${reactionInfo}</span> <span style="color: #fbbf24; font-weight: 800;">${t.score} pts</span>`;
-                        listContainer.appendChild(row);
-                    });
-                });
-            });
-        }
-
-        function hitBuzzer() {
-            db.ref('quizState').transaction(state => {
-                if (state && state.buzzerOpen && !state.winnerTeam) {
-                    let reactionTime = ((Date.now() - state.openedAt) / 1000).toFixed(2);
-                    state.winnerTeam = myTeam;
-                    state.buzzerOpen = false; 
-                    state.selectedStudent = myName;
-                    state.reactionTime = reactionTime;
-                }
-                return state;
-            });
-        }
-
-        function initParticipantSync() {
-            db.ref('quizState').on('value', snapshot => {
-                let state = snapshot.val();
-                if (!state) return;
-
-                applyTheme(state.questionNum || 1);
-
-                let buzzerContainer = document.getElementById('buzzerContainer');
-                let statusTitle = document.getElementById('participantStatusTitle');
-                let statusDesc = document.getElementById('participantStatusDesc');
-                let statusPill = document.getElementById('statusPill');
-                let timerDisplay = document.getElementById('timerDisplay');
-
-                if (state.thinkingPhase) {
-                    buzzerContainer.style.display = 'none';
-                    statusPill.innerText = "READING";
-                    statusPill.style.background = "rgba(245, 158, 11, 0.2)";
-                    statusPill.style.color = "var(--warning)";
-                    statusTitle.innerText = `Question ${state.questionNum} Revealed!`;
-                    statusDesc.innerText = "📖 Read the question on the Smart Board (5s Thinking Phase)...";
-                } else if (state.buzzerOpen) {
-                    buzzerContainer.style.display = 'block';
-                    statusPill.innerText = "LIVE";
-                    statusPill.style.background = "rgba(16, 185, 129, 0.2)";
-                    statusPill.style.color = "var(--success)";
-                    statusTitle.innerText = `Question ${state.questionNum} / ${state.totalQuestions || 40}`;
-                    statusDesc.innerText = "🚨 BUZZER IS OPEN! TAP FAST! 🚨";
-                } else {
-                    buzzerContainer.style.display = 'none';
-                    statusPill.innerText = "Stand By";
-                    statusPill.style.background = "rgba(156,163,175,0.2)";
-                    statusPill.style.color = "var(--text-muted)";
-                    timerDisplay.innerText = "--:--";
-
-                    if (state.winnerTeam === myTeam) {
-                        statusTitle.innerText = `🎉 Your Team Buzzed First!`;
-                        statusDesc.innerText = `Reaction Speed: ${state.reactionTime}s | Rep: ${state.selectedStudent}`;
-                    } else if (state.winnerTeam) {
-                        statusTitle.innerText = `🔔 ${state.winnerTeam} buzzed first!`;
-                        statusDesc.innerText = `Speed: ${state.reactionTime}s. Stand by for potential steal/dare.`;
-                    } else {
-                        statusTitle.innerText = `Question ${state.questionNum} / ${state.totalQuestions || 40}`;
-                        statusDesc.innerText = "Waiting for presenter to launch question...";
-                    }
-                }
-            });
-        }
-
+        // AUTO-DETECT ROLE BASED ON URL PARAMS
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
-            let role = urlParams.get('role');
-            if (role === 'participant') {
-                selectRole('participant');
-            } else if (role === 'projector') {
-                selectRole('projector');
-            }
+            const role = urlParams.get('role');
+            if (role === 'presenter') switchView('presenter');
+            else if (role === 'projector') switchView('projector');
+            else switchView('student');
+
+            initFirebaseListeners();
+            updatePresenterUI();
         };
+
+        // FIREBASE SYNC LISTENERS
+        function initFirebaseListeners() {
+            db.ref('quizState').on('value', (snapshot) => {
+                const state = snapshot.val();
+                if (!state) return;
+
+                currentQuestionIdx = state.questionIdx || 0;
+                
+                // Update Presenter & Projector UI
+                updatePresenterUI();
+                updateProjectorUI(state);
+
+                // Update Student Buzzer UI
+                updateStudentBuzzerState(state);
+            });
+        }
+
+        // PRESENTER CONTROLS & UI
+        function updatePresenterUI() {
+            const q = allQuestions[currentQuestionIdx];
+            document.getElementById('presRoundName').innerText = q.roundName;
+            document.getElementById('presQNum').innerText = `Q${currentQuestionIdx + 1} / 40`;
+            document.getElementById('presQuestionText').innerText = q.question;
+            document.getElementById('presCorrectAnswer').innerText = q.correctAnswer;
+
+            const optContainer = document.getElementById('presOptionsContainer');
+            optContainer.innerHTML = '';
+            q.options.forEach(opt => {
+                const div = document.createElement('div');
+                div.className = "p-3 bg-gray-800 rounded-lg text-sm text-gray-200 border border-gray-700";
+                div.innerText = opt;
+                optContainer.appendChild(div);
+            });
+
+            const extraBox = document.getElementById('presExtraBox');
+            if (q.tip || q.dare) {
+                extraBox.classList.remove('hidden');
+                document.getElementById('presExtraLabel').innerText = q.dare ? "Classroom Dare" : "Presenter Tip";
+                document.getElementById('presExtraText').innerText = q.dare || q.tip;
+            } else {
+                extraBox.classList.add('hidden');
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIdx < allQuestions.length - 1) {
+                currentQuestionIdx++;
+                pushStateToFirebase();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIdx > 0) {
+                currentQuestionIdx--;
+                pushStateToFirebase();
+            }
+        }
+
+        function lockBuzzer() {
+            db.ref('quizState').update({
+                buzzerOpen: false,
+                buzzedWinner: null
+            });
+        }
+
+        function resetBuzzer() {
+            hasBuzzedThisQ = false;
+            db.ref('quizState').update({
+                buzzerOpen: true,
+                buzzedWinner: null
+            });
+            document.getElementById('buzzerResultNotice').innerText = "";
+            document.getElementById('buzzerResultNotice.className').className = "";
+        }
+
+        function startTimer(seconds) {
+            let timeLeft = seconds;
+            db.ref('quizState').update({ timer: timeLeft });
+            
+            if (window.activeInterval) clearInterval(window.activeInterval);
+            window.activeInterval = setInterval(() => {
+                timeLeft--;
+                db.ref('quizState').update({ timer: timeLeft });
+                if (timeLeft <= 0) {
+                    clearInterval(window.activeInterval);
+                    lockBuzzer();
+                }
+            }, 1000);
+        }
+
+        function pushStateToFirebase() {
+            db.ref('quizState').update({
+                questionIdx: currentQuestionIdx,
+                buzzerOpen: false,
+                buzzedWinner: null,
+                timer: 30
+            });
+        }
+
+        // STUDENT BUZZER LOGIC
+        function registerTeam() {
+            const nameInput = document.getElementById('teamNameInput').value.trim();
+            if (!nameInput) {
+                alert("Please enter a valid team name!");
+                return;
+            }
+            myTeamName = nameInput;
+            localStorage.setItem("bba_team_name", myTeamName);
+            checkTeamSession();
+
+            // Register active team in Firebase
+            db.ref('teams/' + myTeamName.replace(/[.#$[\]]/g, '_')).set({
+                name: myTeamName,
+                joinedAt: Date.now()
+            });
+        }
+
+        function checkTeamSession() {
+            if (myTeamName) {
+                document.getElementById('teamLoginBox').classList.add('hidden');
+                document.getElementById('teamActiveBox').classList.remove('hidden');
+                document.getElementById('displayTeamName').innerText = myTeamName;
+            } else {
+                document.getElementById('teamLoginBox').classList.remove('hidden');
+                document.getElementById('teamActiveBox').classList.add('hidden');
+            }
+        }
+
+        function triggerBuzz() {
+            if (!myTeamName || hasBuzzedThisQ) return;
+
+            db.ref('quizState').transaction((currentData) => {
+                if (currentData && currentData.buzzerOpen && !currentData.buzzedWinner) {
+                    currentData.buzzedWinner = myTeamName;
+                    currentData.buzzerOpen = false; // Auto close buzzer on first buzz
+                }
+                return currentData;
+            }, (error, committed) => {
+                if (committed) {
+                    hasBuzzedThisQ = true;
+                }
+            });
+        }
+
+        function updateStudentBuzzerState(state) {
+            const banner = document.getElementById('buzzerStatusBanner');
+            const btn = document.getElementById('buzzButton');
+            const notice = document.getElementById('buzzerResultNotice');
+
+            if (state.buzzerOpen) {
+                banner.className = "p-4 rounded-xl mb-6 bg-emerald-950/40 border border-emerald-900 text-emerald-400 font-bold text-lg animate-pulse";
+                banner.innerText = "🟢 BUZZER OPEN - TAP TO BUZZ!";
+                
+                if (!hasBuzzedThisQ) {
+                    btn.disabled = false;
+                    btn.className = "w-48 h-48 mx-auto rounded-full font-black text-2xl uppercase tracking-wider shadow-2xl transition-all transform active:scale-95 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer border-4 border-emerald-400 flex items-center justify-center animate-bounce";
+                }
+            } else {
+                banner.className = "p-4 rounded-xl mb-6 bg-red-950/40 border border-red-900 text-red-400 font-bold text-lg";
+                banner.innerText = "🔒 BUZZER CLOSED";
+                
+                btn.disabled = true;
+                btn.className = "w-48 h-48 mx-auto rounded-full font-black text-2xl uppercase tracking-wider shadow-2xl transition-all bg-gray-800 text-gray-500 cursor-not-allowed border-4 border-gray-700 flex items-center justify-center";
+            }
+
+            if (state.buzzedWinner) {
+                if (state.buzzedWinner === myTeamName) {
+                    notice.innerText = "🎉 YOU BUZZED FIRST!";
+                    notice.className = "mt-6 text-xl font-extrabold text-emerald-400";
+                } else {
+                    notice.innerText = `⚡ Team "${state.buzzedWinner}" buzzed first!`;
+                    notice.className = "mt-6 text-xl font-extrabold text-amber-400";
+                }
+            } else {
+                if (!hasBuzzedThisQ) notice.innerText = "";
+            }
+        }
+
+        // PROJECTOR / SMART BOARD VIEW
+        function updateProjectorUI(state) {
+            const q = allQuestions[state.questionIdx || 0];
+            
+            // Hide intro logo container & show game content once quiz state starts advancing or buzzer opens
+            if (state.buzzerOpen || state.buzzedWinner || state.questionIdx > 0) {
+                document.getElementById('introPhotoContainer').classList.add('hidden');
+                document.getElementById('projectorGameContent').classList.remove('hidden');
+            }
+
+            document.getElementById('projectorQHeader').innerText = `Question ${(state.questionIdx || 0) + 1} / 40`;
+            document.getElementById('projectorTimer').innerText = `${state.timer || 30}s`;
+            document.getElementById('projectorRoundName').innerText = q.roundName;
+
+            const buzzerStateEl = document.getElementById('projectorBuzzerState');
+            const winnerDisplay = document.getElementById('projectorWinnerDisplay');
+
+            if (state.buzzerOpen) {
+                buzzerStateEl.innerHTML = "🟢 BUZZER OPEN!";
+                buzzerStateEl.className = "text-5xl font-black mb-6 text-emerald-400 animate-pulse";
+            } else {
+                buzzerStateEl.innerHTML = "🔒 BUZZER CLOSED";
+                buzzerStateEl.className = "text-5xl font-black mb-6 text-red-400";
+            }
+
+            if (state.buzzedWinner) {
+                winnerDisplay.innerText = `🏆 FIRST BUZZ: ${state.buzzedWinner}`;
+            } else {
+                winnerDisplay.innerText = "";
+            }
+
+            // Count teams active from Firebase
+            db.ref('teams').once('value', (snap) => {
+                const count = snap.numChildren();
+                document.getElementById('projectorTeamCount').innerText = count;
+            });
+        }
     </script>
 </body>
 </html>
