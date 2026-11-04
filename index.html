@@ -12,10 +12,10 @@
         .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col justify-center items-center font-sans">
+<body class="min-h-screen bg-gray-950 flex flex-col justify-center items-center font-sans antialiased">
 
     <!-- ========================================== -->
-    <!-- LAUNCH HUB HOME (Default Landing Page) -->
+    <!-- 0. LAUNCH HUB HOME (Default Landing Page)  -->
     <!-- ========================================== -->
     <div id="homeHub" class="w-full max-w-md card p-8 text-center shadow-2xl">
         <h1 class="text-3xl font-black text-indigo-400 mb-2">Club Activity Portal</h1>
@@ -29,34 +29,29 @@
     </div>
 
     <!-- MAIN APP WRAPPER (Hidden until a view is selected) -->
-    <main id="appContainer" class="w-full max-w-6xl mx-auto flex-grow flex flex-col hidden">
-
-        <!-- Back to Hub Navigation bar -->
-        <div class="mb-4">
-            <button onclick="returnToHub()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-lg text-gray-300">⬅️ Back to Launch Hub</button>
-        </div>
+    <main id="appContainer" class="w-full min-h-screen flex flex-col hidden">
 
         <!-- ========================================== -->
-        <!-- 1. STUDENT / PARTICIPANT AUTH & BUZZER VIEW -->
+        <!-- 1. STUDENT / PARTICIPANT VIEW (No Nav Bar) -->
         <!-- ========================================== -->
-        <div id="studentView" class="card p-6 flex-grow flex flex-col items-center justify-center text-center hidden">
-            <div id="studentAuthBox" class="w-full max-w-md">
+        <div id="studentView" class="p-4 md:p-8 flex-grow flex flex-col items-center justify-center text-center hidden w-full max-w-4xl mx-auto">
+            <div id="studentAuthBox" class="w-full max-w-md card p-6">
                 <h2 class="text-2xl font-bold mb-4 text-indigo-300">Participant Portal Login</h2>
                 
                 <div class="mb-4 text-left">
-                    <label class="text-xs font-bold text-gray-400">SELECT YOUR NAME</label>
+                    <label class="text-xs font-bold text-gray-400 uppercase">Select Your Name</label>
                     <select id="studentRosterSelect" onchange="autoFillID()" class="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-white font-semibold mt-1">
                         <option value="">-- Select Name --</option>
                     </select>
                 </div>
 
                 <div class="mb-4 text-left">
-                    <label class="text-xs font-bold text-gray-400">UNIVERSITY ID</label>
+                    <label class="text-xs font-bold text-gray-400 uppercase">University ID</label>
                     <input type="text" id="studentIDInput" readonly placeholder="Auto-filled ID" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-indigo-300 font-mono font-bold mt-1">
                 </div>
 
                 <div class="mb-6 text-left">
-                    <label class="text-xs font-bold text-gray-400">SELECT TEAM</label>
+                    <label class="text-xs font-bold text-gray-400 uppercase">Select Team</label>
                     <select id="studentTeamSelect" class="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-emerald-400 font-bold mt-1">
                         <option value="Team 1">Team 1</option>
                         <option value="Team 2">Team 2</option>
@@ -64,7 +59,7 @@
                     </select>
                 </div>
 
-                <button onclick="loginStudent()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg text-lg">Join Quiz Arena 🚀</button>
+                <button onclick="loginStudent()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg text-lg transition">Join Quiz Arena 🚀</button>
             </div>
 
             <div id="studentWaitingRoom" class="w-full max-w-md hidden">
@@ -96,14 +91,18 @@
 
 
         <!-- ========================================== -->
-        <!-- 2. PRESENTER MASTER DASHBOARD VIEW -->
+        <!-- 2. PRESENTER MASTER DASHBOARD VIEW          -->
         <!-- ========================================== -->
-        <div id="presenterView" class="card p-6 hidden flex-grow flex flex-col justify-between">
+        <div id="presenterView" class="p-4 md:p-6 hidden flex-grow flex flex-col justify-between w-full max-w-7xl mx-auto">
             <div>
+                <!-- Top Navigation & Controls Header -->
                 <div class="flex flex-col md:flex-row justify-between items-center border-b border-gray-800 pb-4 mb-6 gap-4">
-                    <div>
-                        <h2 class="text-2xl font-bold text-indigo-300">Presenter Master Controls</h2>
-                        <p class="text-xs text-gray-400">Managing Question Timers & Buzzer Sequence</p>
+                    <div class="flex items-center gap-3">
+                        <button onclick="returnToHub()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-lg text-gray-300">⬅️ Hub</button>
+                        <div>
+                            <h2 class="text-2xl font-bold text-indigo-300">Presenter Master Controls</h2>
+                            <p class="text-xs text-gray-400">Managing Question Timers, Participant Roster & Buzzer</p>
+                        </div>
                     </div>
                     <div class="flex space-x-2">
                         <button id="quizStateToggleBtn" onclick="toggleQuizState()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg text-sm">▶️ Start Quiz</button>
@@ -146,7 +145,7 @@
                     </div>
                 </div>
 
-                <!-- Buzzed Winner & Student Selected Box -->
+                <!-- Buzzed Winner Box -->
                 <div id="presWinnerBox" class="card p-6 mb-6 border-emerald-500/50 bg-emerald-950/20 text-center hidden">
                     <span class="text-xs uppercase font-bold text-emerald-400">Buzzer Captured!</span>
                     <h2 id="presWinnerTeam" class="text-3xl font-extrabold text-white">Team 1</h2>
@@ -154,6 +153,39 @@
                     <div class="mt-4 space-x-2">
                         <button onclick="awardPoints(10)" class="px-4 py-1.5 bg-emerald-600 font-bold rounded-lg text-xs">+10 Points</button>
                         <button onclick="awardPoints(-5)" class="px-4 py-1.5 bg-red-600 font-bold rounded-lg text-xs">-5 Points</button>
+                    </div>
+                </div>
+
+                <!-- NEW: LIVE PARTICIPANTS ROSTER SECTION WITH SEARCH -->
+                <div class="card p-5 mb-6 bg-gray-900/40 border border-gray-800">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-indigo-300">Active Participants Roster</h3>
+                            <span id="presParticipantCount" class="px-2.5 py-0.5 bg-indigo-950 border border-indigo-800 text-indigo-400 font-mono text-xs font-bold rounded-full">0 Joined</span>
+                        </div>
+                        <!-- Search Bar -->
+                        <div class="w-full md:w-72">
+                            <input type="text" id="participantSearchInput" oninput="renderParticipantsList()" placeholder="🔍 Search Name or ID..." class="w-full px-3 py-2 bg-gray-950 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- Participants Table -->
+                    <div class="overflow-x-auto max-h-56 overflow-y-auto border border-gray-800 rounded-lg">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-950 text-xs font-bold text-gray-400 uppercase sticky top-0">
+                                <tr>
+                                    <th class="p-3 border-b border-gray-800">University ID</th>
+                                    <th class="p-3 border-b border-gray-800">Student Name</th>
+                                    <th class="p-3 border-b border-gray-800">Assigned Team</th>
+                                    <th class="p-3 border-b border-gray-800">Turn Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="presParticipantTableBody" class="divide-y divide-gray-800 text-gray-300 font-mono">
+                                <tr>
+                                    <td colspan="4" class="p-4 text-center text-gray-500 italic">No participants registered yet...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -168,67 +200,67 @@
 
 
         <!-- ========================================== -->
-        <!-- 3. SMART BOARD PROJECTION VIEW -->
+        <!-- 3. FULL-SCREEN SMART BOARD PROJECTION VIEW -->
         <!-- ========================================== -->
-        <div id="projectorView" class="card hidden flex-grow flex flex-col justify-between relative p-6 overflow-hidden min-h-[500px]">
+        <div id="projectorView" class="hidden fixed inset-0 w-screen h-screen bg-gray-950 flex flex-col justify-between p-8 z-50 overflow-hidden">
             
-            <div class="z-50 flex justify-between items-center border-b border-gray-800 pb-3 mb-4">
-                <span class="text-sm text-gray-400 font-bold">SMART BOARD PROJECTION</span>
-                <button id="projStartBtn" onclick="toggleQuizState()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-lg">Start Quiz</button>
+            <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-4">
+                <span class="text-base text-indigo-400 font-black tracking-widest uppercase">SMART BOARD PROJECTION</span>
+                <button id="projStartBtn" onclick="toggleQuizState()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm font-bold rounded-lg shadow">Start Quiz</button>
             </div>
 
             <!-- Logo Splash Screen (Before Quiz Starts) -->
-            <div id="introPhotoContainer" class="absolute inset-0 z-40 bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
-                <img src="logo.png" alt="Kristu Jayanti Emblem" class="max-h-48 mb-4 object-contain" onerror="this.style.display='none'">
-                <h2 class="text-3xl font-extrabold text-indigo-400 mb-2">CLUB ACTIVITY</h2>
-                <p class="text-gray-400 text-sm mb-6">Scan QR code or click link below to join as a participant!</p>
+            <div id="introPhotoContainer" class="absolute inset-0 z-40 bg-gray-950 flex flex-col items-center justify-center p-8 text-center">
+                <img src="logo.png" alt="Kristu Jayanti Emblem" class="max-h-56 mb-6 object-contain" onerror="this.style.display='none'">
+                <h2 class="text-5xl font-black text-indigo-400 mb-3 tracking-wide">CLUB ACTIVITY</h2>
+                <p class="text-gray-400 text-lg mb-8">Scan QR code or click link below to join as a participant!</p>
                 
-                <div class="bg-white p-3 rounded-xl shadow-2xl mb-4 inline-block">
-                    <img id="sharedQRCodeProj" src="" alt="Participant QR Code" class="w-40 h-40 object-contain">
+                <div class="bg-white p-4 rounded-2xl shadow-2xl mb-6 inline-block">
+                    <img id="sharedQRCodeProj" src="" alt="Participant QR Code" class="w-56 h-56 object-contain">
                 </div>
-                <div class="text-emerald-400 font-mono text-sm font-bold bg-emerald-950/40 border border-emerald-900 px-4 py-2 rounded-lg">
+                <div class="text-emerald-400 font-mono text-lg font-bold bg-emerald-950/60 border border-emerald-900 px-6 py-3 rounded-xl shadow-lg">
                     🔗 Link: <a id="sharedLinkProj" href="#" target="_blank" class="underline text-indigo-300">Loading URL...</a>
                 </div>
             </div>
 
-            <!-- Live Game Screen (Active Quiz State) -->
+            <!-- Live Game Screen (Active Quiz State - Expanded Layout) -->
             <div id="projectorGameContent" class="hidden h-full flex flex-col justify-between z-30">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 id="projQNum" class="text-2xl font-bold text-indigo-400">Question 1 / 40</h2>
-                    <div id="projReadTimer" class="text-3xl font-black text-amber-400">5s</div>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="projQNum" class="text-4xl font-extrabold text-indigo-400">Question 1 / 40</h2>
+                    <div id="projReadTimer" class="text-5xl font-black text-amber-400 bg-amber-950/30 px-6 py-2 rounded-2xl border border-amber-900/50">5s</div>
                 </div>
 
-                <div class="card p-6 bg-gray-900/80 mb-4">
-                    <h3 id="projQText" class="text-2xl font-bold text-white text-center">Question text will display here...</h3>
+                <div class="card p-10 bg-gray-900/90 mb-6 flex-grow flex items-center justify-center border-2 border-indigo-900/50 shadow-2xl">
+                    <h3 id="projQText" class="text-4xl font-black text-white text-center leading-relaxed">Question text will display here...</h3>
                 </div>
 
-                <div id="projOptionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden">
-                    <button class="p-4 bg-gray-800 border border-gray-700 rounded-xl text-left text-lg font-semibold text-gray-200" id="projOpt0">Option A</button>
-                    <button class="p-4 bg-gray-800 border border-gray-700 rounded-xl text-left text-lg font-semibold text-gray-200" id="projOpt1">Option B</button>
-                    <button class="p-4 bg-gray-800 border border-gray-700 rounded-xl text-left text-lg font-semibold text-gray-200" id="projOpt2">Option C</button>
-                    <button class="p-4 bg-gray-800 border border-gray-700 rounded-xl text-left text-lg font-semibold text-gray-200" id="projOpt3">Option D</button>
+                <div id="projOptionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 hidden">
+                    <button class="p-6 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-2xl font-bold text-gray-200 shadow-xl" id="projOpt0">Option A</button>
+                    <button class="p-6 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-lg md:text-2xl font-bold text-gray-200 shadow-xl" id="projOpt1">Option B</button>
+                    <button class="p-6 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-lg md:text-2xl font-bold text-gray-200 shadow-xl" id="projOpt2">Option C</button>
+                    <button class="p-6 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-lg md:text-2xl font-bold text-gray-200 shadow-xl" id="projOpt3">Option D</button>
                 </div>
 
-                <div id="projBuzzerBanner" class="text-center my-2 p-4 card border-emerald-500/50 bg-emerald-950/30 hidden">
-                    <span class="text-sm uppercase tracking-wider text-emerald-400 font-bold">FIRST BUZZER CAPTURED BY</span>
-                    <h2 id="projWinnerTeam" class="text-4xl font-black text-white mt-1">TEAM 1</h2>
-                    <p class="text-xl text-amber-300 font-bold mt-2">Selected Participant: <span id="projSelectedStudent" class="text-white underline"></span></p>
+                <div id="projBuzzerBanner" class="text-center my-4 p-6 card border-2 border-emerald-500 bg-emerald-950/40 shadow-2xl hidden">
+                    <span class="text-base uppercase tracking-widest text-emerald-400 font-extrabold">FIRST BUZZER CAPTURED BY</span>
+                    <h2 id="projWinnerTeam" class="text-6xl font-black text-white mt-1">TEAM 1</h2>
+                    <p class="text-2xl text-amber-300 font-bold mt-3">Selected Participant: <span id="projSelectedStudent" class="text-white underline"></span></p>
                 </div>
 
-                <div class="card p-4 bg-gray-950/90 border border-gray-800 mt-auto">
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 text-center">Inter-Team Leaderboard</h4>
-                    <div class="grid grid-cols-3 gap-4 text-center font-bold">
-                        <div class="p-2 bg-indigo-950/50 border border-indigo-900 rounded-lg">
-                            <span class="text-xs text-indigo-400 block">TEAM 1</span>
-                            <span id="scoreTeam1" class="text-2xl text-white">0</span>
+                <div class="card p-6 bg-gray-950/95 border-2 border-gray-800 mt-auto">
+                    <h4 class="text-sm font-extrabold text-gray-400 uppercase tracking-widest mb-3 text-center">Inter-Team Leaderboard</h4>
+                    <div class="grid grid-cols-3 gap-6 text-center font-bold">
+                        <div class="p-4 bg-indigo-950/60 border border-indigo-900 rounded-xl">
+                            <span class="text-sm text-indigo-400 block mb-1">TEAM 1</span>
+                            <span id="scoreTeam1" class="text-4xl font-black text-white">0</span>
                         </div>
-                        <div class="p-2 bg-emerald-950/50 border border-emerald-900 rounded-lg">
-                            <span class="text-xs text-emerald-400 block">TEAM 2</span>
-                            <span id="scoreTeam2" class="text-2xl text-white">0</span>
+                        <div class="p-4 bg-emerald-950/60 border border-emerald-900 rounded-xl">
+                            <span class="text-sm text-emerald-400 block mb-1">TEAM 2</span>
+                            <span id="scoreTeam2" class="text-4xl font-black text-white">0</span>
                         </div>
-                        <div class="p-2 bg-amber-950/50 border border-amber-900 rounded-lg">
-                            <span class="text-xs text-amber-400 block">TEAM 3</span>
-                            <span id="scoreTeam3" class="text-2xl text-white">0</span>
+                        <div class="p-4 bg-amber-950/60 border border-amber-900 rounded-xl">
+                            <span class="text-sm text-amber-400 block mb-1">TEAM 3</span>
+                            <span id="scoreTeam3" class="text-4xl font-black text-white">0</span>
                         </div>
                     </div>
                 </div>
@@ -344,6 +376,7 @@
         let currentQuestionIdx = 0;
         let loggedInStudent = null;
         let readTimerInterval = null;
+        let activeTeamsData = {};
 
         window.onload = function() {
             // Populate student roster dropdown
@@ -358,7 +391,7 @@
             // Generate Student URL and QR Codes
             const baseUrl = window.location.href.split('?')[0];
             const studentUrl = `${baseUrl}?view=student`;
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(studentUrl)}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(studentUrl)}`;
 
             const projQr = document.getElementById('sharedQRCodeProj');
             const projLink = document.getElementById('sharedLinkProj');
@@ -438,6 +471,7 @@
             db.ref(`teams/${team}/${stObj.id}`).set({
                 name: stObj.name,
                 id: stObj.id,
+                team: team,
                 hasBeenSelected: false
             });
         }
@@ -491,6 +525,57 @@
                 updatePresenterUI(state);
                 updateProjectorUI(state);
                 updateStudentUI(state);
+            });
+
+            // Listen to live teams for Presenter Participant Roster
+            db.ref('teams').on('value', (snapshot) => {
+                activeTeamsData = snapshot.val() || {};
+                renderParticipantsList();
+            });
+        }
+
+        // RENDER LIVE PARTICIPANTS LIST IN PRESENTER VIEW WITH SEARCH FILTER
+        function renderParticipantsList() {
+            const tbody = document.getElementById('presParticipantTableBody');
+            const countBadge = document.getElementById('presParticipantCount');
+            const searchVal = (document.getElementById('participantSearchInput')?.value || '').toLowerCase().trim();
+
+            if (!tbody) return;
+
+            let allParticipants = [];
+            Object.keys(activeTeamsData).forEach(teamKey => {
+                const members = activeTeamsData[teamKey] || {};
+                Object.values(members).forEach(m => {
+                    allParticipants.push(m);
+                });
+            });
+
+            if (countBadge) countBadge.innerText = `${allParticipants.length} Joined`;
+
+            // Filter participants by search query
+            const filtered = allParticipants.filter(p => 
+                p.name.toLowerCase().includes(searchVal) || 
+                p.id.toLowerCase().includes(searchVal) ||
+                p.team.toLowerCase().includes(searchVal)
+            );
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500 italic">No matching participants found...</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-800/50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 text-indigo-300 font-bold">${p.id}</td>
+                    <td class="p-3 text-white font-sans font-semibold">${p.name}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${p.team === 'Team 1' ? 'bg-indigo-950 text-indigo-300 border border-indigo-800' : p.team === 'Team 2' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">${p.team}</span></td>
+                    <td class="p-3">${p.hasBeenSelected ? '<span class="text-xs text-amber-400 font-bold">🎯 Called</span>' : '<span class="text-xs text-gray-500">Ready</span>'}</td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
