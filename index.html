@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>      	
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> CLUB aCTIVITY </title>
+    <title>Club Activity - Live Quiz Arena</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -12,31 +12,31 @@
         .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col justify-between font-sans">
+<body class="min-h-screen p-4 md:p-8 flex flex-col justify-center items-center font-sans">
 
-    <!-- TOP CONTROL NAVIGATION HEADER (MULTI-TAB LAUNCH HUB) -->
-    <header class="w-full max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-6 card p-4 gap-4">
-        <div>
-            <h1 class="text-xl font-bold text-indigo-400">BBA Section D Quiz Portal</h1>
-            <p id="viewRoleLabel" class="text-xs text-gray-400">Multi-Tab Control Center</p>
+    <!-- ========================================== -->
+    <!-- 0. LAUNCH HUB HOME (Shown if no view selected) -->
+    <!-- ========================================== -->
+    <div id="homeHub" class="w-full max-w-md card p-8 text-center shadow-2xl">
+        <h1 class="text-2xl font-black text-indigo-400 mb-2">Club Activity Portal</h1>
+        <p class="text-xs text-gray-400 mb-6">Select the view you want to launch for this session:</p>
+        
+        <div class="flex flex-col gap-4">
+            <button onclick="launchView('student')" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl text-base shadow-lg transition">📱 Participant View</button>
+            <button onclick="launchView('presenter')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl text-base shadow-lg transition">🎛️ Presenter Dashboard</button>
+            <button onclick="launchView('projector')" class="w-full py-3.5 bg-amber-600 hover:bg-amber-500 font-bold rounded-xl text-base shadow-lg transition">🖥️ Projection View</button>
         </div>
-        <div class="flex flex-wrap gap-2">
-            <button onclick="openTab('student')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold rounded-lg shadow">📱 Open Student Tab</button>
-            <button onclick="openTab('presenter')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold rounded-lg shadow">🎛️ Open Presenter Tab</button>
-            <button onclick="openTab('projector')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-sm font-semibold rounded-lg shadow">🖥️ Open Projector Tab</button>
-        </div>
-    </header>
+    </div>
 
-    <main class="w-full max-w-6xl mx-auto flex-grow flex flex-col">
+    <!-- MAIN APP WRAPPER (Hidden until a view is selected) -->
+    <main id="appContainer" class="w-full max-w-6xl mx-auto flex-grow flex flex-col hidden">
 
         <!-- ========================================== -->
         <!-- 1. STUDENT AUTHENTICATION & BUZZER VIEW -->
         <!-- ========================================== -->
         <div id="studentView" class="card p-6 flex-grow flex flex-col items-center justify-center text-center hidden">
-            
-            <!-- Student Authentication Box -->
             <div id="studentAuthBox" class="w-full max-w-md">
-                <h2 class="text-2xl font-bold mb-4 text-indigo-300">Student Portal Login</h2>
+                <h2 class="text-2xl font-bold mb-4 text-indigo-300">Participant Portal Login</h2>
                 
                 <div class="mb-4 text-left">
                     <label class="text-xs font-bold text-gray-400">SELECT YOUR NAME</label>
@@ -62,7 +62,6 @@
                 <button onclick="loginStudent()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg text-lg">Join Quiz Arena 🚀</button>
             </div>
 
-            <!-- Student Waiting Room -->
             <div id="studentWaitingRoom" class="w-full max-w-md hidden">
                 <div class="p-6 card border-indigo-500/50 bg-indigo-950/20 mb-6">
                     <h2 class="text-2xl font-bold text-indigo-300 mb-2">Welcome, <span id="stNameDisplay"></span>!</h2>
@@ -73,7 +72,6 @@
                 </div>
             </div>
 
-            <!-- Active Student Buzzer Screen -->
             <div id="studentBuzzerArena" class="w-full max-w-md hidden">
                 <div class="mb-4 text-sm text-gray-400">
                     Logged in as: <strong id="stActiveName" class="text-white"></strong> (<span id="stActiveTeam" class="text-emerald-400"></span>)
@@ -169,7 +167,6 @@
         <!-- ========================================== -->
         <div id="projectorView" class="card hidden flex-grow flex flex-col justify-between relative p-6 overflow-hidden min-h-[500px]">
             
-            <!-- Top Controls bar inside Projection View -->
             <div class="z-50 flex justify-between items-center border-b border-gray-800 pb-3 mb-4">
                 <span class="text-sm text-gray-400 font-bold">SMART BOARD PROJECTION</span>
                 <button id="projStartBtn" onclick="toggleQuizState()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-lg">Start Quiz</button>
@@ -178,10 +175,9 @@
             <!-- Logo Splash Screen (Before Quiz Starts) -->
             <div id="introPhotoContainer" class="absolute inset-0 z-40 bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
                 <img src="logo.png" alt="Kristu Jayanti Emblem" class="max-h-48 mb-4 object-contain" onerror="this.style.display='none'">
-                <h2 class="text-3xl font-extrabold text-indigo-400 mb-2">BBA SECTION D QUIZ CHAMPIONSHIP</h2>
+                <h2 class="text-3xl font-extrabold text-indigo-400 mb-2">CLUB ACTIVITY</h2>
                 <p class="text-gray-400 text-sm mb-6">Scan QR code or click link below to join as a participant!</p>
                 
-                <!-- Dynamic QR Code & Link Container -->
                 <div class="bg-white p-3 rounded-xl shadow-2xl mb-4 inline-block">
                     <img id="sharedQRCodeProj" src="" alt="Participant QR Code" class="w-40 h-40 object-contain">
                 </div>
@@ -192,19 +188,15 @@
 
             <!-- Live Game Screen (Active Quiz State) -->
             <div id="projectorGameContent" class="hidden h-full flex flex-col justify-between z-30">
-                
-                <!-- Question & Timer Header -->
                 <div class="flex justify-between items-center mb-4">
                     <h2 id="projQNum" class="text-2xl font-bold text-indigo-400">Question 1 / 40</h2>
                     <div id="projReadTimer" class="text-3xl font-black text-amber-400">5s</div>
                 </div>
 
-                <!-- Question Text -->
                 <div class="card p-6 bg-gray-900/80 mb-4">
                     <h3 id="projQText" class="text-2xl font-bold text-white text-center">Question text will display here...</h3>
                 </div>
 
-                <!-- Staged Options (Hidden during 5s reading phase) -->
                 <div id="projOptionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden">
                     <button class="p-4 bg-gray-800 border border-gray-700 rounded-xl text-left text-lg font-semibold text-gray-200" id="projOpt0">Option A</button>
                     <button class="p-4 bg-gray-800 border border-gray-700 rounded-xl text-left text-lg font-semibold text-gray-200" id="projOpt1">Option B</button>
@@ -212,14 +204,12 @@
                     <button class="p-4 bg-gray-800 border border-gray-700 rounded-xl text-left text-lg font-semibold text-gray-200" id="projOpt3">Option D</button>
                 </div>
 
-                <!-- Buzzer Winner & Selected Team Member Display -->
                 <div id="projBuzzerBanner" class="text-center my-2 p-4 card border-emerald-500/50 bg-emerald-950/30 hidden">
                     <span class="text-sm uppercase tracking-wider text-emerald-400 font-bold">FIRST BUZZER CAPTURED BY</span>
                     <h2 id="projWinnerTeam" class="text-4xl font-black text-white mt-1">TEAM 1</h2>
                     <p class="text-xl text-amber-300 font-bold mt-2">Selected Participant: <span id="projSelectedStudent" class="text-white underline"></span></p>
                 </div>
 
-                <!-- Inter-Team Leaderboard -->
                 <div class="card p-4 bg-gray-950/90 border border-gray-800 mt-auto">
                     <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 text-center">Inter-Team Leaderboard</h4>
                     <div class="grid grid-cols-3 gap-4 text-center font-bold">
@@ -237,7 +227,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -245,7 +234,6 @@
 
     <!-- SCRIPT APPLICATION CORE -->
     <script>
-        // 1. STUDENT ROSTER DATABASE (49 Students)
         const studentRoster = [
             { id: "26BBAD01", name: "ABHIJEET MAHALIK" },
             { id: "26BBAD02", name: "ABHINAV JAYAN" },
@@ -298,26 +286,22 @@
             { id: "26BBAD52", name: "NUZO THISA" }
         ];
 
-        // 2. FIREBASE REALTIME DATABASE CONFIGURATION
         const firebaseConfig = { databaseURL: "https://bba-section-d-quiz-default-rtdb.firebaseio.com/" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 3. MASTER QUESTION DATASET (40 QUESTIONS ACROSS 4 ROUNDS)
         const allQuestions = [
-            // ROUND 1: KANNADA CULTURE
-            { id: 1, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: '(Audio / Pronunciation Prompt) Read out loud: "Ondhu-vare aaguthe Boss!" When an Auto Anna says this before you get in, what does he mean?', options: ["A) The ride will take 15 minutes", "B) The fare is 1.5x (One-and-a-half) the meter rate", "C) He can only take 1 passenger", "D) The meter is broken"], correctAnswer: "B) The fare is 1.5x (One-and-a-half) the meter rate", answerKey: "B", dare: "🎭 DARE (The Auto Anna Negotiator): Walk up to a classmate, put your hands on your hips, and dramatically say: 'Ondhu-vare aaguthe Boss, meter mele extra ten rupees!'" },
-            { id: 2, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Pictorial Prompt) What iconic South Indian breakfast item is this crispy crepe served with red chutney inside, coconut chutney, and sambar?", options: ["A) Set Dosa", "B) Rava Dosa", "C) Mysore Masala Dosa", "D) Paper Plain Dosa"], correctAnswer: "C) Mysore Masala Dosa", answerKey: "C", dare: "🎭 DARE (The By-Two Coffee Drama): Order a cup of water from a friend, hand an empty cup, and shout: 'By-Two maadi bro!'" },
-            { id: 3, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: '(Survival Phrase) You are shopping at Commercial Street and want to ask "How much is this?" in Kannada. What should you say?', options: ["A) Idhu eshto?", "B) Yelli idhe?", "C) Hego idhe?", "D) Naale banni!"], correctAnswer: "A) Idhu eshto?", answerKey: "A", dare: "🎭 DARE (The Masala Dosa Monologue): Spend 30 seconds describing a Mysore Masala Dosa like it's the love of your life." },
-            { id: 4, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: '(Audio / Direction) Read out loud: "Swalpa straight hogi, right thegodhi!" What is the passerby asking you to do?', options: ["A) Take a left, then stop", "B) Go straight a little, then turn right", "C) Turn right immediately", "D) Go straight for 5 kilometers"], correctAnswer: "B) Go straight a little, then turn right", answerKey: "B", dare: "🎭 DARE: Say 'Kannada swalpa swalpa baruthe!' to anyone in class with complete confidence and bow silently." },
-            { id: 5, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Pictorial Prompt) Which famous getaway spot ~60 km from Bengaluru is famous for sunrise views above the cloud line?", options: ["A) Savandurga Hill", "B) Skandagiri", "C) Nandi Hills", "D) Shivagange"], correctAnswer: "C) Nandi Hills", answerKey: "C", dare: "🎭 DARE: High-five 3 classmates calling each 'Macha!' or 'Maga!' in an action movie voice." },
-            { id: 6, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: '(Campus Slang) When your local classmate calls you "Macha" or "Maga", what does it mean?', options: ["A) Teacher / Professor", "B) Boss / Manager", "C) Buddy / Bro / Dude", "D) Stranger"], correctAnswer: "C) Buddy / Bro / Dude", answerKey: "C", dare: "🎭 DARE: Stand up and mimic the Namma Metro chime out loud: 'Dayavittu dharaviyisiri... Next station, MG Road!'" },
-            { id: 7, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: '(Darshini Culture) Read out loud: "Ondhu Filter Coffee, By-Two maadi!" What are you requesting at the coffee counter?', options: ["A) 2 full cups of coffee", "B) 1 cup of coffee split into 2 smaller cups", "C) 1 coffee with extra sugar", "D) 1 coffee and 1 tea"], correctAnswer: "B) 1 cup of coffee split into 2 smaller cups", answerKey: "B", dare: "🎭 DARE: Pick up a pen from a friend's desk, hold it like a hawk, ask 'Idhu eshto?' and refuse to pay > ₹5." },
-            { id: 8, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "(Pictorial Prompt) What is the official brand name of Bengaluru’s Metro train system?", options: ["A) Namma Metro", "B) Bengaluru Express", "C) Swift Rail", "D) Metro Mitra"], correctAnswer: "A) Namma Metro", answerKey: "A", dare: "🎭 DARE: Walk in slow motion across the front of class fanning imaginary morning fog like searching for Nandi Hills sunrise." },
-            { id: 9, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: '(City Culture) Why is Bengaluru historically nicknamed the "Garden City of India"?', options: ["A) It produces the most flowers in Asia", "B) It is home to vast green havens like Lalbagh & Cubbon Park", "C) Every house must have a rooftop garden", "D) It has the largest botanical research lab"], correctAnswer: "B) It is home to vast green havens like Lalbagh & Cubbon Park", answerKey: "B", dare: "🎭 DARE: Explain how to reach college canteen using only wild hand gestures & repeating 'Straight hogi, right thegodhi!'" },
+            { id: 1, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Read out loud: "Ondhu-vare aaguthe Boss!" When an Auto Anna says this before you get in, what does he mean?', options: ["A) The ride will take 15 minutes", "B) The fare is 1.5x (One-and-a-half) the meter rate", "C) He can only take 1 passenger", "D) The meter is broken"], correctAnswer: "B) The fare is 1.5x (One-and-a-half) the meter rate", answerKey: "B", dare: "🎭 DARE (The Auto Anna Negotiator): Walk up to a classmate, put your hands on your hips, and dramatically say: 'Ondhu-vare aaguthe Boss, meter mele extra ten rupees!'" },
+            { id: 2, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "What iconic South Indian breakfast item is this crispy crepe served with red chutney inside, coconut chutney, and sambar?", options: ["A) Set Dosa", "B) Rava Dosa", "C) Mysore Masala Dosa", "D) Paper Plain Dosa"], correctAnswer: "C) Mysore Masala Dosa", answerKey: "C", dare: "🎭 DARE (The By-Two Coffee Drama): Order a cup of water from a friend, hand an empty cup, and shout: 'By-Two maadi bro!'" },
+            { id: 3, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'You are shopping at Commercial Street and want to ask "How much is this?" in Kannada. What should you say?', options: ["A) Idhu eshto?", "B) Yelli idhe?", "C) Hego idhe?", "D) Naale banni!"], correctAnswer: "A) Idhu eshto?", answerKey: "A", dare: "🎭 DARE (The Masala Dosa Monologue): Spend 30 seconds describing a Mysore Masala Dosa like it's the love of your life." },
+            { id: 4, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Read out loud: "Swalpa straight hogi, right thegodhi!" What is the passerby asking you to do?', options: ["A) Take a left, then stop", "B) Go straight a little, then turn right", "C) Turn right immediately", "D) Go straight for 5 kilometers"], correctAnswer: "B) Go straight a little, then turn right", answerKey: "B", dare: "🎭 DARE: Say 'Kannada swalpa swalpa baruthe!' to anyone in class with complete confidence and bow silently." },
+            { id: 5, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "Which famous getaway spot ~60 km from Bengaluru is famous for sunrise views above the cloud line?", options: ["A) Savandurga Hill", "B) Skandagiri", "C) Nandi Hills", "D) Shivagange"], correctAnswer: "C) Nandi Hills", answerKey: "C", dare: "🎭 DARE: High-five 3 classmates calling each 'Macha!' or 'Maga!' in an action movie voice." },
+            { id: 6, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'When your local classmate calls you "Macha" or "Maga", what does it mean?', options: ["A) Teacher / Professor", "B) Boss / Manager", "C) Buddy / Bro / Dude", "D) Stranger"], correctAnswer: "C) Buddy / Bro / Dude", answerKey: "C", dare: "🎭 DARE: Stand up and mimic the Namma Metro chime out loud: 'Dayavittu dharaviyisiri... Next station, MG Road!'" },
+            { id: 7, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Read out loud: "Ondhu Filter Coffee, By-Two maadi!" What are you requesting at the coffee counter?', options: ["A) 2 full cups of coffee", "B) 1 cup of coffee split into 2 smaller cups", "C) 1 coffee with extra sugar", "D) 1 coffee and 1 tea"], correctAnswer: "B) 1 cup of coffee split into 2 smaller cups", answerKey: "B", dare: "🎭 DARE: Pick up a pen from a friend's desk, hold it like a hawk, ask 'Idhu eshto?' and refuse to pay > ₹5." },
+            { id: 8, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: "What is the official brand name of Bengaluru’s Metro train system?", options: ["A) Namma Metro", "B) Bengaluru Express", "C) Swift Rail", "D) Metro Mitra"], correctAnswer: "A) Namma Metro", answerKey: "A", dare: "🎭 DARE: Walk in slow motion across the front of class fanning imaginary morning fog like searching for Nandi Hills sunrise." },
+            { id: 9, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Why is Bengaluru historically nicknamed the "Garden City of India"?', options: ["A) It produces the most flowers in Asia", "B) It is home to vast green havens like Lalbagh & Cubbon Park", "C) Every house must have a rooftop garden", "D) It has the largest botanical research lab"], correctAnswer: "B) It is home to vast green havens like Lalbagh & Cubbon Park", answerKey: "B", dare: "🎭 DARE: Explain how to reach college canteen using only wild hand gestures & repeating 'Straight hogi, right thegodhi!'" },
             { id: 10, round: 1, roundName: "1 - Kannada & Karnataka Culture", question: 'Instead of saying "Kannada Gothilla", what friendly phrase shows you are learning?', options: ["A) Kannada gothilla boss!", "B) Kannada swalpa swalpa baruthe!", "C) Nange beku!", "D) Oota aitha?"], correctAnswer: "B) Kannada swalpa swalpa baruthe!", answerKey: "B", dare: "🎭 DARE: Stand in tree pose in the middle of room and announce 'Respect me, I am Lalbagh.'" },
 
-            // ROUND 2: BOLLYWOOD COMEDY
             { id: 11, round: 2, roundName: "2 - Bollywood Comedy", question: "If Sunny Deol found out that someone ate his lunch from the college fridge, what would his dialogue be?", options: ["A) “Beta, lunch khaya hai ya meri property pe kabza kiya hai?”", "B) “Yeh lunch mera tha! Lunch box wapas karo!”", "C) “Ek lunch ki keemat tum kya jaano, canteen babu!”", "D) “Lunch chor, tu college ka sabse bada villain hai!”"], correctAnswer: "B) “Yeh lunch mera tha! Lunch box wapas karo!”", answerKey: "B", dare: "🎭 DARE: Flex biceps and yell 'Yeh Dhai Kilo Ka Haath!' in Sunny Deol voice." },
             { id: 12, round: 2, roundName: "2 - Bollywood Comedy", question: "If Baburao became your college principal, what would he do if students demanded free attendance?", options: ["A) “Attendance chahiye? Pehle meri chai ka bill bharo!”", "B) “Sabko 100% attendance, bas college aana mat!”", "C) “Paisa laao, attendance le jaao!”", "D) “Attendance ke badle apna Aadhaar card jama karo!”"], correctAnswer: "C) “Paisa laao, attendance le jaao!”", answerKey: "C", dare: "🎭 DARE: Do Baburao's iconic walk shouting 'Paisa laao, attendance le jaao!'" },
             { id: 13, round: 2, roundName: "2 - Bollywood Comedy", question: "Gabbar Singh enters an empty classroom. Nobody has come to class. What will he ask?", options: ["A) “Kitne students absent the?”", "B) “Kitne students canteen mein chhupe hain?”", "C) “Kitne students assignment se bhaag gaye?”", "D) “Kitne students ne proxy lagayi hai?”"], correctAnswer: "A) “Kitne students absent the?”", answerKey: "A", dare: "🎭 DARE: Do a loud villainous laugh and yell 'Kitne students absent the?!'" },
@@ -329,7 +313,6 @@
             { id: 19, round: 2, roundName: "2 - Bollywood Comedy", question: "Baburao gets married. His wife asks, “Darling, what did you love most about me?” What will Baburao say?", options: ["A) “Tumhari aankhein”", "B) “Tumhari smile”", "C) “Tumhare papa ne jo fridge diya tha!”", "D) “Tumhara pyaar”"], correctAnswer: "C) “Tumhare papa ne jo fridge diya tha!”", answerKey: "C", dare: "🎭 DARE: Express romantic love to an imaginary refrigerator." },
             { id: 20, round: 2, roundName: "2 - Bollywood Comedy", question: "Majnu Bhai paints a picture of a horse. The horse sees it and files a complaint. What is the complaint?", options: ["A) “Your Honour, this painting has damaged my reputation!”", "B) “Your Honour, he forgot to paint my tail!”", "C) “Your Honour, he painted me without permission!”", "D) “Your Honour, everyone is laughing at me!”"], correctAnswer: "A) “Your Honour, this painting has damaged my reputation!”", answerKey: "A", dare: "🎭 DARE: Act like an offended horse complaining to a judge about a portrait." },
 
-            // ROUND 3: UNIVERSITY TRIVIA
             { id: 21, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which genre of music would you most likely find playing on Shawn Paul's playlist?", options: ["A. Folk/Country", "B. Rock/Metal", "C. Romantic", "D. Classical"], correctAnswer: "B. Rock/Metal", answerKey: "B" },
             { id: 22, round: 3, roundName: "3 - University & Classmate Trivia", question: 'Which classmate goes by the nickname "Tom"?', options: ["A. Vivian", "B. Rikhil", "C. Vidisha", "D. Nirbasan"], correctAnswer: "D. Nirbasan", answerKey: "D" },
             { id: 23, round: 3, roundName: "3 - University & Classmate Trivia", question: "What is Yusuf's favourite activity during college hours, apart from bunking classes?", options: ["A. Putting things in ears", "B. Dancing", "C. Fit check", "D. Standing on table"], correctAnswer: "C. Fit check", answerKey: "C" },
@@ -341,7 +324,6 @@
             { id: 29, round: 3, roundName: "3 - University & Classmate Trivia", question: "Which classmate conducted a seminar on Good Touch and Bad Touch?", options: ["A. Sanskar", "B. Rohit", "C. Adhil", "D. Izzan"], correctAnswer: "B. Rohit", answerKey: "B" },
             { id: 30, round: 3, roundName: "3 - University & Classmate Trivia", question: 'Who holds the title of the "Supreme Leader" of our class?', options: ["A. Vivian", "B. Litika", "C. Abhinav", "D. Angela"], correctAnswer: "D. Angela", answerKey: "D" },
 
-            // ROUND 4: EMOJI RIDDLES
             { id: 31, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🦁👑 (Guess the movie)", options: ["A) Madagascar", "B) The Lion King", "C) Jungle Book", "D) Tarzan"], correctAnswer: "B) The Lion King", answerKey: "B" },
             { id: 32, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "🕷️👨 (Guess the superhero)", options: ["A) Batman", "B) Superman", "C) Spider-Man", "D) Ant-Man"], correctAnswer: "C) Spider-Man", answerKey: "C" },
             { id: 33, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "What has to be broken before you can use it?", options: ["A) A coconut", "B) An egg", "C) A promise", "D) A glass"], correctAnswer: "B) An egg", answerKey: "B" },
@@ -354,12 +336,10 @@
             { id: 40, round: 4, roundName: "4 - Emoji Puzzles & Riddles", question: "The more of me you take, the more you leave behind. What am I?", options: ["A) Memories", "B) Footsteps", "C) Time", "D) Secrets"], correctAnswer: "B) Footsteps", answerKey: "B" }
         ];
 
-        // STATE VARIABLES
         let currentQuestionIdx = 0;
         let loggedInStudent = null;
         let readTimerInterval = null;
 
-        // INITIALIZE APPLICATION
         window.onload = function() {
             // Populate student roster dropdown
             const selectEl = document.getElementById('studentRosterSelect');
@@ -375,7 +355,6 @@
             const studentUrl = `${baseUrl}?view=student`;
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(studentUrl)}`;
 
-            // Set projection intro screen QR / link elements
             const projQr = document.getElementById('sharedQRCodeProj');
             const projLink = document.getElementById('sharedLinkProj');
             if (projQr) projQr.src = qrApiUrl;
@@ -384,18 +363,21 @@
                 projLink.innerText = studentUrl;
             }
 
-            // Read URL params to load specific view mode automatically
+            // Check URL Params
             const params = new URLSearchParams(window.location.search);
-            const viewParam = params.get('view') || 'student';
-            setRoleView(viewParam);
-
-            initFirebase();
+            const viewParam = params.get('view');
+            
+            if (viewParam) {
+                document.getElementById('homeHub').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                setRoleView(viewParam);
+                initFirebase();
+            }
         };
 
-        // Function to open views in brand new browser tabs programmatically
-        function openTab(role) {
+        function launchView(role) {
             const currentUrl = window.location.href.split('?')[0];
-            window.open(`${currentUrl}?view=${role}`, '_blank');
+            window.location.href = `${currentUrl}?view=${role}`;
         }
 
         function autoFillID() {
@@ -410,17 +392,13 @@
 
             if (view === 'student') {
                 document.getElementById('studentView').classList.remove('hidden');
-                document.getElementById('viewRoleLabel').innerText = "📱 Active Role: Student Portal View";
             } else if (view === 'presenter') {
                 document.getElementById('presenterView').classList.remove('hidden');
-                document.getElementById('viewRoleLabel').innerText = "🎛️ Active Role: Presenter Dashboard";
             } else if (view === 'projector') {
                 document.getElementById('projectorView').classList.remove('hidden');
-                document.getElementById('viewRoleLabel').innerText = "🖥️ Active Role: Smart Board Projection View";
             }
         }
 
-        // STUDENT LOGIN LOGIC
         function loginStudent() {
             const stId = document.getElementById('studentIDInput').value;
             const team = document.getElementById('studentTeamSelect').value;
@@ -447,7 +425,6 @@
             document.getElementById('studentAuthBox').classList.add('hidden');
             document.getElementById('studentWaitingRoom').classList.remove('hidden');
 
-            // Register student active session in team node
             db.ref(`teams/${team}/${stObj.id}`).set({
                 name: stObj.name,
                 id: stObj.id,
@@ -455,7 +432,6 @@
             });
         }
 
-        // FIREBASE STATE SYNCHRONIZATION
         function initFirebase() {
             db.ref('quizState').on('value', (snapshot) => {
                 const state = snapshot.val();
@@ -463,7 +439,6 @@
 
                 currentQuestionIdx = state.questionIdx || 0;
                 
-                // Toggle projection intro vs live quiz screen
                 const introPhoto = document.getElementById('introPhotoContainer');
                 const gameContent = document.getElementById('projectorGameContent');
                 const startBtn = document.getElementById('quizStateToggleBtn');
@@ -481,7 +456,6 @@
                         projStartBtn.className = "px-4 py-1.5 bg-red-600 hover:bg-red-500 text-xs font-bold rounded-lg";
                     }
 
-                    // Show active buzzer screen for student waiting room
                     if (loggedInStudent) {
                         document.getElementById('studentWaitingRoom').classList.add('hidden');
                         document.getElementById('studentBuzzerArena').classList.remove('hidden');
@@ -510,7 +484,6 @@
             });
         }
 
-        // PRESENTER MASTER ACTIONS
         function toggleQuizState() {
             db.ref('quizState').once('value', (snap) => {
                 const state = snap.val() || {};
@@ -598,7 +571,6 @@
             });
         }
 
-        // BUZZER TRIGGER & SMART STUDENT RANDOM PICKER
         function triggerBuzz() {
             if (!loggedInStudent) return;
 
@@ -639,7 +611,6 @@
             });
         }
 
-        // UI SYNC FUNCTIONS
         function updatePresenterUI(state) {
             const q = allQuestions[state.questionIdx || 0];
             if (!q) return;
