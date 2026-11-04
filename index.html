@@ -283,7 +283,7 @@
             font-weight: bold;
         }
 
-        /* Full Screen Looping Intro Video Container for Projector */
+        /* Bulletproof Video / Fallback Container */
         #introVideoContainer {
             position: absolute;
             top: 0;
@@ -311,6 +311,12 @@
             color: #c7d2fe;
             margin-bottom: 10px;
             text-align: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
     </style>
 </head>
@@ -469,17 +475,21 @@
             </div>
         </div>
 
-<!-- DEDICATED PROJECTION VIEW (SMART BOARD) -->
-<div id="projectorView" class="card hidden" style="padding: 20px; position: relative;">
-    
-    <!-- FULL SCREEN LOOPING INTRO VIDEO (`college.mp4`) -->
-    <div id="introVideoContainer">
-        <video autoplay loop muted playsinline>
-            <source src="college.mp4" type="video/mp4">
-            Your browser does not support video playback.
-        </video>
-    </div>
-...
+        <!-- DEDICATED PROJECTION VIEW (SMART BOARD) -->
+        <div id="projectorView" class="card hidden" style="padding: 20px; position: relative;">
+            
+            <!-- BULLETPROOF INTRO VIDEO CONTAINER WITH CSS FALLBACK -->
+            <div id="introVideoContainer">
+                <video autoplay loop muted playsinline id="masterVideoEl" style="width: 100%; height: 100%; object-fit: cover;" onerror="fallbackToCSSAnimation()">
+                    <source src="college.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div id="cssFallbackBg" class="hidden" style="width: 100%; height: 100%; background: linear-gradient(-45deg, #0f172a, #1e1b4b, #311b92, #0f172a); background-size: 400% 400%; animation: gradientBG 10s ease infinite; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px;">
+                    <h1 style="font-size: 3.5rem; color: #fff; text-shadow: 0 0 25px rgba(129,140,248,0.8); margin: 0;">🚀 KRISTU JAYANTI UNIVERSITY</h1>
+                    <h2 style="color: var(--accent); font-size: 2rem; margin-top: 10px;">BBA I Semester - Section D Quiz Championship</h2>
+                </div>
+            </div>
+
             <!-- LIVE GAME STATE SCREEN (Fades in when quiz starts) -->
             <div id="projectorGameContent" class="hidden" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; z-index: 5; position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border); padding-bottom: 15px;">
@@ -625,10 +635,23 @@
                 document.getElementById('closeLeaderboardBtn').classList.add('hidden');
                 initProjectorSync();
                 listenForLeaderboard();
+                
+                // Force play video on projector load
+                const vid = document.getElementById("masterVideoEl");
+                if (vid) {
+                    vid.play().catch(() => fallbackToCSSAnimation());
+                }
             } else {
                 document.getElementById('participantLogin').classList.remove('hidden');
                 populateFedStudents();
             }
+        }
+
+        function fallbackToCSSAnimation() {
+            const vid = document.getElementById("masterVideoEl");
+            const fallback = document.getElementById("cssFallbackBg");
+            if (vid) vid.style.display = 'none';
+            if (fallback) fallback.classList.remove('hidden');
         }
 
         function generateJoinQRCode() {
@@ -827,7 +850,6 @@
 
                 applyTheme(qNum);
 
-                // Round Banner Calculation
                 let roundIdx = Math.floor((qNum - 1) / 10);
                 document.getElementById('presenterRoundBanner').innerText = roundNames[roundIdx] || roundNames[0];
 
