@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Club Activity - Live Quiz Arena</title>
+    <title>Club Activity - Cinematic Quiz Arena</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -11,6 +11,15 @@
         :root { background-color: #030712; color: #f3f4f6; }
         .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; }
         
+        /* Cinematic Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-cinematic {
+            animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
         /* Confetti Animation */
         .confetti-piece {
             position: absolute;
@@ -42,7 +51,7 @@
         </div>
     </div>
 
-    <!-- MAIN APP WRAPPER (Hidden until a view is selected) -->
+    <!-- MAIN APP WRAPPER -->
     <main id="appContainer" class="w-full min-h-screen flex flex-col hidden">
 
         <!-- ========================================== -->
@@ -115,7 +124,7 @@
                         <button onclick="returnToHub()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-lg text-gray-300">⬅️ Hub</button>
                         <div>
                             <h2 class="text-2xl font-bold text-indigo-300">Presenter Master Controls</h2>
-                            <p class="text-xs text-gray-400">Managing Question Timers, Participant Roster & Winner Announcement</p>
+                            <p class="text-xs text-gray-400">Managing Question Timers, Participant Roster & Cinematic Credits</p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
@@ -123,7 +132,7 @@
                         <button onclick="openBuzzerManually()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold rounded-lg text-sm">🔓 Open Buzzer</button>
                         <button onclick="lockBuzzerManually()" class="px-4 py-2 bg-red-600 hover:bg-red-500 font-bold rounded-lg text-sm">🔒 Close Buzzer</button>
                         <button onclick="triggerWinnerAnnouncement()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 font-black rounded-lg text-sm shadow-lg border border-yellow-400 text-black">🏆 Announce Winner</button>
-                        <button onclick="triggerPostCredits()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 font-black rounded-lg text-sm shadow-lg text-white">🎬 Post-Credits</button>
+                        <button onclick="triggerPostCredits()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 font-black rounded-lg text-sm shadow-lg text-white">🎬 Cinematic Post-Credits</button>
                     </div>
                 </div>
 
@@ -161,7 +170,7 @@
                     </div>
                 </div>
 
-                <!-- Buzzed Winner Box with Correct/Wrong buttons -->
+                <!-- Buzzed Winner Box -->
                 <div id="presWinnerBox" class="card p-6 mb-6 border-emerald-500/50 bg-emerald-950/20 text-center hidden">
                     <span class="text-xs uppercase font-bold text-emerald-400">Buzzer Captured!</span>
                     <h2 id="presWinnerTeam" class="text-3xl font-extrabold text-white">Team 1</h2>
@@ -172,7 +181,7 @@
                     </div>
                 </div>
 
-                <!-- LIVE PARTICIPANTS ROSTER SECTION WITH TAB & LOGOUT TRACKING -->
+                <!-- Roster Section -->
                 <div class="card p-5 mb-6 bg-gray-900/40 border border-gray-800">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
                         <div class="flex items-center gap-3">
@@ -228,7 +237,7 @@
                 </div>
             </div>
 
-            <!-- Logo Splash Screen (Before Quiz Starts) -->
+            <!-- Logo Splash Screen -->
             <div id="introPhotoContainer" class="absolute inset-0 z-40 bg-gray-950 flex flex-col items-center justify-center p-8 text-center">
                 <img src="logo.png" alt="Kristu Jayanti Emblem" class="max-h-56 mb-6 object-contain" onerror="this.style.display='none'">
                 <h2 class="text-5xl font-black text-indigo-400 mb-3 tracking-wide">CLUB ACTIVITY</h2>
@@ -242,9 +251,8 @@
                 </div>
             </div>
 
-            <!-- Live Game Screen (Active Quiz State - Displaying Active Round) -->
+            <!-- Live Game Screen -->
             <div id="projectorGameContent" class="hidden h-full flex flex-col justify-between z-30">
-                
                 <div class="p-3 bg-indigo-950/60 border border-indigo-900/80 rounded-xl mb-4 text-center">
                     <span id="projRoundName" class="text-xl md:text-2xl font-black text-indigo-300 tracking-wide uppercase">Round 1</span>
                 </div>
@@ -291,12 +299,12 @@
             </div>
 
             <!-- ========================================== -->
-            <!-- 4. GRAND WINNER ANNOUNCEMENT MODAL OVERLAY -->
+            <!-- 4. GRAND WINNER ANNOUNCEMENT MODAL         -->
             <!-- ========================================== -->
             <div id="winnerAnnouncementModal" class="hidden fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-8 text-center overflow-hidden">
                 <div id="confettiContainer" class="absolute inset-0 pointer-events-none"></div>
 
-                <div class="relative z-10 max-w-4xl w-full flex flex-col items-center">
+                <div class="relative z-10 max-w-4xl w-full flex flex-col items-center animate-cinematic">
                     <div class="text-6xl md:text-8xl mb-4 animate-bounce">🏆</div>
                     <h1 class="text-4xl md:text-6xl font-black text-yellow-400 tracking-wider mb-2 uppercase drop-shadow-lg">GRAND CHAMPION ANNOUNCEMENT</h1>
                     <p class="text-gray-400 text-lg md:text-xl font-bold uppercase tracking-widest mb-8">Club Activity Quiz Competition</p>
@@ -325,40 +333,58 @@
                             ✖ Close Announcement
                         </button>
                         <button onclick="triggerPostCredits()" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg text-sm">
-                            🎬 Show Post-Credits
+                            🎬 Start Cinematic Post-Credits
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- ========================================== -->
-            <!-- 5. CINEMATIC POST-CREDITS SEQUENCE MODAL   -->
+            <!-- 5. CINEMATIC MULTI-PAGE POST-CREDITS (MOVIES STYLE) -->
             <!-- ========================================== -->
-            <div id="postCreditsModal" class="hidden fixed inset-0 z-[60] bg-black flex flex-col items-center justify-center p-8 text-center overflow-hidden">
-                <div class="max-w-3xl w-full flex flex-col items-center space-y-8 animate-fade-in">
-                    <h2 class="text-3xl md:text-5xl font-black tracking-widest text-gray-300 uppercase">"THE CREATORS WILL RETURN..."</h2>
-                    
-                    <div class="card p-8 bg-gray-950 border border-gray-800 w-full space-y-6 text-left shadow-2xl">
-                        <div class="border-b border-gray-800 pb-4">
+            <div id="postCreditsModal" class="hidden fixed inset-0 z-[60] bg-black flex flex-col items-center justify-between p-12 text-center overflow-hidden">
+                
+                <div class="w-full flex justify-between items-center text-xs font-mono text-gray-500 uppercase tracking-widest">
+                    <span>🎬 Cinematic Epilogue</span>
+                    <span id="creditSceneIndicator">Scene 1 of 3</span>
+                    <button onclick="closePostCredits()" class="hover:text-white transition">Skip ✖</button>
+                </div>
+
+                <!-- Scene 1: The Blackout Awakening -->
+                <div id="creditScene1" class="flex-grow flex flex-col items-center justify-center animate-cinematic">
+                    <h1 class="text-4xl md:text-7xl font-black tracking-widest text-gray-200 uppercase drop-shadow-2xl">
+                        "THE CREATORS WILL RETURN..."
+                    </h1>
+                </div>
+
+                <!-- Scene 2: Core Engineering & Creative Dept -->
+                <div id="creditScene2" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
+                    <div class="card p-10 bg-gray-950 border-2 border-gray-800 w-full space-y-8 shadow-2xl text-left">
+                        <div>
                             <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block mb-1">Engineering & Core Development</span>
-                            <p class="text-lg md:text-xl font-extrabold text-white">Engineered overnight by: <span class="text-emerald-400">Prathish Kumar V</span></p>
+                            <p class="text-xl md:text-2xl font-extrabold text-white">Engineered overnight by: <span class="text-emerald-400">Prathish Kumar V</span></p>
                         </div>
                         
-                        <div class="border-b border-gray-800 pb-4">
-                            <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block mb-1">Creative Department</span>
-                            <p class="text-base md:text-lg font-semibold text-gray-200">Questions & Dares cooked up by: <span class="text-amber-300">MATHEW K M, RADHIKA SINGH, ANVITA K BALLAL</span></p>
-                        </div>
-
                         <div>
-                            <p class="text-sm md:text-base font-mono text-gray-400 leading-relaxed">
-                                "If anything breaks, blame <span class="text-red-400 font-bold">Prathish</span>. If the dares are too hard, blame the other three."
-                            </p>
+                            <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block mb-1">Creative Department</span>
+                            <p class="text-lg md:text-xl font-semibold text-gray-200">Questions & Dares cooked up by: <span class="text-amber-300">MATHEW K M, RADHIKA SINGH, ANVITA K BALLAL</span></p>
                         </div>
                     </div>
+                </div>
 
-                    <button onclick="closePostCredits()" class="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl border border-gray-700 text-sm tracking-wider uppercase">
-                        End Cinematic ✖
-                    </button>
+                <!-- Scene 3: The Ultimate Blame Disclaimer -->
+                <div id="creditScene3" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-3xl">
+                    <div class="card p-10 bg-gray-950 border-2 border-red-950 w-full shadow-2xl text-center">
+                        <p class="text-xl md:text-3xl font-mono text-gray-300 leading-relaxed">
+                            "If anything breaks, blame <span class="text-red-400 font-bold">Prathish</span>. If the dares are too hard, blame the other three."
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Cinematic Scene Navigation Footer -->
+                <div class="w-full flex justify-between items-center pt-6 border-t border-gray-900">
+                    <button onclick="prevCreditScene()" id="prevSceneBtn" class="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-gray-400 font-bold rounded-xl text-sm disabled:opacity-30" disabled>⬅️ Previous</button>
+                    <button onclick="nextCreditScene()" id="nextSceneBtn" class="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl shadow-lg text-base uppercase tracking-wider">Next Scene ➡️</button>
                 </div>
             </div>
 
@@ -420,7 +446,6 @@
             { id: "26BBAD52", name: "NUZO THISA" }
         ];
 
-        // Database URL
         const firebaseConfig = { databaseURL: "https://class-quiz-a8d09-default-rtdb.firebaseio.com/" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -475,6 +500,9 @@
         let loggedInStudent = null;
         let readTimerInterval = null;
         let activeTeamsData = {};
+        let currentCreditScene = 1;
+        let audioCtx = null;
+        let bgmInterval = null;
 
         window.onload = function() {
             const selectEl = document.getElementById('studentRosterSelect');
@@ -507,6 +535,42 @@
                 initFirebase();
             }
         };
+
+        // Web Audio API Cinematic BGM Synthesizer
+        function playCinematicBGM() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (bgmInterval) clearInterval(bgmInterval);
+
+            // Play deep atmospheric pulsing cinematic chords
+            bgmInterval = setInterval(() => {
+                if (!audioCtx) return;
+                try {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(55, audioCtx.currentTime); // Low A note
+                    osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 3);
+
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 4);
+                } catch(e) {}
+            }, 4000);
+        }
+
+        function stopCinematicBGM() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            }
+        }
 
         function launchView(role) {
             const currentUrl = window.location.href.split('?')[0];
@@ -547,11 +611,7 @@
             }
 
             const stObj = studentRoster.find(s => s.id === stId);
-            loggedInStudent = {
-                id: stObj.id,
-                name: stObj.name,
-                team: team
-            };
+            loggedInStudent = { id: stObj.id, name: stObj.name, team: team };
 
             document.getElementById('stNameDisplay').innerText = stObj.name;
             document.getElementById('stIDDisplay').innerText = stObj.id;
@@ -564,20 +624,8 @@
             document.getElementById('studentWaitingRoom').classList.remove('hidden');
 
             const studentRef = db.ref(`teams/${team}/${stObj.id}`);
-            
-            studentRef.set({
-                name: stObj.name,
-                id: stObj.id,
-                team: team,
-                status: "online",
-                tabFocused: true,
-                hasBeenSelected: false
-            });
-
-            studentRef.onDisconnect().update({
-                status: "offline",
-                tabFocused: false
-            });
+            studentRef.set({ name: stObj.name, id: stObj.id, team: team, status: "online", tabFocused: true, hasBeenSelected: false });
+            studentRef.onDisconnect().update({ status: "offline", tabFocused: false });
 
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
@@ -611,9 +659,17 @@
                 }
 
                 if (state.postCreditsShown) {
-                    if (creditsModal) creditsModal.classList.remove('hidden');
+                    if (creditsModal) {
+                        creditsModal.classList.remove('hidden');
+                        currentCreditScene = state.creditScene || 1;
+                        updateCreditScenesUI();
+                        playCinematicBGM();
+                    }
                 } else {
-                    if (creditsModal) creditsModal.classList.add('hidden');
+                    if (creditsModal) {
+                        creditsModal.classList.add('hidden');
+                        stopCinematicBGM();
+                    }
                 }
 
                 if (state.quizStarted) {
@@ -697,11 +753,51 @@
         }
 
         function triggerPostCredits() {
-            db.ref('quizState').update({ winnerAnnounced: false, postCreditsShown: true });
+            db.ref('quizState').update({ winnerAnnounced: false, postCreditsShown: true, creditScene: 1 });
         }
 
         function closePostCredits() {
             db.ref('quizState').update({ postCreditsShown: false });
+            stopCinematicBGM();
+        }
+
+        function nextCreditScene() {
+            if (currentCreditScene < 3) {
+                currentCreditScene++;
+                db.ref('quizState/creditScene').set(currentCreditScene);
+            } else {
+                closePostCredits();
+            }
+        }
+
+        function prevCreditScene() {
+            if (currentCreditScene > 1) {
+                currentCreditScene--;
+                db.ref('quizState/creditScene').set(currentCreditScene);
+            }
+        }
+
+        function updateCreditScenesUI() {
+            for (let i = 1; i <= 3; i++) {
+                const sceneEl = document.getElementById(`creditScene${i}`);
+                if (sceneEl) {
+                    if (i === currentCreditScene) {
+                        sceneEl.classList.remove('hidden');
+                    } else {
+                        sceneEl.classList.add('hidden');
+                    }
+                }
+            }
+
+            document.getElementById('creditSceneIndicator').innerText = `Scene ${currentCreditScene} of 3`;
+            document.getElementById('prevSceneBtn').disabled = (currentCreditScene === 1);
+            
+            const nextBtn = document.getElementById('nextSceneBtn');
+            if (currentCreditScene === 3) {
+                nextBtn.innerText = "Finish Cinematic 🏁";
+            } else {
+                nextBtn.innerText = "Next Scene ➡️";
+            }
         }
 
         function renderWinnerLeaderboard() {
@@ -752,9 +848,7 @@
             let allParticipants = [];
             Object.keys(activeTeamsData).forEach(teamKey => {
                 const members = activeTeamsData[teamKey] || {};
-                Object.values(members).forEach(m => {
-                    allParticipants.push(m);
-                });
+                Object.values(members).forEach(m => { allParticipants.push(m); });
             });
 
             if (countBadge) countBadge.innerText = `${allParticipants.length} Joined`;
@@ -805,7 +899,8 @@
                     selectedStudent: null,
                     optionsRevealed: false,
                     winnerAnnounced: false,
-                    postCreditsShown: false
+                    postCreditsShown: false,
+                    creditScene: 1
                 });
                 if (newState) {
                     startAutomaticReadingPhase();
