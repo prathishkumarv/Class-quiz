@@ -11,12 +11,20 @@
         :root { background-color: #030712; color: #f3f4f6; }
         .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
         .animate-cinematic {
-            animation: fadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeInScale 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes goldGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(234, 179, 8, 0.5); }
+        }
+        .gold-glow-card {
+            animation: goldGlow 3s infinite ease-in-out;
         }
 
         .confetti-piece {
@@ -130,7 +138,7 @@
                         <button onclick="openBuzzerManually()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold rounded-lg text-sm">🔓 Open Buzzer</button>
                         <button onclick="lockBuzzerManually()" class="px-4 py-2 bg-red-600 hover:bg-red-500 font-bold rounded-lg text-sm">🔒 Close Buzzer</button>
                         <button onclick="triggerWinnerAnnouncement()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 font-black rounded-lg text-sm shadow-lg border border-yellow-400 text-black">🏆 Announce Winner</button>
-                        <button onclick="triggerPostCredits()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 font-black rounded-lg text-sm shadow-lg text-white">🎬 Auto Cinematic Credits</button>
+                        <button onclick="triggerPostCredits()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 font-black rounded-lg text-sm shadow-lg text-white">🎬 Cinematic Epilogue</button>
                     </div>
                 </div>
 
@@ -231,7 +239,7 @@
                 <div class="flex gap-2">
                     <button id="projStartBtn" onclick="toggleQuizState()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm font-bold rounded-lg shadow">Start Quiz</button>
                     <button onclick="triggerWinnerAnnouncement()" class="px-5 py-2 bg-yellow-500 hover:bg-yellow-400 text-sm font-black text-black rounded-lg shadow-lg border border-yellow-300">🏆 Announce Winner</button>
-                    <button onclick="triggerPostCredits()" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-sm font-black text-white rounded-lg shadow-lg">🎬 Auto Credits</button>
+                    <button onclick="triggerPostCredits()" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-sm font-black text-white rounded-lg shadow-lg">🎬 Cinematic Epilogue</button>
                 </div>
             </div>
 
@@ -307,7 +315,7 @@
                     <h1 class="text-4xl md:text-6xl font-black text-yellow-400 tracking-wider mb-2 uppercase drop-shadow-lg">GRAND CHAMPION ANNOUNCEMENT</h1>
                     <p class="text-gray-400 text-lg md:text-xl font-bold uppercase tracking-widest mb-8">Club Activity Quiz Competition</p>
 
-                    <div id="championCard" class="w-full card p-8 bg-gradient-to-b from-yellow-950/80 to-amber-900/40 border-4 border-yellow-400 rounded-3xl shadow-2xl mb-8 transform scale-105">
+                    <div id="championCard" class="w-full card p-8 bg-gradient-to-b from-yellow-950/80 to-amber-900/40 border-4 border-yellow-400 rounded-3xl shadow-2xl mb-8 transform scale-105 gold-glow-card">
                         <span class="text-sm font-extrabold uppercase tracking-widest text-yellow-400 bg-yellow-950 px-4 py-1 rounded-full border border-yellow-500">🥇 FIRST PLACE CHAMPION</span>
                         <h2 id="champTeamName" class="text-5xl md:text-7xl font-black text-white mt-4 tracking-tight">TEAM 1</h2>
                         <div class="text-3xl md:text-4xl font-extrabold text-yellow-300 font-mono mt-2"><span id="champScore">0</span> PTS</div>
@@ -331,73 +339,84 @@
                             ✖ Close Announcement
                         </button>
                         <button onclick="triggerPostCredits()" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg text-sm">
-                            🎬 Start Auto Cinematic Credits
+                            🎬 Cinematic Epilogue
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- ========================================== -->
-            <!-- 5. FULLY AUTOMATIC CINEMATIC 5-PAGE POST-CREDITS -->
+            <!-- 5. FULLY AUTOMATIC CINEMATIC 6-PAGE POST-CREDITS -->
             <!-- ========================================== -->
-            <div id="postCreditsModal" class="hidden fixed inset-0 z-[60] bg-black flex flex-col items-center justify-between p-12 text-center overflow-hidden">
+            <div id="postCreditsModal" class="hidden fixed inset-0 z-[60] bg-gradient-to-b from-black via-gray-950 to-black flex flex-col items-center justify-between p-12 text-center overflow-hidden">
                 
-                <div class="w-full flex justify-between items-center text-xs font-mono text-gray-500 uppercase tracking-widest">
-                    <span>🎬 Cinematic Epilogue (Auto-Playing)</span>
-                    <span id="creditSceneIndicator">Scene 1 of 5</span>
-                    <button onclick="closePostCredits()" class="hover:text-white transition">Skip ✖</button>
+                <!-- Embedded Bonus Soundtrack: Ishq Ishq from Dhurandhar (00:18 to 03:06)[cite: 5] -->
+                <audio id="cinematicAudio" src="Ishq_Ishq.mp3" preload="auto"></audio>
+
+                <div class="w-full flex justify-between items-center text-xs font-mono text-gray-400 uppercase tracking-widest border-b border-gray-800/60 pb-3">
+                    <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span> BLOCKBUSTER EPILOGUE (AUTO-PLAYING)</span>
+                    <span id="creditSceneIndicator" class="text-indigo-400 font-bold">Scene 1 of 6</span>
+                    <button onclick="closePostCredits()" class="hover:text-white transition px-3 py-1 bg-gray-900 border border-gray-700 rounded-lg">Skip ✖</button>
                 </div>
 
                 <!-- Scene 1: Title Card -->
                 <div id="creditScene1" class="flex-grow flex flex-col items-center justify-center animate-cinematic">
-                    <h1 class="text-4xl md:text-7xl font-black tracking-widest text-gray-200 uppercase drop-shadow-2xl">
-                        "THE CREATORS WILL RETURN..."
-                    </h1>
+                    <div class="p-8 bg-black/40 border border-indigo-500/30 rounded-3xl shadow-2xl backdrop-blur-md">
+                        <h1 class="text-4xl md:text-7xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-purple-300 uppercase drop-shadow-2xl">
+                            "THE CREATORS WILL RETURN..."
+                        </h1>
+                    </div>
                 </div>
 
                 <!-- Scene 2: Engineering & Core Development -->
                 <div id="creditScene2" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
-                    <div class="card p-10 bg-gray-950 border-2 border-indigo-900 w-full space-y-6 shadow-2xl text-center">
-                        <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block">Engineering & Core Development</span>
+                    <div class="card p-12 bg-gradient-to-b from-indigo-950/60 to-gray-900 border-2 border-indigo-500/50 w-full space-y-6 shadow-2xl text-center rounded-3xl backdrop-blur-md">
+                        <span class="text-xs font-black tracking-widest text-indigo-400 uppercase bg-indigo-950 px-4 py-1.5 rounded-full border border-indigo-700 inline-block">⚡ Engineering & Core Development</span>
                         <h2 class="text-3xl md:text-5xl font-black text-white">Engineered overnight by:</h2>
-                        <p class="text-4xl md:text-6xl font-extrabold text-emerald-400 tracking-tight">Prathish Kumar V</p>
+                        <p class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200 tracking-tight">Prathish Kumar V</p>
                     </div>
                 </div>
 
                 <!-- Scene 3: Creative Team - Radhika Singh (Entertainment Round) -->
                 <div id="creditScene3" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
-                    <div class="card p-10 bg-gray-950 border-2 border-purple-900 w-full space-y-6 shadow-2xl text-center">
-                        <span class="text-xs font-bold text-purple-400 uppercase tracking-widest block">Creative Department — Member 1</span>
+                    <div class="card p-12 bg-gradient-to-b from-purple-950/60 to-gray-900 border-2 border-purple-500/50 w-full space-y-6 shadow-2xl text-center rounded-3xl backdrop-blur-md">
+                        <span class="text-xs font-black tracking-widest text-purple-400 uppercase bg-purple-950 px-4 py-1.5 rounded-full border border-purple-700 inline-block">🎨 Creative Department — Member 1</span>
                         <h2 class="text-3xl md:text-5xl font-black text-white">Entertainment Round Curated By:</h2>
-                        <p class="text-4xl md:text-6xl font-extrabold text-pink-400 tracking-tight">Radhika Singh</p>
+                        <p class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-300 tracking-tight">Radhika Singh</p>
                     </div>
                 </div>
 
                 <!-- Scene 4: Creative Team - Mathew K M (College & Classmates Round) -->
                 <div id="creditScene4" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
-                    <div class="card p-10 bg-gray-950 border-2 border-amber-900 w-full space-y-6 shadow-2xl text-center">
-                        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block">Creative Department — Member 2</span>
+                    <div class="card p-12 bg-gradient-to-b from-amber-950/60 to-gray-900 border-2 border-amber-500/50 w-full space-y-6 shadow-2xl text-center rounded-3xl backdrop-blur-md">
+                        <span class="text-xs font-black tracking-widest text-amber-400 uppercase bg-amber-950 px-4 py-1.5 rounded-full border border-amber-700 inline-block">📚 Creative Department — Member 2</span>
                         <h2 class="text-3xl md:text-5xl font-black text-white">Know About College & Classmates Round By:</h2>
-                        <p class="text-4xl md:text-6xl font-extrabold text-amber-300 tracking-tight">Mathew K M</p>
+                        <p class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-200 tracking-tight">Mathew K M</p>
                     </div>
                 </div>
 
-                <!-- Scene 5: Creative Team - Anvita K Ballal (Riddle Round & Blame Disclaimer) -->
+                <!-- Scene 5: Creative Team - Anvita K Ballal (Riddle Round) -->
                 <div id="creditScene5" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
-                    <div class="card p-10 bg-gray-950 border-2 border-red-950 w-full space-y-6 shadow-2xl text-center">
-                        <span class="text-xs font-bold text-red-400 uppercase tracking-widest block">Creative Department — Member 3</span>
-                        <h2 class="text-2xl md:text-4xl font-black text-white">Riddle Round Crafted By: <span class="text-indigo-300">Anvita K Ballal</span></h2>
-                        <div class="mt-6 p-4 bg-gray-900/80 border border-red-900/50 rounded-xl">
-                            <p class="text-lg md:text-2xl font-mono text-gray-300 leading-relaxed">
-                                "If anything breaks, blame <span class="text-red-400 font-bold">Prathish</span>. If the dares are too hard, blame the other three."
-                            </p>
-                        </div>
+                    <div class="card p-12 bg-gradient-to-b from-blue-950/60 to-gray-900 border-2 border-blue-500/50 w-full space-y-6 shadow-2xl text-center rounded-3xl backdrop-blur-md">
+                        <span class="text-xs font-black tracking-widest text-blue-400 uppercase bg-blue-950 px-4 py-1.5 rounded-full border border-blue-700 inline-block">🧩 Creative Department — Member 3</span>
+                        <h2 class="text-3xl md:text-5xl font-black text-white">Riddle Round Crafted By:</h2>
+                        <p class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-200 tracking-tight">Anvita K Ballal</p>
+                    </div>
+                </div>
+
+                <!-- Scene 6: Standalone Blame Disclaimer -->
+                <div id="creditScene6" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
+                    <div class="card p-12 bg-gradient-to-b from-red-950/80 to-gray-900 border-2 border-red-600/70 w-full space-y-6 shadow-2xl text-center rounded-3xl backdrop-blur-md">
+                        <span class="text-xs font-black tracking-widest text-red-400 uppercase bg-red-950 px-4 py-1.5 rounded-full border border-red-700 inline-block">⚠️ Official Executive Disclaimer</span>
+                        <p class="text-2xl md:text-4xl font-mono text-gray-200 leading-relaxed italic">
+                            "If anything breaks, blame <span class="text-red-400 font-bold not-italic">Prathish</span>. If the dares are too hard, blame the other three."
+                        </p>
                     </div>
                 </div>
 
                 <!-- Footer Progress Bar -->
                 <div class="w-full flex justify-center items-center pt-6 border-t border-gray-900">
-                    <div id="cinematicProgressBar" class="w-48 h-1.5 bg-purple-600 rounded-full animate-pulse"></div>
+                    <div id="cinematicProgressBar" class="w-64 h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full animate-pulse shadow-lg"></div>
                 </div>
             </div>
 
@@ -515,8 +534,6 @@
         let activeTeamsData = {};
         let currentCreditScene = 1;
         let creditTimerInterval = null;
-        let audioCtx = null;
-        let bgmInterval = null;
 
         window.onload = function() {
             const selectEl = document.getElementById('studentRosterSelect');
@@ -550,38 +567,20 @@
             }
         };
 
-        // Web Audio API Cinematic BGM Synthesizer
-        function playCinematicBGM() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Play Embedded Bonus Soundtrack "Ishq Ishq" from 00:18 to 03:06[cite: 5]
+        function playCinematicAudio() {
+            const audio = document.getElementById('cinematicAudio');
+            if (audio) {
+                audio.currentTime = 18; // Start at 00:18
+                audio.play().catch(e => console.log("Audio autoplay restricted by browser policy"));
             }
-            if (bgmInterval) clearInterval(bgmInterval);
-
-            bgmInterval = setInterval(() => {
-                if (!audioCtx) return;
-                try {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(55, audioCtx.currentTime); // Low A note
-                    osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 3);
-
-                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
-
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 4);
-                } catch(e) {}
-            }, 4000);
         }
 
-        function stopCinematicBGM() {
-            if (bgmInterval) {
-                clearInterval(bgmInterval);
-                bgmInterval = null;
+        function stopCinematicAudio() {
+            const audio = document.getElementById('cinematicAudio');
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
             }
             if (creditTimerInterval) {
                 clearInterval(creditTimerInterval);
@@ -680,13 +679,13 @@
                         creditsModal.classList.remove('hidden');
                         currentCreditScene = state.creditScene || 1;
                         updateCreditScenesUI();
-                        playCinematicBGM();
+                        playCinematicAudio();
                         startAutoCreditTimer();
                     }
                 } else {
                     if (creditsModal) {
                         creditsModal.classList.add('hidden');
-                        stopCinematicBGM();
+                        stopCinematicAudio();
                     }
                 }
 
@@ -735,7 +734,7 @@
             });
         }
 
-        // Automatic 6-second timer per cinematic scene
+        // Automatic 6-second timer per cinematic scene (6 scenes total)
         function startAutoCreditTimer() {
             if (creditTimerInterval) clearInterval(creditTimerInterval);
             creditTimerInterval = setInterval(() => {
@@ -743,14 +742,21 @@
                     const st = snap.val() || {};
                     if (st.postCreditsShown) {
                         let sc = st.creditScene || 1;
-                        if (sc < 5) {
+                        const audio = document.getElementById('cinematicAudio');
+                        
+                        // Enforce stop at 3:06 (186 seconds) as specified[cite: 5]
+                        if (audio && audio.currentTime >= 186) {
+                            audio.pause();
+                        }
+
+                        if (sc < 6) {
                             db.ref('quizState/creditScene').set(sc + 1);
                         } else {
                             closePostCredits();
                         }
                     }
                 });
-            }, 6000); // 6 seconds per scene
+            }, 6000); 
         }
 
         function startAutomaticReadingPhase() {
@@ -794,11 +800,11 @@
 
         function closePostCredits() {
             db.ref('quizState').update({ postCreditsShown: false });
-            stopCinematicBGM();
+            stopCinematicAudio();
         }
 
         function updateCreditScenesUI() {
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 6; i++) {
                 const sceneEl = document.getElementById(`creditScene${i}`);
                 if (sceneEl) {
                     if (i === currentCreditScene) {
@@ -808,7 +814,7 @@
                     }
                 }
             }
-            document.getElementById('creditSceneIndicator').innerText = `Scene ${currentCreditScene} of 5`;
+            document.getElementById('creditSceneIndicator').innerText = `Scene ${currentCreditScene} of 6`;
         }
 
         function renderWinnerLeaderboard() {
