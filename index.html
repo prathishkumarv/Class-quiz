@@ -123,6 +123,7 @@
                         <button onclick="openBuzzerManually()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold rounded-lg text-sm">🔓 Open Buzzer</button>
                         <button onclick="lockBuzzerManually()" class="px-4 py-2 bg-red-600 hover:bg-red-500 font-bold rounded-lg text-sm">🔒 Close Buzzer</button>
                         <button onclick="triggerWinnerAnnouncement()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 font-black rounded-lg text-sm shadow-lg border border-yellow-400 text-black">🏆 Announce Winner</button>
+                        <button onclick="triggerPostCredits()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 font-black rounded-lg text-sm shadow-lg text-white">🎬 Post-Credits</button>
                     </div>
                 </div>
 
@@ -204,7 +205,7 @@
                 </div>
             </div>
 
-            <!-- Presenter Navigation Bar (Manual Reading Phase Button Removed) -->
+            <!-- Presenter Navigation Bar -->
             <div class="flex justify-between items-center pt-4 border-t border-gray-800">
                 <button onclick="prevQuestion()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 font-bold rounded-lg text-sm">⬅️ Prev Question</button>
                 <div class="text-xs text-indigo-400 font-semibold">⚡ 5s Reading timer runs automatically on question change</div>
@@ -223,6 +224,7 @@
                 <div class="flex gap-2">
                     <button id="projStartBtn" onclick="toggleQuizState()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm font-bold rounded-lg shadow">Start Quiz</button>
                     <button onclick="triggerWinnerAnnouncement()" class="px-5 py-2 bg-yellow-500 hover:bg-yellow-400 text-sm font-black text-black rounded-lg shadow-lg border border-yellow-300">🏆 Announce Winner</button>
+                    <button onclick="triggerPostCredits()" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-sm font-black text-white rounded-lg shadow-lg">🎬 Post-Credits</button>
                 </div>
             </div>
 
@@ -243,7 +245,6 @@
             <!-- Live Game Screen (Active Quiz State - Displaying Active Round) -->
             <div id="projectorGameContent" class="hidden h-full flex flex-col justify-between z-30">
                 
-                <!-- Display Active Round Name Prominently -->
                 <div class="p-3 bg-indigo-950/60 border border-indigo-900/80 rounded-xl mb-4 text-center">
                     <span id="projRoundName" class="text-xl md:text-2xl font-black text-indigo-300 tracking-wide uppercase">Round 1</span>
                 </div>
@@ -257,7 +258,6 @@
                     <h3 id="projQText" class="text-3xl md:text-4xl font-black text-white text-center leading-relaxed">Question text will display here...</h3>
                 </div>
 
-                <!-- Options Grid (Hidden during 5s reading phase, auto-shown when timer finishes) -->
                 <div id="projOptionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden">
                     <button class="p-5 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-xl font-bold text-gray-200 shadow-xl" id="projOpt0">Option A</button>
                     <button class="p-5 bg-gray-900 border-2 border-gray-700 rounded-2xl text-left text-xl font-bold text-gray-200 shadow-xl" id="projOpt1">Option B</button>
@@ -301,14 +301,12 @@
                     <h1 class="text-4xl md:text-6xl font-black text-yellow-400 tracking-wider mb-2 uppercase drop-shadow-lg">GRAND CHAMPION ANNOUNCEMENT</h1>
                     <p class="text-gray-400 text-lg md:text-xl font-bold uppercase tracking-widest mb-8">Club Activity Quiz Competition</p>
 
-                    <!-- 1st Place Champion Highlight Card -->
                     <div id="championCard" class="w-full card p-8 bg-gradient-to-b from-yellow-950/80 to-amber-900/40 border-4 border-yellow-400 rounded-3xl shadow-2xl mb-8 transform scale-105">
                         <span class="text-sm font-extrabold uppercase tracking-widest text-yellow-400 bg-yellow-950 px-4 py-1 rounded-full border border-yellow-500">🥇 FIRST PLACE CHAMPION</span>
                         <h2 id="champTeamName" class="text-5xl md:text-7xl font-black text-white mt-4 tracking-tight">TEAM 1</h2>
                         <div class="text-3xl md:text-4xl font-extrabold text-yellow-300 font-mono mt-2"><span id="champScore">0</span> PTS</div>
                     </div>
 
-                    <!-- Runner-ups Grid (2nd & 3rd Place) -->
                     <div class="grid grid-cols-2 gap-6 w-full max-w-3xl mb-8">
                         <div class="card p-5 bg-gray-900/90 border-2 border-gray-400 rounded-2xl text-center">
                             <span class="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-1">🥈 2nd Place</span>
@@ -322,8 +320,44 @@
                         </div>
                     </div>
 
-                    <button onclick="closeWinnerAnnouncement()" class="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold rounded-xl border border-gray-700 text-sm">
-                        ✖ Close Announcement
+                    <div class="flex gap-4">
+                        <button onclick="closeWinnerAnnouncement()" class="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold rounded-xl border border-gray-700 text-sm">
+                            ✖ Close Announcement
+                        </button>
+                        <button onclick="triggerPostCredits()" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg text-sm">
+                            🎬 Show Post-Credits
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 5. CINEMATIC POST-CREDITS SEQUENCE MODAL   -->
+            <!-- ========================================== -->
+            <div id="postCreditsModal" class="hidden fixed inset-0 z-[60] bg-black flex flex-col items-center justify-center p-8 text-center overflow-hidden">
+                <div class="max-w-3xl w-full flex flex-col items-center space-y-8 animate-fade-in">
+                    <h2 class="text-3xl md:text-5xl font-black tracking-widest text-gray-300 uppercase">"THE CREATORS WILL RETURN..."</h2>
+                    
+                    <div class="card p-8 bg-gray-950 border border-gray-800 w-full space-y-6 text-left shadow-2xl">
+                        <div class="border-b border-gray-800 pb-4">
+                            <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block mb-1">Engineering & Core Development</span>
+                            <p class="text-lg md:text-xl font-extrabold text-white">Engineered overnight by: <span class="text-emerald-400">Prathish Kumar V</span></p>
+                        </div>
+                        
+                        <div class="border-b border-gray-800 pb-4">
+                            <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block mb-1">Creative Department</span>
+                            <p class="text-base md:text-lg font-semibold text-gray-200">Questions & Dares cooked up by: <span class="text-amber-300">MATHEW K M, RADHIKA SINGH, ANVITA K BALLAL</span></p>
+                        </div>
+
+                        <div>
+                            <p class="text-sm md:text-base font-mono text-gray-400 leading-relaxed">
+                                "If anything breaks, blame <span class="text-red-400 font-bold">Prathish</span>. If the dares are too hard, blame the other three."
+                            </p>
+                        </div>
+                    </div>
+
+                    <button onclick="closePostCredits()" class="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl border border-gray-700 text-sm tracking-wider uppercase">
+                        End Cinematic ✖
                     </button>
                 </div>
             </div>
@@ -443,7 +477,6 @@
         let activeTeamsData = {};
 
         window.onload = function() {
-            // Populate student roster dropdown
             const selectEl = document.getElementById('studentRosterSelect');
             studentRoster.forEach(st => {
                 const opt = document.createElement('option');
@@ -452,7 +485,6 @@
                 selectEl.appendChild(opt);
             });
 
-            // Generate Student URL and QR Codes
             const baseUrl = window.location.href.split('?')[0];
             const studentUrl = `${baseUrl}?view=student`;
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(studentUrl)}`;
@@ -465,7 +497,6 @@
                 projLink.innerText = studentUrl;
             }
 
-            // Check URL Params
             const params = new URLSearchParams(window.location.search);
             const viewParam = params.get('view');
             
@@ -569,6 +600,7 @@
                 const startBtn = document.getElementById('quizStateToggleBtn');
                 const projStartBtn = document.getElementById('projStartBtn');
                 const winnerModal = document.getElementById('winnerAnnouncementModal');
+                const creditsModal = document.getElementById('postCreditsModal');
 
                 if (state.winnerAnnounced) {
                     if (winnerModal) winnerModal.classList.remove('hidden');
@@ -576,6 +608,12 @@
                     createConfetti();
                 } else {
                     if (winnerModal) winnerModal.classList.add('hidden');
+                }
+
+                if (state.postCreditsShown) {
+                    if (creditsModal) creditsModal.classList.remove('hidden');
+                } else {
+                    if (creditsModal) creditsModal.classList.add('hidden');
                 }
 
                 if (state.quizStarted) {
@@ -623,7 +661,6 @@
             });
         }
 
-        // TRIGGER AUTOMATIC 5-SECOND READING TIMER WHEN QUESTION CHANGES
         function startAutomaticReadingPhase() {
             db.ref('quizState').update({
                 readingPhase: true,
@@ -652,11 +689,19 @@
         }
 
         function triggerWinnerAnnouncement() {
-            db.ref('quizState').update({ winnerAnnounced: true });
+            db.ref('quizState').update({ winnerAnnounced: true, postCreditsShown: false });
         }
 
         function closeWinnerAnnouncement() {
             db.ref('quizState').update({ winnerAnnounced: false });
+        }
+
+        function triggerPostCredits() {
+            db.ref('quizState').update({ winnerAnnounced: false, postCreditsShown: true });
+        }
+
+        function closePostCredits() {
+            db.ref('quizState').update({ postCreditsShown: false });
         }
 
         function renderWinnerLeaderboard() {
@@ -759,7 +804,8 @@
                     buzzedWinner: null,
                     selectedStudent: null,
                     optionsRevealed: false,
-                    winnerAnnounced: false
+                    winnerAnnounced: false,
+                    postCreditsShown: false
                 });
                 if (newState) {
                     startAutomaticReadingPhase();
@@ -895,7 +941,6 @@
             document.getElementById('projQText').innerText = q.question;
             document.getElementById('projReadTimer').innerText = (state.readTimer !== undefined ? state.readTimer : 5) + 's';
 
-            // Options show only when state.optionsRevealed is true (after 5s timer)
             const grid = document.getElementById('projOptionsGrid');
             if (state.optionsRevealed) {
                 grid.classList.remove('hidden');
