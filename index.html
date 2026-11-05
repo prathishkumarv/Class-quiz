@@ -350,11 +350,15 @@
             <!-- ========================================== -->
             <div id="postCreditsModal" class="hidden fixed inset-0 z-[60] bg-gradient-to-b from-black via-gray-950 to-black flex flex-col items-center justify-between p-12 text-center overflow-hidden">
                 
-                <!-- Embedded Bonus Soundtrack: Ishq Ishq from Dhurandhar (00:18 to 03:06)[cite: 5] -->
-                <audio id="cinematicAudio" src="Ishq_Ishq.mp3" preload="auto"></audio>
+                <!-- Audio File: Ensure file name matches Move Yeh Ishq Ishq.mp3 exactly -->
+                <audio id="cinematicAudio" src="Move Yeh Ishq Ishq.mp3" preload="auto"></audio>
 
                 <div class="w-full flex justify-between items-center text-xs font-mono text-gray-400 uppercase tracking-widest border-b border-gray-800/60 pb-3">
-                    <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span> BLOCKBUSTER EPILOGUE (AUTO-PLAYING)</span>
+                    <span class="flex items-center gap-3">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span> BLOCKBUSTER EPILOGUE
+                        <!-- Manual Click Button to Bypass Browser Autoplay Policy -->
+                        <button onclick="manualStartAudio()" id="audioPlayBtn" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow animate-bounce text-xs">🔊 PLAY SOUNDTRACK</button>
+                    </span>
                     <span id="creditSceneIndicator" class="text-indigo-400 font-bold">Scene 1 of 6</span>
                     <button onclick="closePostCredits()" class="hover:text-white transition px-3 py-1 bg-gray-900 border border-gray-700 rounded-lg">Skip ✖</button>
                 </div>
@@ -567,12 +571,30 @@
             }
         };
 
-        // Play Embedded Bonus Soundtrack "Ishq Ishq" from 00:18 to 03:06[cite: 5]
+        // Manual Audio Trigger Button handler to bypass browser autoplay security
+        function manualStartAudio() {
+            const audio = document.getElementById('cinematicAudio');
+            const btn = document.getElementById('audioPlayBtn');
+            if (audio) {
+                audio.currentTime = 18; // Start at 00:18 as requested[cite: 5]
+                audio.play().then(() => {
+                    if (btn) {
+                        btn.innerText = "🔊 SOUND ON";
+                        btn.className = "px-3 py-1 bg-green-700 text-white font-bold rounded-lg text-xs";
+                    }
+                }).catch(err => {
+                    alert("Audio playback failed. Please check if 'Move Yeh Ishq Ishq.mp3' is uploaded in the repository.");
+                });
+            }
+        }
+
         function playCinematicAudio() {
             const audio = document.getElementById('cinematicAudio');
             if (audio) {
-                audio.currentTime = 18; // Start at 00:18
-                audio.play().catch(e => console.log("Audio autoplay restricted by browser policy"));
+                audio.currentTime = 18;
+                audio.play().catch(e => {
+                    console.log("Browser blocked automatic autoplay. Use the 'PLAY SOUNDTRACK' button.");
+                });
             }
         }
 
@@ -744,7 +766,7 @@
                         let sc = st.creditScene || 1;
                         const audio = document.getElementById('cinematicAudio');
                         
-                        // Enforce stop at 3:06 (186 seconds) as specified[cite: 5]
+                        // Stop at 3:06 (186 seconds) as specified[cite: 5]
                         if (audio && audio.currentTime >= 186) {
                             audio.pause();
                         }
