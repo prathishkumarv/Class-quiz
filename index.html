@@ -11,16 +11,14 @@
         :root { background-color: #030712; color: #f3f4f6; }
         .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; }
         
-        /* Cinematic Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
         .animate-cinematic {
-            animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Confetti Animation */
         .confetti-piece {
             position: absolute;
             width: 10px;
@@ -124,7 +122,7 @@
                         <button onclick="returnToHub()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-lg text-gray-300">⬅️ Hub</button>
                         <div>
                             <h2 class="text-2xl font-bold text-indigo-300">Presenter Master Controls</h2>
-                            <p class="text-xs text-gray-400">Managing Question Timers, Participant Roster & Cinematic Credits</p>
+                            <p class="text-xs text-gray-400">Managing Question Timers, Participant Roster & Automatic Cinematic Credits</p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
@@ -132,7 +130,7 @@
                         <button onclick="openBuzzerManually()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 font-bold rounded-lg text-sm">🔓 Open Buzzer</button>
                         <button onclick="lockBuzzerManually()" class="px-4 py-2 bg-red-600 hover:bg-red-500 font-bold rounded-lg text-sm">🔒 Close Buzzer</button>
                         <button onclick="triggerWinnerAnnouncement()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 font-black rounded-lg text-sm shadow-lg border border-yellow-400 text-black">🏆 Announce Winner</button>
-                        <button onclick="triggerPostCredits()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 font-black rounded-lg text-sm shadow-lg text-white">🎬 Cinematic Post-Credits</button>
+                        <button onclick="triggerPostCredits()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 font-black rounded-lg text-sm shadow-lg text-white">🎬 Auto Cinematic Credits</button>
                     </div>
                 </div>
 
@@ -233,7 +231,7 @@
                 <div class="flex gap-2">
                     <button id="projStartBtn" onclick="toggleQuizState()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm font-bold rounded-lg shadow">Start Quiz</button>
                     <button onclick="triggerWinnerAnnouncement()" class="px-5 py-2 bg-yellow-500 hover:bg-yellow-400 text-sm font-black text-black rounded-lg shadow-lg border border-yellow-300">🏆 Announce Winner</button>
-                    <button onclick="triggerPostCredits()" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-sm font-black text-white rounded-lg shadow-lg">🎬 Post-Credits</button>
+                    <button onclick="triggerPostCredits()" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-sm font-black text-white rounded-lg shadow-lg">🎬 Auto Credits</button>
                 </div>
             </div>
 
@@ -333,58 +331,73 @@
                             ✖ Close Announcement
                         </button>
                         <button onclick="triggerPostCredits()" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg text-sm">
-                            🎬 Start Cinematic Post-Credits
+                            🎬 Start Auto Cinematic Credits
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- ========================================== -->
-            <!-- 5. CINEMATIC MULTI-PAGE POST-CREDITS (MOVIES STYLE) -->
+            <!-- 5. FULLY AUTOMATIC CINEMATIC 5-PAGE POST-CREDITS -->
             <!-- ========================================== -->
             <div id="postCreditsModal" class="hidden fixed inset-0 z-[60] bg-black flex flex-col items-center justify-between p-12 text-center overflow-hidden">
                 
                 <div class="w-full flex justify-between items-center text-xs font-mono text-gray-500 uppercase tracking-widest">
-                    <span>🎬 Cinematic Epilogue</span>
-                    <span id="creditSceneIndicator">Scene 1 of 3</span>
+                    <span>🎬 Cinematic Epilogue (Auto-Playing)</span>
+                    <span id="creditSceneIndicator">Scene 1 of 5</span>
                     <button onclick="closePostCredits()" class="hover:text-white transition">Skip ✖</button>
                 </div>
 
-                <!-- Scene 1: The Blackout Awakening -->
+                <!-- Scene 1: Title Card -->
                 <div id="creditScene1" class="flex-grow flex flex-col items-center justify-center animate-cinematic">
                     <h1 class="text-4xl md:text-7xl font-black tracking-widest text-gray-200 uppercase drop-shadow-2xl">
                         "THE CREATORS WILL RETURN..."
                     </h1>
                 </div>
 
-                <!-- Scene 2: Core Engineering & Creative Dept -->
+                <!-- Scene 2: Engineering & Core Development -->
                 <div id="creditScene2" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
-                    <div class="card p-10 bg-gray-950 border-2 border-gray-800 w-full space-y-8 shadow-2xl text-left">
-                        <div>
-                            <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block mb-1">Engineering & Core Development</span>
-                            <p class="text-xl md:text-2xl font-extrabold text-white">Engineered overnight by: <span class="text-emerald-400">Prathish Kumar V</span></p>
-                        </div>
-                        
-                        <div>
-                            <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block mb-1">Creative Department</span>
-                            <p class="text-lg md:text-xl font-semibold text-gray-200">Questions & Dares cooked up by: <span class="text-amber-300">MATHEW K M, RADHIKA SINGH, ANVITA K BALLAL</span></p>
+                    <div class="card p-10 bg-gray-950 border-2 border-indigo-900 w-full space-y-6 shadow-2xl text-center">
+                        <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block">Engineering & Core Development</span>
+                        <h2 class="text-3xl md:text-5xl font-black text-white">Engineered overnight by:</h2>
+                        <p class="text-4xl md:text-6xl font-extrabold text-emerald-400 tracking-tight">Prathish Kumar V</p>
+                    </div>
+                </div>
+
+                <!-- Scene 3: Creative Team - Radhika Singh (Entertainment Round) -->
+                <div id="creditScene3" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
+                    <div class="card p-10 bg-gray-950 border-2 border-purple-900 w-full space-y-6 shadow-2xl text-center">
+                        <span class="text-xs font-bold text-purple-400 uppercase tracking-widest block">Creative Department — Member 1</span>
+                        <h2 class="text-3xl md:text-5xl font-black text-white">Entertainment Round Curated By:</h2>
+                        <p class="text-4xl md:text-6xl font-extrabold text-pink-400 tracking-tight">Radhika Singh</p>
+                    </div>
+                </div>
+
+                <!-- Scene 4: Creative Team - Mathew K M (College & Classmates Round) -->
+                <div id="creditScene4" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
+                    <div class="card p-10 bg-gray-950 border-2 border-amber-900 w-full space-y-6 shadow-2xl text-center">
+                        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block">Creative Department — Member 2</span>
+                        <h2 class="text-3xl md:text-5xl font-black text-white">Know About College & Classmates Round By:</h2>
+                        <p class="text-4xl md:text-6xl font-extrabold text-amber-300 tracking-tight">Mathew K M</p>
+                    </div>
+                </div>
+
+                <!-- Scene 5: Creative Team - Anvita K Ballal (Riddle Round & Blame Disclaimer) -->
+                <div id="creditScene5" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-4xl">
+                    <div class="card p-10 bg-gray-950 border-2 border-red-950 w-full space-y-6 shadow-2xl text-center">
+                        <span class="text-xs font-bold text-red-400 uppercase tracking-widest block">Creative Department — Member 3</span>
+                        <h2 class="text-2xl md:text-4xl font-black text-white">Riddle Round Crafted By: <span class="text-indigo-300">Anvita K Ballal</span></h2>
+                        <div class="mt-6 p-4 bg-gray-900/80 border border-red-900/50 rounded-xl">
+                            <p class="text-lg md:text-2xl font-mono text-gray-300 leading-relaxed">
+                                "If anything breaks, blame <span class="text-red-400 font-bold">Prathish</span>. If the dares are too hard, blame the other three."
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Scene 3: The Ultimate Blame Disclaimer -->
-                <div id="creditScene3" class="flex-grow flex flex-col items-center justify-center animate-cinematic hidden w-full max-w-3xl">
-                    <div class="card p-10 bg-gray-950 border-2 border-red-950 w-full shadow-2xl text-center">
-                        <p class="text-xl md:text-3xl font-mono text-gray-300 leading-relaxed">
-                            "If anything breaks, blame <span class="text-red-400 font-bold">Prathish</span>. If the dares are too hard, blame the other three."
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Cinematic Scene Navigation Footer -->
-                <div class="w-full flex justify-between items-center pt-6 border-t border-gray-900">
-                    <button onclick="prevCreditScene()" id="prevSceneBtn" class="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-gray-400 font-bold rounded-xl text-sm disabled:opacity-30" disabled>⬅️ Previous</button>
-                    <button onclick="nextCreditScene()" id="nextSceneBtn" class="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl shadow-lg text-base uppercase tracking-wider">Next Scene ➡️</button>
+                <!-- Footer Progress Bar -->
+                <div class="w-full flex justify-center items-center pt-6 border-t border-gray-900">
+                    <div id="cinematicProgressBar" class="w-48 h-1.5 bg-purple-600 rounded-full animate-pulse"></div>
                 </div>
             </div>
 
@@ -501,6 +514,7 @@
         let readTimerInterval = null;
         let activeTeamsData = {};
         let currentCreditScene = 1;
+        let creditTimerInterval = null;
         let audioCtx = null;
         let bgmInterval = null;
 
@@ -543,7 +557,6 @@
             }
             if (bgmInterval) clearInterval(bgmInterval);
 
-            // Play deep atmospheric pulsing cinematic chords
             bgmInterval = setInterval(() => {
                 if (!audioCtx) return;
                 try {
@@ -569,6 +582,10 @@
             if (bgmInterval) {
                 clearInterval(bgmInterval);
                 bgmInterval = null;
+            }
+            if (creditTimerInterval) {
+                clearInterval(creditTimerInterval);
+                creditTimerInterval = null;
             }
         }
 
@@ -664,6 +681,7 @@
                         currentCreditScene = state.creditScene || 1;
                         updateCreditScenesUI();
                         playCinematicBGM();
+                        startAutoCreditTimer();
                     }
                 } else {
                     if (creditsModal) {
@@ -717,6 +735,24 @@
             });
         }
 
+        // Automatic 6-second timer per cinematic scene
+        function startAutoCreditTimer() {
+            if (creditTimerInterval) clearInterval(creditTimerInterval);
+            creditTimerInterval = setInterval(() => {
+                db.ref('quizState').once('value', (snap) => {
+                    const st = snap.val() || {};
+                    if (st.postCreditsShown) {
+                        let sc = st.creditScene || 1;
+                        if (sc < 5) {
+                            db.ref('quizState/creditScene').set(sc + 1);
+                        } else {
+                            closePostCredits();
+                        }
+                    }
+                });
+            }, 6000); // 6 seconds per scene
+        }
+
         function startAutomaticReadingPhase() {
             db.ref('quizState').update({
                 readingPhase: true,
@@ -761,24 +797,8 @@
             stopCinematicBGM();
         }
 
-        function nextCreditScene() {
-            if (currentCreditScene < 3) {
-                currentCreditScene++;
-                db.ref('quizState/creditScene').set(currentCreditScene);
-            } else {
-                closePostCredits();
-            }
-        }
-
-        function prevCreditScene() {
-            if (currentCreditScene > 1) {
-                currentCreditScene--;
-                db.ref('quizState/creditScene').set(currentCreditScene);
-            }
-        }
-
         function updateCreditScenesUI() {
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 5; i++) {
                 const sceneEl = document.getElementById(`creditScene${i}`);
                 if (sceneEl) {
                     if (i === currentCreditScene) {
@@ -788,16 +808,7 @@
                     }
                 }
             }
-
-            document.getElementById('creditSceneIndicator').innerText = `Scene ${currentCreditScene} of 3`;
-            document.getElementById('prevSceneBtn').disabled = (currentCreditScene === 1);
-            
-            const nextBtn = document.getElementById('nextSceneBtn');
-            if (currentCreditScene === 3) {
-                nextBtn.innerText = "Finish Cinematic 🏁";
-            } else {
-                nextBtn.innerText = "Next Scene ➡️";
-            }
+            document.getElementById('creditSceneIndicator').innerText = `Scene ${currentCreditScene} of 5`;
         }
 
         function renderWinnerLeaderboard() {
